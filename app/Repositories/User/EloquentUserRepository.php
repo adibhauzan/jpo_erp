@@ -17,7 +17,13 @@ class EloquentUserRepository implements UserRepositoryInterface
     {
         $user = $this->find($userId);
         $user->update($data);
+        $user->refresh();
         return $user;
+    }
+
+    public function findAll()
+    {
+        return User::all();
     }
 
     public function find(string $userId)
@@ -25,6 +31,28 @@ class EloquentUserRepository implements UserRepositoryInterface
         return User::findOrFail($userId);
     }
 
+    // public function findByRoles(string $roles)
+    // {
+    //     return User::where('roles', $roles)->get();
+    // }
+
+    // public function findByStatus(string $status)
+    // {
+    //     return User::where('status', $status)->get();
+
+    // }
+
+
+    public function findByParameters(array $parameters)
+    {
+        $query = User::query();
+
+        foreach ($parameters as $key => $value) {
+            $query->where($key, $value);
+        }
+
+        return $query->get();
+    }
 
     public function delete(string $userId)
     {
@@ -40,6 +68,9 @@ class EloquentUserRepository implements UserRepositoryInterface
 
         return null;
     }
-}
-
-?>
+    
+    public function banUser($userId)
+    {
+        $user = $this->find($userId);
+        $user->ban();
+    }}

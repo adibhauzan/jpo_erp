@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Http\Controllers\Controller;
@@ -161,6 +162,10 @@ class AuthController extends Controller
     {
         $credentials = $request->only('username', 'password');
 
+        $user = User::where('username', $credentials['username'])->first();
+        if ($user && $user->isBanned()) {
+            return response()->json(['error' => 'Anda telah dilarang akses ke aplikasi ini.'], 403);
+        }
         if (!$token = $this->userRepository->attemptLogin($credentials)) {
             return response()->json(['error' => 'incorrect input'], 401);
         }

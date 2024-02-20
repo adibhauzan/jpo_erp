@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('phone_number')->unique();
             $table->string('username')->unique();
             $table->string('password');
-            $table->enum('status', ['active', 'suspend'])->default('active');
+            $table->enum('status', ['active', 'suspend']);
             $table->rememberToken();
             $table->timestamps();
         });

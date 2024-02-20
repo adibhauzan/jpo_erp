@@ -8,11 +8,12 @@ use Laravel\Sanctum\HasApiTokens;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Mchev\Banhammer\Traits\Bannable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, Bannable;
 
     public $incrementing = false; // Non-incrementing primary key
     protected $keyType = 'string'; // Primary key type
@@ -59,7 +60,7 @@ class User extends Authenticatable implements JWTSubject
         'password' => 'hashed',
     ];
 
-      /**
+    /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *
      * @return mixed
@@ -78,6 +79,19 @@ class User extends Authenticatable implements JWTSubject
     {
         return [];
     }
+
+
+    // public function isActive($status)
+    // {
+    //     return $this->status === $status;
+    // }
+
+    // public function setStatusAttribute($value)
+    // {
+    //     if ($value === 'active') {
+    //         $this->attributes['roles'] = $value;
+    //     }
+    // }
 
     public function hasRole($role)
     {

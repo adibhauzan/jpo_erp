@@ -1,0 +1,337 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Repositories\User\UserRepositoryInterface;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\Rule;
+use Illuminate\Database\QueryException;
+
+/**
+ * @OA\Tag(
+ *     name="User",
+ *     description="Endpoints for user control"
+ * )
+ */
+class UserController extends Controller
+{
+
+    private $userRepository;
+
+    /**
+     * Create a new AuthController instance.
+     *
+     * @param UserRepositoryInterface $userRepository
+     * @return void
+     */
+    public function __construct(UserRepositoryInterface $userRepository)
+    {
+        $this->middleware('auth:api', ['except' => ['register', 'login']]);
+        $this->userRepository = $userRepository;
+    }
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/auth/user/update/{id}",
+     *     summary="Update user information",
+     *     operationId="updateUser",
+     *     tags={"User"},
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         required=true,
+     *         description="Bearer token",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID of the user to update",
+     *         required=true,
+     *         @OA\Schema(type="string", format="uuid")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="name", type="string"),
+     *             @OA\Property(property="roles", type="string"),
+     *             @OA\Property(property="phone_number", type="string"),
+     *             @OA\Property(property="username", type="string"),
+     *             @OA\Property(property="password", type="string"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="User information updated successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error or failed to update user information",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string")
+     *         )
+     *     ),
+     *     security={{"bearerAuth": {}}}
+     * )
+     */
+    public function update(Request $request, $id)
+    {
+        $validator = $this->validateUpdateRequest($request);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 422);
+        }
+
+        try {
+            $userData = [
+                'name' => $request->input('name'),
+                'roles' => $request->input('roles'),
+                'phone_number' => $request->input('phone_number'),
+                'username' => $request->input('username'),
+                'password' => $request->input('password'),
+            ];
+
+            // Memanggil repository untuk melakukan pembaruan data pengguna
+            $updatedUser = $this->userRepository->update($id, $userData);
+
+            return response()->json(['message' => 'User information updated successfully', 'user' => $updatedUser], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to update user information. ' . $e->getMessage()], 422);
+        }
+    }
+
+    // Metode validasi update
+    protected function validateUpdateRequest(Request $request)
+    {
+        return Validator::make($request->all(), [
+            'name' => 'required|string',
+            'roles' => ['required', Rule::in(['superadmin', 'store', 'convection'])],
+            'phone_number' => 'required|string|min:8|max:15|regex:/^([0-9\s\-\+\(\)]*)$/',
+            'username' => 'required|string|max:255|unique:users',
+            'password' => ['required', 'string', 'min:8', Password::defaults()],
+        ], [
+            'name.required' => 'The name field is required.',
+            'name.string' => 'The name must be a string.',
+            'roles.required' => 'The roles field is required.',
+            'roles.in' => 'The selected role is invalid.',
+            'phone_number.required' => 'The phone number field is required.',
+            'phone_number.string' => 'The phone number must be a string.',
+            'phone_number.min' => 'The phone number must be at least :min characters.',
+            'phone_number.max' => 'The phone number may not be greater than :max characters.',
+            'phone_number.regex' => 'The phone number format is invalid.',
+            'username.required' => 'The username field is required.',
+            'username.string' => 'The username must be a string.',
+            'username.max' => 'The username may not be greater than :max characters.',
+            'username.unique' => 'The username has already been taken.',
+            'password.required' => 'The password field is required.',
+            'password.string' => 'The password must be a string.',
+            'password.min' => 'The password must be at least :min characters.',
+        ]);
+    }
+
+    /**
+     * Get all users.
+     *
+     * @OA\Get(
+     *     path="/api/auth/user",
+     *     summary="Get all users",
+     *     operationId="indexUser",
+     *     tags={"User"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of users",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(
+     *             @OA\Property(property="id", type="string"),
+     *             @OA\Property(property="roles", type="string"),
+     *             @OA\Property(property="phone_number", type="string"),
+     *             @OA\Property(property="username", type="string"),
+     *             @OA\Property(property="name", type="string"),
+     *             @OA\Property(property="status", type="active"),
+     *             @OA\Property(property="created_at", type="string"),
+     *             @OA\Property(property="updated_at", type="string"),
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Failed to fetch users",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string")
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         required=true,
+     *         description="Bearer token",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     security={{"bearerAuth": {}}}
+     * )
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function index(Request $request)
+    {
+        try {
+
+            if (!$request->bearerToken()) {
+                return response()->json(['error' => 'Unauthorized. Token is missing.'], 401);
+            }
+            $users = $this->userRepository->findAll();
+            return response()->json(['users' => $users], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to fetch users. ' . $e->getMessage()], 500);
+        }
+    }
+
+    // /**
+    //  * Get users by roles.
+    //  * 
+    //  * @OA\Get(
+    //  *     path="/api/auth/user/roles",
+    //  *     summary="Get users by roles",
+    //  *     operationId="getByRoles",
+    //  *     tags={"User"},
+    //  *     @OA\Parameter(
+    //  *         name="token",
+    //  *         in="query",
+    //  *         required=true,
+    //  *         description="Bearer token",
+    //  *         @OA\Schema(type="string")
+    //  *     ),
+    //  *     @OA\Parameter(
+    //  *         name="roles",
+    //  *         in="query",
+    //  *         required=true,
+    //  *         description="Roles of the users",
+    //  *         @OA\Schema(type="string")
+    //  *     ),
+    //  *     @OA\Response(
+    //  *         response=200,
+    //  *         description="List of users",
+    //  *         @OA\JsonContent(
+    //  *             type="array",
+    //  *             @OA\Items(
+    //  *                 @OA\Property(property="id", type="string"),
+    //  *                 @OA\Property(property="roles", type="string"),
+    //  *                 @OA\Property(property="phone_number", type="string"),
+    //  *                 @OA\Property(property="username", type="string"),
+    //  *                 @OA\Property(property="name", type="string"),
+    //  *                 @OA\Property(property="status", type="string", example="active"),
+    //  *                 @OA\Property(property="created_at", type="string"),
+    //  *                 @OA\Property(property="updated_at", type="string"),
+    //  *             )
+    //  *         )
+    //  *     ),
+    //  *     @OA\Response(
+    //  *         response=500,
+    //  *         description="Failed to fetch users by roles",
+    //  *         @OA\JsonContent(
+    //  *             @OA\Property(property="error", type="string")
+    //  *         )
+    //  *     ),
+    //  *     security={{"bearerAuth": {}}}
+    //  * )
+    //  *
+    //  * @param  \Illuminate\Http\Request  $request
+    //  * @return \Illuminate\Http\JsonResponse
+    //  */
+    // public function getByRoles(Request $request)
+    // {
+    //     try {
+    //         $roles = $request->query('roles');
+    //         $users = $this->userRepository->findByRoles($roles);
+    //         return response()->json(['users' => $users], 200);
+    //     } catch (\Exception $e) {
+    //         return response()->json(['error' => 'Failed to fetch users by roles. ' . $e->getMessage()], 500);
+    //     }
+    // }
+
+    // public function getByStatus(Request $request)
+    // {
+    //     try {
+    //         $roles = $request->query('status');
+    //         $users = $this->userRepository->findByStatus($roles);
+    //         return response()->json(['users' => $users], 200);
+    //     } catch (\Exception $e) {
+    //         return response()->json(['error' => 'Failed to fetch users by status. ' . $e->getMessage()], 500);
+    //     }
+    // }
+
+    public function findByParameters(Request $request)
+    {
+        try {
+            $parameters = $request->all();
+            $users = $this->userRepository->findByParameters($parameters);
+            return response()->json(['users' => $users], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to fetch users. ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Ban user.
+     *
+     * @OA\Post(
+     *     path="/api/auth/ban/{id}",
+     *     summary="Ban user",
+     *     operationId="banUser",
+     *     tags={"User"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Success message",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Failed to ban user",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string")
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="token",
+     *         in="query",
+     *         required=true,
+     *         description="Bearer token",
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID of the user to ban",
+     *         required=true,
+     *         @OA\Schema(type="string", format="uuid")
+     *     ),
+     *     security={{"bearerAuth": {}}}
+     * )
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function banUser(Request $request, $id)
+    {
+        try {
+            $this->userRepository->banUser($id);
+            return response()->json(['message' => 'User berhasil dibanned.']);
+        } catch (QueryException $e) {
+            return response()->json(['error' => 'Gagal memban pengguna. Terjadi kesalahan database: ' . $e->getMessage()], 500);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Gagal memban pengguna: ' . $e->getMessage()], 500);
+        }
+    }
+}

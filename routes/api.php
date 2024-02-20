@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,22 +16,28 @@ use App\Http\Controllers\Api\AuthController;
 |
 */
 
+
+
 Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
-    Route::post('login', [AuthController::class, 'login']);
-    Route::post('logout', [AuthController::class, 'logout']);
-    Route::post('refresh', [AuthController::class, 'refresh']);
-    Route::post('me', [AuthController::class, 'me']);
+    Route::middleware(['auth.banned'])->group(function () {
+        Route::post('login', [AuthController::class, 'login']);
+        Route::post('logout', [AuthController::class, 'logout']);
+        Route::post('refresh', [AuthController::class, 'refresh']);
+        Route::post('me', [AuthController::class, 'me']);
 
-    Route::middleware(['role:superadmin'])->group(function () {
-        Route::post('register', [AuthController::class, 'register']);
-   
-    });
 
-    Route::middleware(['role:store'])->group(function () {
-    
-    });
+        Route::middleware(['role:superadmin'])->group(function () {
+            Route::get('user', [UserController::class, 'index']);
+            Route::get('user', [UserController::class, 'findByParameters']);
+            Route::post('register', [AuthController::class, 'register']);
+            Route::post('user/ban/{id}', [UserController::class, 'banUser']);
+            Route::post('user/update/{id}', [UserController::class, 'update']);
+        });
 
-    Route::middleware(['role:convection'])->group(function () {
-    
+        Route::middleware(['role:store'])->group(function () {
+        });
+
+        Route::middleware(['role:convection'])->group(function () {
+        });
     });
 });
