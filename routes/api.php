@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\StoreController;
+use App\Http\Controllers\Api\WarehouseController;
 use App\Http\Controllers\Api\ConvectionController;
 
 /*
@@ -53,10 +54,19 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
 
             Route::get('convections', [ConvectionController::class, 'index']);
             Route::group(['prefix' => 'convection'], function () {
-                Route::post('/', [ConvectionController::class, 'convection'])->name('create_convection');
+                Route::post('/', [ConvectionController::class, 'store'])->name('create_convection');
                 Route::get('/{id}', [ConvectionController::class, 'show']);
                 Route::put('u/{id}', [ConvectionController::class, 'update']);
                 Route::delete('d/{id}', [ConvectionController::class, 'delete']);
+                // Route::post('ban/{id}', [ConvectionController::class, 'ban']);
+                // Route::post('unban/{id}', [ConvectionController::class, 'unBan']);
+            });
+            Route::get('warehouses', [WarehouseController::class, 'index']);
+            Route::group(['prefix' => 'warehouse'], function () {
+                Route::post('/', [WarehouseController::class, 'store'])->name('create_warehouse');
+                Route::get('/{id}', [WarehouseController::class, 'show']);
+                Route::put('u/{id}', [WarehouseController::class, 'update']);
+                Route::delete('d/{id}', [WarehouseController::class, 'delete']);
                 // Route::post('ban/{id}', [ConvectionController::class, 'ban']);
                 // Route::post('unban/{id}', [ConvectionController::class, 'unBan']);
             });

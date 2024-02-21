@@ -43,6 +43,7 @@ class AuthController extends Controller
      *         required=true,
      *         @OA\JsonContent(
      *             @OA\Property(property="name", type="string", default="user1"),
+     *             @OA\Property(property="phone_number", type="string", default="123456781"),
      *             @OA\Property(property="username", type="string", default="useruser1"),
      *             @OA\Property(
      *                 property="roles",
@@ -50,7 +51,7 @@ class AuthController extends Controller
      *                 enum={"superadmin", "store", "convection"},
      *                 default="store"
      *             ),
-     *             @OA\Property(property="phone_number", type="string", default="123456781"),
+     *             @OA\Property(property="password", type="string", default="123456781"),
      *         )
      *     ),
      *    @OA\Parameter(

@@ -3,11 +3,10 @@
 namespace App\Models;
 
 use Ramsey\Uuid\Uuid;
-
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Store extends Model
+class Warehouse extends Model
 {
     use HasFactory;
 
@@ -27,15 +26,13 @@ class Store extends Model
         'name',
         'address',
         'phone_number',
+        'store_id',
+        'convection_id',
     ];
 
-    public function users()
-    {
-        return $this->hasMany(User::class, 'store_id', 'id');
-    }
 
-    public function warehouses()
+    public function store()
     {
-        return $this->hasMany(Warehouse::class, 'store_id', 'id');
+        return $this->belongsTo(Store::class, 'store_id', 'id');
     }
 }

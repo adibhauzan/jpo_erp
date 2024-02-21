@@ -15,7 +15,7 @@ class ConvectionController extends Controller
     /**
      * Create a new ConvectionController instance.
      *
-     * @param convectionRepositoryInterface $convectionRepository
+     * @param ConvectionRepositoryInterface $convectionRepository
      * @return void
      */
     public function __construct(ConvectionRepositoryInterface $convectionRepository)
@@ -23,7 +23,7 @@ class ConvectionController extends Controller
         $this->convectionRepository = $convectionRepository;
     }
 
-    public function convection(Request $request)
+    public function Store(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string',
