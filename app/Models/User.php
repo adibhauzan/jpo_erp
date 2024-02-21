@@ -32,12 +32,13 @@ class User extends Authenticatable implements JWTSubject
      * @var array<int, string>
      */
     protected $fillable = [
+        'store_id',
+        'convection_id',
         'name',
         'roles',
         'phone_number',
         'username',
         'password',
-        'status',
     ];
 
     /**
@@ -103,5 +104,14 @@ class User extends Authenticatable implements JWTSubject
         if ($value === 'superadmin' || $value === 'store' || $value === 'convection') {
             $this->attributes['roles'] = $value;
         }
+    }
+
+    public function store()
+    {
+        return $this->belongsTo(Store::class, 'store_id', 'id');
+    }
+    public function convection()
+    {
+        return $this->belongsTo(Convection::class, 'convection_id', 'id');
     }
 }

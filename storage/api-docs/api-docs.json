@@ -39,15 +39,16 @@
                                     },
                                     "roles": {
                                         "type": "string",
-                                        "default": "store"
+                                        "default": "store",
+                                        "enum": [
+                                            "superadmin",
+                                            "store",
+                                            "convection"
+                                        ]
                                     },
                                     "phone_number": {
                                         "type": "string",
                                         "default": "123456781"
-                                    },
-                                    "password": {
-                                        "type": "string",
-                                        "default": "useruser1"
                                     }
                                 },
                                 "type": "object"
@@ -104,11 +105,11 @@
                                 "properties": {
                                     "username": {
                                         "type": "string",
-                                        "default": "adminadmin"
+                                        "default": "adminadmin1"
                                     },
                                     "password": {
                                         "type": "string",
-                                        "default": "admin123123"
+                                        "default": "adminadmin1"
                                     }
                                 },
                                 "type": "object"
@@ -388,14 +389,13 @@
                 ]
             }
         },
-        "/api/auth/user": {
+        "/api/auth/users/": {
             "get": {
                 "tags": [
                     "User"
                 ],
                 "summary": "Get all users",
-                "description": "Get all users.",
-                "operationId": "indexUser",
+                "operationId": "index",
                 "parameters": [
                     {
                         "name": "token",
@@ -409,46 +409,23 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "List of users",
+                        "description": "User information retrieved successfully",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "properties": {
-                                            "id": {
-                                                "type": "string"
-                                            },
-                                            "roles": {
-                                                "type": "string"
-                                            },
-                                            "phone_number": {
-                                                "type": "string"
-                                            },
-                                            "username": {
-                                                "type": "string"
-                                            },
-                                            "name": {
-                                                "type": "string"
-                                            },
-                                            "status": {
-                                                "type": "active"
-                                            },
-                                            "created_at": {
-                                                "type": "string"
-                                            },
-                                            "updated_at": {
-                                                "type": "string"
-                                            }
-                                        },
-                                        "type": "object"
-                                    }
+                                    "properties": {
+                                        "users": {
+                                            "type": "array",
+                                            "items": {}
+                                        }
+                                    },
+                                    "type": "object"
                                 }
                             }
                         }
                     },
-                    "500": {
-                        "description": "Failed to fetch users",
+                    "422": {
+                        "description": "Validation error or failed to retrieve user information",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -470,7 +447,7 @@
                 ]
             }
         },
-        "/api/auth/ban/{id}": {
+        "/api/auth/user/ban/{id}": {
             "post": {
                 "tags": [
                     "User"
@@ -479,15 +456,6 @@
                 "description": "Ban user.",
                 "operationId": "banUser",
                 "parameters": [
-                    {
-                        "name": "token",
-                        "in": "query",
-                        "description": "Bearer token",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
                     {
                         "name": "id",
                         "in": "path",
@@ -508,6 +476,22 @@
                                     "properties": {
                                         "message": {
                                             "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Unauthorized. Token is missing or invalid."
                                         }
                                     },
                                     "type": "object"

@@ -23,4 +23,5 @@ interface UserRepositoryInterface
     public function attemptLogin(array $credentials);
 
     public function banUser(string $userId);
+    public function unBanUser(string $userId);
 }

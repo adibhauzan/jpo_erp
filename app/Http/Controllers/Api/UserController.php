@@ -3,12 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Controllers\Controller;
-use App\Repositories\User\UserRepositoryInterface;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
-use Illuminate\Validation\Rule;
-use Illuminate\Database\QueryException;
+use App\Repositories\User\UserRepositoryInterface;
 
 /**
  * @OA\Tag(
@@ -135,45 +136,32 @@ class UserController extends Controller
             'password.min' => 'The password must be at least :min characters.',
         ]);
     }
-
     /**
-     * Get all users.
-     *
      * @OA\Get(
-     *     path="/api/auth/user",
+     *     path="/api/auth/users/",
      *     summary="Get all users",
-     *     operationId="indexUser",
+     *     operationId="index",
      *     tags={"User"},
-     *     @OA\Response(
-     *         response=200,
-     *         description="List of users",
-     *         @OA\JsonContent(
-     *             type="array",
-     *             @OA\Items(
-     *             @OA\Property(property="id", type="string"),
-     *             @OA\Property(property="roles", type="string"),
-     *             @OA\Property(property="phone_number", type="string"),
-     *             @OA\Property(property="username", type="string"),
-     *             @OA\Property(property="name", type="string"),
-     *             @OA\Property(property="status", type="active"),
-     *             @OA\Property(property="created_at", type="string"),
-     *             @OA\Property(property="updated_at", type="string"),
-     *             )
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=500,
-     *         description="Failed to fetch users",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="error", type="string")
-     *         )
-     *     ),
      *     @OA\Parameter(
      *         name="token",
      *         in="query",
      *         required=true,
      *         description="Bearer token",
      *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="User information retrieved successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="users", type="array", @OA\Items())
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error or failed to retrieve user information",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string")
+     *         )
      *     ),
      *     security={{"bearerAuth": {}}}
      * )
@@ -184,11 +172,8 @@ class UserController extends Controller
     public function index(Request $request)
     {
         try {
-
-            if (!$request->bearerToken()) {
-                return response()->json(['error' => 'Unauthorized. Token is missing.'], 401);
-            }
             $users = $this->userRepository->findAll();
+
             return response()->json(['users' => $users], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Failed to fetch users. ' . $e->getMessage()], 500);
@@ -284,7 +269,7 @@ class UserController extends Controller
      * Ban user.
      *
      * @OA\Post(
-     *     path="/api/auth/ban/{id}",
+     *     path="/api/auth/user/ban/{id}",
      *     summary="Ban user",
      *     operationId="banUser",
      *     tags={"User"},
@@ -296,18 +281,18 @@ class UserController extends Controller
      *         )
      *     ),
      *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Unauthorized. Token is missing or invalid.")
+     *         )
+     *     ),
+     *     @OA\Response(
      *         response=500,
      *         description="Failed to ban user",
      *         @OA\JsonContent(
      *             @OA\Property(property="error", type="string")
      *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="token",
-     *         in="query",
-     *         required=true,
-     *         description="Bearer token",
-     *         @OA\Schema(type="string")
      *     ),
      *     @OA\Parameter(
      *         name="id",
@@ -332,6 +317,28 @@ class UserController extends Controller
             return response()->json(['error' => 'Gagal memban pengguna. Terjadi kesalahan database: ' . $e->getMessage()], 500);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Gagal memban pengguna: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function unBanUser(Request $request, $id)
+    {
+        try {
+            $this->userRepository->unBanUser($id);
+            return response()->json(['message' => 'User berhasil dipulihkan.']);
+        } catch (QueryException $e) {
+            return response()->json(['error' => 'Gagal memulihkan pengguna. Terjadi kesalahan database: ' . $e->getMessage()], 500);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Gagal memulihkan pengguna: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function find(string $userId)
+    {
+        try {
+            $user = $this->userRepository->find($userId);
+            return response()->json(['user' => $user], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'User not found.'], 404);
         }
     }
 }

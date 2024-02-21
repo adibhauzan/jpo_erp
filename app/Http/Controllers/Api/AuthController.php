@@ -44,9 +44,13 @@ class AuthController extends Controller
      *         @OA\JsonContent(
      *             @OA\Property(property="name", type="string", default="user1"),
      *             @OA\Property(property="username", type="string", default="useruser1"),
-     *             @OA\Property(property="roles", type="string", default="store"),
+     *             @OA\Property(
+     *                 property="roles",
+     *                 type="string",
+     *                 enum={"superadmin", "store", "convection"},
+     *                 default="store"
+     *             ),
      *             @OA\Property(property="phone_number", type="string", default="123456781"),
-     *             @OA\Property(property="password", type="string", default="useruser1"),
      *         )
      *     ),
      *    @OA\Parameter(
@@ -82,6 +86,7 @@ class AuthController extends Controller
 
         try {
             $userData = [
+                'store_id' => $request->input('store_id'),
                 'name' => $request->input('name'),
                 'roles' => $request->input('roles'),
                 'phone_number' => $request->input('phone_number'),
@@ -100,31 +105,48 @@ class AuthController extends Controller
 
     protected function validateUserRequest(Request $request)
     {
-        return Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'name' => 'required|string',
             'roles' => ['required', Rule::in(['superadmin', 'store', 'convection'])],
-            'phone_number' => 'required|string|min:8|max:15|regex:/^([0-9\s\-\+\(\)]*)$/',
-            'username' => 'required|string|max:255|unique:users',
+            'phone_number' => 'required|string|min:8|max:15|unique:users,phone_number|regex:/^([0-9\s\-\+\(\)]*)$/',
+            'username' => 'required|string|max:255|unique:users,username',
             'password' => ['required', 'string', 'min:8', Password::defaults()],
-        ], [
-            'name.required' => 'The name field is required.',
-            'name.string' => 'The name must be a string.',
-            'roles.required' => 'The roles field is required.',
-            'roles.in' => 'The selected role is invalid.',
-            'phone_number.required' => 'The phone number field is required.',
-            'phone_number.string' => 'The phone number must be a string.',
-            'phone_number.min' => 'The phone number must be at least :min characters.',
-            'phone_number.max' => 'The phone number may not be greater than :max characters.',
-            'phone_number.regex' => 'The phone number format is invalid.',
-            'username.required' => 'The username field is required.',
-            'username.string' => 'The username must be a string.',
-            'username.max' => 'The username may not be greater than :max characters.',
-            'username.unique' => 'The username has already been taken.',
-            'password.required' => 'The password field is required.',
-            'password.string' => 'The password must be a string.',
-            'password.min' => 'The password must be at least :min characters.',
-        ]);
+        ]
+        // , [
+        //     'name.required' => 'The name field is required.',
+        //     'name.string' => 'The name must be a string.',
+        //     'roles.required' => 'The roles field is required.',
+        //     'roles.in' => 'The selected role is invalid.',
+        //     'phone_number.required' => 'The phone number field is required.',
+        //     'phone_number.string' => 'The phone number must be a string.',
+        //     'phone_number.min' => 'The phone number must be at least :min characters.',
+        //     'phone_number.max' => 'The phone number may not be greater than :max characters.',
+        //     'phone_number.regex' => 'The phone number format is invalid.',
+        //     'username.required' => 'The username field is required.',
+        //     'username.string' => 'The username must be a string.',
+        //     'username.max' => 'The username may not be greater than :max characters.',
+        //     'username.unique' => 'The username has already been taken.',
+        //     'password.required' => 'The password field is required.',
+        //     'password.string' => 'The password must be a string.',
+        //     'password.min' => 'The password must be at least :min characters.',
+        // ]
+    );
+    
+        if ($request->roles !== 'superadmin' && $request->roles !== 'convection') {
+            $validator->sometimes('store_id', 'required', function ($input) {
+                return $input->roles !== 'superadmin';
+            });
+        }
+    
+        if ($request->roles !== 'superadmin' && $request->roles !== 'store') {
+            $validator->sometimes('convection_id', 'required', function ($input) {
+                return $input->roles !== 'superadmin' && $input->roles !== 'store';
+            });
+        }
+    
+        return $validator;
     }
+    
 
 
     /**
@@ -136,8 +158,8 @@ class AuthController extends Controller
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             @OA\Property(property="username", type="string", default="adminadmin"),
-     *             @OA\Property(property="password", type="string", default="admin123123"),
+     *             @OA\Property(property="username", type="string", default="adminadmin1"),
+     *             @OA\Property(property="password", type="string", default="adminadmin1"),
      *         )
      *     ),
      *     @OA\Response(
