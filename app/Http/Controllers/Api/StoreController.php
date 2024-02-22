@@ -7,7 +7,12 @@ use App\Http\Controllers\Controller;
 use App\Repositories\Store\StoreRepositoryInterface;
 use Illuminate\Support\Facades\Validator;
 
-
+/**
+ * @OA\Tag(
+ *     name="Store",
+ *     description="Endpoints for store"
+ * )
+ */
 class StoreController extends Controller
 {
     private $storeRepository;
@@ -23,6 +28,38 @@ class StoreController extends Controller
         $this->storeRepository = $storeRepository;
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/auth/store",
+     *     summary="Create a new store",
+     *     operationId="createStore",
+     *     tags={"Store"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="name", type="string", default="toko1"),
+     *             @OA\Property(property="address", type="string", default="toko1 bandung"),
+     *             @OA\Property(property="phone_number", type="string", default="12345677821"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response="201",
+     *         description= "success create new Store",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="data", type="object"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response="422",
+     *         description="Validation error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="object"),
+     *         )
+     *     ),
+     *     security={{"bearerAuth": {}}}
+     * 
+     * )
+     */
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -51,6 +88,35 @@ class StoreController extends Controller
         }
     }
 
+    /**
+     * 
+     * Get All Stores
+     * 
+     * @OA\Get(
+     *     path="/api/auth/stores/",
+     *     summary="Get all stores",
+     *     operationId="indexStore",
+     *     tags={"Store"},
+     *     @OA\Response(
+     *         response=200,
+     *         description= "success fetch Stores",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="stores", type="array", @OA\Items())
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Failed to fetch Stores.",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string")
+     *         )
+     *     ),
+     *     security={{"bearerAuth": {}}}
+     * )
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function index(Request $request)
     {
         try {
@@ -62,6 +128,49 @@ class StoreController extends Controller
         }
     }
 
+    /**
+     * Get store by id.
+     * 
+     * @OA\Get(
+     *     path="/api/auth/store/{id}",
+     *     summary="Get store by id.",
+     *     operationId="showStore",
+     *     tags={"Store"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the store",
+     *         @OA\Schema(
+     *             type="string",
+     *             format="uuid"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Store details",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="id", type="string"),
+     *             @OA\Property(property="name", type="string"),
+     *             @OA\Property(property="address", type="string"),
+     *             @OA\Property(property="phone_number", type="string"),
+     *             @OA\Property(property="created_at", type="string"),
+     *             @OA\Property(property="updated_at", type="string"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Failed to fetch store",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string")
+     *         )
+     *     ),
+     *     security={{"bearerAuth": {}}}
+     * )
+     *
+     * @param  string  $storeId UUID of the store
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function show(string $storeId)
     {
         try {
@@ -72,6 +181,61 @@ class StoreController extends Controller
         }
     }
 
+    /**
+     * Update store by ID.
+     *
+     * @OA\Put(
+     *     path="/api/auth/store/u/{id}",
+     *     summary="Update store by ID",
+     *     operationId="updateStore",
+     *     tags={"Store"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the store to update",
+     *         @OA\Schema(
+     *             type="string",
+     *             format="uuid"
+     *         )
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="name", type="string", example="Updated Store Name"),
+     *             @OA\Property(property="address", type="string", example="Updated Store Address"),
+     *             @OA\Property(property="phone_number", type="string", example="123456789")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Store updated successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Store updated successfully"),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="id", type="string"),
+     *                 @OA\Property(property="name", type="string"),
+     *                 @OA\Property(property="address", type="string"),
+     *                 @OA\Property(property="phone_number", type="string"),
+     *                 @OA\Property(property="created_at", type="string"),
+     *                 @OA\Property(property="updated_at", type="string")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error or failed to update store",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string")
+     *         )
+     *     ),
+     *     security={{"bearerAuth": {}}}
+     * )
+     *
+     * @param  string  $storeId UUID of the store to update
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function update(Request $request, string $storeId)
     {
         $validator = Validator::make($request->all(), [
@@ -85,7 +249,7 @@ class StoreController extends Controller
         }
 
         try {
-            $data = $request->only(['name', 'address', 'phone_number']); 
+            $data = $request->only(['name', 'address', 'phone_number']);
 
             $store = $this->storeRepository->update($storeId, $data);
 
@@ -95,6 +259,44 @@ class StoreController extends Controller
         }
     }
 
+    /**
+     * Delete store by ID.
+     *
+     * @OA\Delete(
+     *     path="/api/auth/store/d/{id}",
+     *     summary="Delete store by ID",
+     *     operationId="deleteStore",
+     *     tags={"Store"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the store to delete",
+     *         @OA\Schema(
+     *             type="string",
+     *             format="uuid"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Store deleted successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Store deleted successfully")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Failed to delete store",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string")
+     *         )
+     *     ),
+     *     security={{"bearerAuth": {}}}
+     * )
+     *
+     * @param  string  $storeId UUID of the store to delete
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function delete(string $storeId)
     {
         try {

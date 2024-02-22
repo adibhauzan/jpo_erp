@@ -16,6 +16,7 @@ use App\Repositories\User\UserRepositoryInterface;
  *     name="Authentication",
  *     description="Endpoints for user authentication"
  * )
+ *
  */
 class AuthController extends Controller
 {
@@ -54,13 +55,6 @@ class AuthController extends Controller
      *             @OA\Property(property="password", type="string", default="123456781"),
      *         )
      *     ),
-     *    @OA\Parameter(
-     *         name="token",
-     *         in="query",
-     *         required=true,
-     *         description="Bearer token",
-     *         @OA\Schema(type="string")
-     *     ),
      *     @OA\Response(
      *         response="201",
      *         description="User registered successfully",
@@ -74,7 +68,9 @@ class AuthController extends Controller
      *         @OA\JsonContent(
      *             @OA\Property(property="error", type="object"),
      *         )
-     *     )
+     *     ),
+     *     security={{"bearerAuth": {}}}
+     * 
      * )
      */
     public function register(Request $request)
@@ -106,48 +102,50 @@ class AuthController extends Controller
 
     protected function validateUserRequest(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string',
-            'roles' => ['required', Rule::in(['superadmin', 'store', 'convection'])],
-            'phone_number' => 'required|string|min:8|max:15|unique:users,phone_number|regex:/^([0-9\s\-\+\(\)]*)$/',
-            'username' => 'required|string|max:255|unique:users,username',
-            'password' => ['required', 'string', 'min:8', Password::defaults()],
-        ]
-        // , [
-        //     'name.required' => 'The name field is required.',
-        //     'name.string' => 'The name must be a string.',
-        //     'roles.required' => 'The roles field is required.',
-        //     'roles.in' => 'The selected role is invalid.',
-        //     'phone_number.required' => 'The phone number field is required.',
-        //     'phone_number.string' => 'The phone number must be a string.',
-        //     'phone_number.min' => 'The phone number must be at least :min characters.',
-        //     'phone_number.max' => 'The phone number may not be greater than :max characters.',
-        //     'phone_number.regex' => 'The phone number format is invalid.',
-        //     'username.required' => 'The username field is required.',
-        //     'username.string' => 'The username must be a string.',
-        //     'username.max' => 'The username may not be greater than :max characters.',
-        //     'username.unique' => 'The username has already been taken.',
-        //     'password.required' => 'The password field is required.',
-        //     'password.string' => 'The password must be a string.',
-        //     'password.min' => 'The password must be at least :min characters.',
-        // ]
-    );
-    
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'name' => 'required|string',
+                'roles' => ['required', Rule::in(['superadmin', 'store', 'convection'])],
+                'phone_number' => 'required|string|min:8|max:15|unique:users,phone_number|regex:/^([0-9\s\-\+\(\)]*)$/',
+                'username' => 'required|string|max:255|unique:users,username',
+                'password' => ['required', 'string', 'min:8', Password::defaults()],
+            ]
+            // , [
+            //     'name.required' => 'The name field is required.',
+            //     'name.string' => 'The name must be a string.',
+            //     'roles.required' => 'The roles field is required.',
+            //     'roles.in' => 'The selected role is invalid.',
+            //     'phone_number.required' => 'The phone number field is required.',
+            //     'phone_number.string' => 'The phone number must be a string.',
+            //     'phone_number.min' => 'The phone number must be at least :min characters.',
+            //     'phone_number.max' => 'The phone number may not be greater than :max characters.',
+            //     'phone_number.regex' => 'The phone number format is invalid.',
+            //     'username.required' => 'The username field is required.',
+            //     'username.string' => 'The username must be a string.',
+            //     'username.max' => 'The username may not be greater than :max characters.',
+            //     'username.unique' => 'The username has already been taken.',
+            //     'password.required' => 'The password field is required.',
+            //     'password.string' => 'The password must be a string.',
+            //     'password.min' => 'The password must be at least :min characters.',
+            // ]
+        );
+
         if ($request->roles !== 'superadmin' && $request->roles !== 'convection') {
             $validator->sometimes('store_id', 'required', function ($input) {
                 return $input->roles !== 'superadmin';
             });
         }
-    
+
         if ($request->roles !== 'superadmin' && $request->roles !== 'store') {
             $validator->sometimes('convection_id', 'required', function ($input) {
                 return $input->roles !== 'superadmin' && $input->roles !== 'store';
             });
         }
-    
+
         return $validator;
     }
-    
+
 
 
     /**
@@ -222,13 +220,7 @@ class AuthController extends Controller
      *             @OA\Property(property="updated_at", type="string"),
      *         )
      *     ),
-     *     @OA\Parameter(
-     *         name="token",
-     *         in="query",
-     *         required=true,
-     *         description="Bearer token",
-     *         @OA\Schema(type="string")
-     *     )
+     *     security={{"bearerAuth": {}}}
      * )
      */
     public function me()
@@ -258,13 +250,7 @@ class AuthController extends Controller
      *             @OA\Property(property="expires_in", type="integer"),
      *         )
      *     ),
-     *     @OA\Parameter(
-     *         name="token",
-     *         in="query",
-     *         required=true,
-     *         description="Bearer token",
-     *         @OA\Schema(type="string")
-     *     )
+     *     security={{"bearerAuth": {}}}
      * )
      */
     public function refresh()
@@ -292,13 +278,7 @@ class AuthController extends Controller
      *             @OA\Property(property="message", type="string"),
      *         )
      *     ),
-     *     @OA\Parameter(
-     *         name="token",
-     *         in="query",
-     *         required=true,
-     *         description="Bearer token",
-     *         @OA\Schema(type="string")
-     *     )
+     *     security={{"bearerAuth": {}}}
      * )
      */
     public function logout()

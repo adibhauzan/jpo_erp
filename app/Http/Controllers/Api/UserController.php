@@ -48,13 +48,6 @@ class UserController extends Controller
      *         description="Bearer token",
      *         @OA\Schema(type="string")
      *     ),
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="ID of the user to update",
-     *         required=true,
-     *         @OA\Schema(type="string", format="uuid")
-     *     ),
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
@@ -140,25 +133,18 @@ class UserController extends Controller
      * @OA\Get(
      *     path="/api/auth/users/",
      *     summary="Get all users",
-     *     operationId="index",
+     *     operationId="indexUser",
      *     tags={"User"},
-     *     @OA\Parameter(
-     *         name="token",
-     *         in="query",
-     *         required=true,
-     *         description="Bearer token",
-     *         @OA\Schema(type="string")
-     *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="User information retrieved successfully",
+     *         description="success fetch Users",
      *         @OA\JsonContent(
      *             @OA\Property(property="users", type="array", @OA\Items())
      *         )
      *     ),
      *     @OA\Response(
      *         response=422,
-     *         description="Validation error or failed to retrieve user information",
+     *         description="Failed to fetch users",
      *         @OA\JsonContent(
      *             @OA\Property(property="error", type="string")
      *         )
@@ -174,7 +160,7 @@ class UserController extends Controller
         try {
             $users = $this->userRepository->findAll();
 
-            return response()->json(['users' => $users], 200);
+            return response()->json(['Message' => 'success fetch Users','users' => $users], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Failed to fetch users. ' . $e->getMessage()], 500);
         }
@@ -320,6 +306,49 @@ class UserController extends Controller
         }
     }
 
+     /**
+     * UnBan user.
+     *
+     * @OA\Post(
+     *     path="/api/auth/user/unban/{id}",
+     *     summary="UnBan user",
+     *     operationId="unBanUser",
+     *     tags={"User"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Success message",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Unauthorized. Token is missing or invalid.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Failed to ban user",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string")
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID of the user to ban",
+     *         required=true,
+     *         @OA\Schema(type="string", format="uuid")
+     *     ),
+     *     security={{"bearerAuth": {}}}
+     * )
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function unBanUser(Request $request, $id)
     {
         try {

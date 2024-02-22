@@ -73,7 +73,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
                 // Route::post('ban/{id}', [ConvectionController::class, 'ban']);
                 // Route::post('unban/{id}', [ConvectionController::class, 'unBan']);
             });
-             // Token
+            // Token
             Route::get('tokens', [TokenController::class, 'index']);
             Route::group(['prefix' => 'token'], function () {
                 Route::post('c/{jumlah}', [TokenController::class, 'store']);
