@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Repositories\Bank\BankRepositoryInterface;
+use App\Repositories\Bank\EloquentBankRepository;
+use App\Repositories\Token\EloquentTokenRepository;
+use App\Repositories\Token\TokenRepositoryInterface;
 use Illuminate\Support\ServiceProvider;
 use App\Repositories\User\EloquentUserRepository;
 use App\Repositories\User\UserRepositoryInterface;
@@ -24,6 +28,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(StoreRepositoryInterface::class, EloquentStoreRepository::class);
         $this->app->bind(ConvectionRepositoryInterface::class, EloquentConvectionRepository::class);
         $this->app->bind(WarehouseRepositoryInterface::class, EloquentWarehouseRepository::class);
+        $this->app->bind(TokenRepositoryInterface::class, EloquentTokenRepository::class);
+        $this->app->bind(BankRepositoryInterface::class, EloquentBankRepository::class);
     }
 
     /**

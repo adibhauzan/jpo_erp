@@ -1,9 +1,12 @@
 <?php
 
+use App\Http\Controllers\Api\BankControler;
+use App\Http\Controllers\Api\TokenController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\BankController;
 use App\Http\Controllers\Api\StoreController;
 use App\Http\Controllers\Api\WarehouseController;
 use App\Http\Controllers\Api\ConvectionController;
@@ -69,6 +72,23 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
                 Route::delete('d/{id}', [WarehouseController::class, 'delete']);
                 // Route::post('ban/{id}', [ConvectionController::class, 'ban']);
                 // Route::post('unban/{id}', [ConvectionController::class, 'unBan']);
+            });
+             // Token
+            Route::get('tokens', [TokenController::class, 'index']);
+            Route::group(['prefix' => 'token'], function () {
+                Route::post('c/{jumlah}', [TokenController::class, 'store']);
+                Route::get('/{id}', [TokenController::class, 'show']);
+                Route::put('u/{id}', [TokenController::class, 'update']);
+                Route::delete('d/{id}', [TokenController::class, 'delete']);
+            });
+
+            // Bank
+            Route::get('banks', [BankControler::class, 'index']);
+            Route::group(['prefix' => 'bank'], function () {
+                Route::post('/', [BankControler::class, 'store']);
+                Route::get('/{id}', [BankControler::class, 'show']);
+                Route::put('u/{id}', [BankControler::class, 'update']);
+                Route::delete('d/{id}', [BankControler::class, 'delete']);
             });
         });
 
