@@ -75,7 +75,8 @@ class EloquentUserRepository implements UserRepositoryInterface
         $user->ban();
     }
 
-    public function unBanUser(string $userId){
+    public function unBanUser(string $userId)
+    {
         $user = $this->find($userId);
         $user->unban();
     }

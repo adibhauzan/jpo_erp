@@ -298,6 +298,9 @@ class UserController extends Controller
     {
         try {
             $this->userRepository->banUser($id);
+            $user = $this->userRepository->find($id);
+            $user->status = 'suspend';
+            $user->save();
             return response()->json(['message' => 'User berhasil dibanned.']);
         } catch (QueryException $e) {
             return response()->json(['error' => 'Gagal memban pengguna. Terjadi kesalahan database: ' . $e->getMessage()], 500);
