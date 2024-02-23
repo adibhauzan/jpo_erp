@@ -355,6 +355,10 @@ class UserController extends Controller
     public function unBanUser(Request $request, $id)
     {
         try {
+            $this->userRepository->banUser($id);
+            $user = $this->userRepository->find($id);
+            $user->status = 'active';
+            $user->save();
             $this->userRepository->unBanUser($id);
             return response()->json(['message' => 'User berhasil dipulihkan.']);
         } catch (QueryException $e) {

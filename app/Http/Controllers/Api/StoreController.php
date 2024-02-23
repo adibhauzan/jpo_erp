@@ -306,4 +306,11 @@ class StoreController extends Controller
             return response()->json(['error' => 'Failed to delete Store. ' . $e->getMessage()], 422);
         }
     }
+
+    // public function banStore(string $storeId)
+    // {
+    //     try{
+    //         $store = User::update("UPDATE ")
+    //     }
+    // }
 }
