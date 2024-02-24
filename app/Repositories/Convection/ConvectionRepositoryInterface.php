@@ -11,10 +11,12 @@ interface ConvectionRepositoryInterface
     public function find(string $convectionId);
 
     public function findAll();
-    
+
     // public function findByParameters(array $parameters);
 
     public function delete(string $convectionId);
 
+    public function banConvection(string $convectionId);
 
+    public function unBanConvection(string $convectionId);
 }

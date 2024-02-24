@@ -26,6 +26,7 @@ class StoreController extends Controller
      * Create a new StoreController instance.
      *
      * @param StoreRepositoryInterface $storeRepository
+     * @param UserRepositoryInterface $userRepository
      * @return void
      */
     public function __construct(StoreRepositoryInterface $storeRepository, UserRepositoryInterface $userRepository)

@@ -84,6 +84,7 @@ class AuthController extends Controller
         try {
             $userData = [
                 'store_id' => $request->input('store_id'),
+                'convection_id' => $request->input('convection_id'),
                 'name' => $request->input('name'),
                 'roles' => $request->input('roles'),
                 'phone_number' => $request->input('phone_number'),

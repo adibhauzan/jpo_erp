@@ -63,8 +63,8 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
                 Route::get('/{id}', [ConvectionController::class, 'show']);
                 Route::put('u/{id}', [ConvectionController::class, 'update']);
                 Route::delete('d/{id}', [ConvectionController::class, 'delete']);
-                // Route::post('ban/{id}', [ConvectionController::class, 'ban']);
-                // Route::post('unban/{id}', [ConvectionController::class, 'unBan']);
+                Route::post('ban/{id}', [ConvectionController::class, 'banConvection']);
+                Route::post('unban/{id}', [ConvectionController::class, 'unBanConvection']);
             });
             Route::get('warehouses', [WarehouseController::class, 'index']);
             Route::group(['prefix' => 'warehouse'], function () {

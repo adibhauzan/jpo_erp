@@ -49,4 +49,15 @@ class EloquentConvectionRepository implements ConvectionRepositoryInterface
         $convection->delete();
     }
 
+    public function banConvection($convectionId)
+    {
+        $convection = $this->find($convectionId);
+        $convection->ban();
+    }
+    
+    public function unBanConvection(string $convectionId)
+    {
+        $convection = $this->find($convectionId);
+        $convection->unban();
+    }
 }

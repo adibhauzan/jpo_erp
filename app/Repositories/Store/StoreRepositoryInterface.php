@@ -17,6 +17,7 @@ interface StoreRepositoryInterface
     public function delete(string $storeId);
     
     public function banStore(string $storeId);
+    
     public function unBanStore(string $storeId);
 
 }

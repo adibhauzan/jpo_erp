@@ -55,10 +55,10 @@ class EloquentStoreRepository implements StoreRepositoryInterface
         $store->ban();
     }
     
-    public function unBanStore(string $userId)
+    public function unBanStore(string $storeId)
     {
-        $user = $this->find($userId);
-        $user->unban();
+        $store = $this->find($storeId);
+        $store->unban();
     }
 
 }
