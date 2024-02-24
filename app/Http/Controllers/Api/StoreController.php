@@ -314,6 +314,44 @@ class StoreController extends Controller
         }
     }
 
+     /**
+     * Ban store by ID.
+     *
+     * @OA\Post(
+     *     path="/api/auth/store/ban/{id}",
+     *     summary="ban store by ID and bulk ban user with store",
+     *     operationId="banStore",
+     *     tags={"Store"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the Store to delete",
+     *         @OA\Schema(
+     *             type="string",
+     *             format="uuid"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Store banned successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Store banned successfully")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Failed to banned Store",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string")
+     *         )
+     *     ),
+     *     security={{"bearerAuth": {}}}
+     * )
+     *
+     * @param  string  $id UUID of the store to delete
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function banStore(string $id)
     {
         try {
@@ -346,7 +384,44 @@ class StoreController extends Controller
         }
     }
 
-
+  /**
+     * UnBan Store by ID.
+     *
+     * @OA\Post(
+     *     path="/api/auth/store/unban/{id}",
+     *     summary="unBan Store by ID and bulk unBan user with Store_id",
+     *     operationId="unban Store",
+     *     tags={"Store"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the store to delete",
+     *         @OA\Schema(
+     *             type="string",
+     *             format="uuid"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Store unBanned successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Store unbanned successfully")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Failed to unbanned Store",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string")
+     *         )
+     *     ),
+     *     security={{"bearerAuth": {}}}
+     * )
+     *
+     * @param  string  $id UUID of the Store to unban
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function unBanStore(Request $request, $id)
     {
         try {

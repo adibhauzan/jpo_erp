@@ -315,7 +315,7 @@ class ConvectionController extends Controller
         }
     }
 
-      /**
+    /**
      * Ban convection by ID.
      *
      * @OA\Post(
@@ -386,7 +386,7 @@ class ConvectionController extends Controller
     }
 
 
-         /**
+    /**
      * UnBan convection by ID.
      *
      * @OA\Post(
@@ -421,7 +421,7 @@ class ConvectionController extends Controller
      *     security={{"bearerAuth": {}}}
      * )
      *
-     * @param  string  $convectionId UUID of the convection to delete
+     * @param  string  $id UUID of the convection to unban
      * @return \Illuminate\Http\JsonResponse
      */
     public function unBanConvection(Request $request, $id)
