@@ -49,4 +49,16 @@ class EloquentStoreRepository implements StoreRepositoryInterface
         $store->delete();
     }
 
+    public function banStore($storeId)
+    {
+        $store = $this->find($storeId);
+        $store->ban();
+    }
+    
+    public function unBanStore(string $userId)
+    {
+        $user = $this->find($userId);
+        $user->unban();
+    }
+
 }

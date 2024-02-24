@@ -15,6 +15,8 @@ interface StoreRepositoryInterface
     // public function findByParameters(array $parameters);
 
     public function delete(string $storeId);
-
+    
+    public function banStore(string $storeId);
+    public function unBanStore(string $storeId);
 
 }

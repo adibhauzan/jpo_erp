@@ -4,12 +4,13 @@ namespace App\Models;
 
 use Ramsey\Uuid\Uuid;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Mchev\Banhammer\Traits\Bannable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Store extends Model
 {
-    use HasFactory;
+    use HasFactory, Bannable;
 
     public $incrementing = false;
     protected $keyType = 'string';

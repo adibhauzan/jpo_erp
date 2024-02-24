@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Repositories\Store\StoreRepositoryInterface;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Validator;
+use App\Repositories\User\UserRepositoryInterface;
+use App\Repositories\Store\StoreRepositoryInterface;
 
 /**
  * @OA\Tag(
@@ -16,6 +19,8 @@ use Illuminate\Support\Facades\Validator;
 class StoreController extends Controller
 {
     private $storeRepository;
+    private $userRepository;
+
 
     /**
      * Create a new StoreController instance.
@@ -23,9 +28,10 @@ class StoreController extends Controller
      * @param StoreRepositoryInterface $storeRepository
      * @return void
      */
-    public function __construct(StoreRepositoryInterface $storeRepository)
+    public function __construct(StoreRepositoryInterface $storeRepository, UserRepositoryInterface $userRepository)
     {
         $this->storeRepository = $storeRepository;
+        $this->userRepository = $userRepository;
     }
 
     /**
@@ -307,10 +313,70 @@ class StoreController extends Controller
         }
     }
 
-    // public function banStore(string $storeId)
-    // {
-    //     try{
-    //         $store = User::update("UPDATE ")
-    //     }
-    // }
+    public function banStore(string $id)
+    {
+        try {
+            $users = User::where('store_id', $id)->get();
+
+            foreach ($users as $user) {
+                try {
+                    $this->userRepository->banUser($user->id);
+
+                    $user->status = 'suspend';
+                    $user->save();
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Gagal melarang pengguna: ' . $e->getMessage()], 500);
+                }
+            }
+
+            try {
+                $this->storeRepository->banStore($id);
+
+                $store = $this->storeRepository->find($id);
+                $store->status = 'suspend';
+                $store->save();
+            } catch (\Exception $e) {
+                return response()->json(['error' => 'Gagal melarang toko: ' . $e->getMessage()], 500);
+            }
+
+            return response()->json(['message' => 'Store berhasil dibanned.']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Gagal banned Store: ' . $e->getMessage()], 500);
+        }
+    }
+
+
+    public function unBanStore(Request $request, $id)
+    {
+        try {
+            $users = User::where('store_id', $id)->get();
+
+            foreach ($users as $user) {
+                try {
+                    $this->userRepository->unBanUser($user->id);
+
+                    $user->status = 'active';
+                    $user->save();
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Gagal membatalkan pelarangan pengguna: ' . $e->getMessage()], 500);
+                }
+            }
+
+            try {
+                $this->storeRepository->unBanStore($id);
+
+                $store = $this->storeRepository->find($id);
+                $store->status = 'active';
+                $store->save();
+            } catch (\Exception $e) {
+                return response()->json(['error' => 'Gagal membatalkan pelarangan toko: ' . $e->getMessage()], 500);
+            }
+
+            return response()->json(['message' => 'Store berhasil dipulihkan.']);
+        } catch (QueryException $e) {
+            return response()->json(['error' => 'Gagal memulihkan Store. Terjadi kesalahan database: ' . $e->getMessage()], 500);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Gagal memulihkan Store: ' . $e->getMessage()], 500);
+        }
+    }
 }

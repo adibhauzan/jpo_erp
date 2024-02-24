@@ -51,6 +51,8 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
                 Route::get('/{id}', [StoreController::class, 'show']);
                 Route::put('u/{id}', [StoreController::class, 'update']);
                 Route::delete('d/{id}', [StoreController::class, 'delete']);
+                Route::post('ban/{id}', [StoreController::class, 'banStore']);
+                Route::post('unban/{id}', [StoreController::class, 'unBanStore']);
                 // Route::post('ban/{id}', [StoreController::class, 'ban']);
                 // Route::post('unban/{id}', [StoreController::class, 'unBan']);
             });
