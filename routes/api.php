@@ -43,7 +43,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
                 Route::get('/{id}', [UserController::class, 'find']);
                 Route::post('ban/{id}', [UserController::class, 'banUser']);
                 Route::post('unban/{id}', [UserController::class, 'unBanUser']);
-                Route::post('update/{id}', [UserController::class, 'update']);
+                Route::put('update/{id}', [UserController::class, 'update']);
             });
             Route::get('stores', [StoreController::class, 'index']);
             Route::group(['prefix' => 'store'], function () {

@@ -92,6 +92,8 @@ class UserController extends Controller
                 'phone_number' => $request->input('phone_number'),
                 'username' => $request->input('username'),
                 'password' => $request->input('password'),
+                'store_id' => $request->input('store_id'),
+                'convection_id' => $request->input('convection_id'),
             ];
 
             $updatedUser = $this->userRepository->update($id, $userData);
@@ -107,43 +109,57 @@ class UserController extends Controller
         $validator = Validator::make(
             $request->all(),
             [
-                'name' => 'required|string',
-                'roles' => ['required', Rule::in(['superadmin', 'store', 'convection'])],
-                'phone_number' => 'required|string|min:8|max:15|regex:/^([0-9\s\-\+\(\)]*)$/',
-                'username' => 'required|string|max:255|unique:users',
-                'password' => ['required', 'string', 'min:8', Password::defaults()],
-            ],
-            [
-                'name.required' => 'The name field is required.',
-                'name.string' => 'The name must be a string.',
-                'roles.required' => 'The roles field is required.',
-                'roles.in' => 'The selected role is invalid.',
-                'phone_number.required' => 'The phone number field is required.',
-                'phone_number.string' => 'The phone number must be a string.',
-                'phone_number.min' => 'The phone number must be at least :min characters.',
-                'phone_number.max' => 'The phone number may not be greater than :max characters.',
-                'phone_number.regex' => 'The phone number format is invalid.',
-                'username.required' => 'The username field is required.',
-                'username.string' => 'The username must be a string.',
-                'username.max' => 'The username may not be greater than :max characters.',
-                'username.unique' => 'The username has already been taken.',
-                'password.required' => 'The password field is required.',
-                'password.string' => 'The password must be a string.',
-                'password.min' => 'The password must be at least :min characters.',
+                'name' => 'nullable|string',
+                'roles' => ['nullable', Rule::in(['superadmin', 'store', 'convection'])],
+                'phone_number' => 'nullable|string|min:8|max:15|regex:/^([0-9\s\-\+\(\)]*)$/',
+                'username' => 'nullable|string|max:255|unique:users',
+                'password' => ['nullable', 'string', 'min:8', Password::defaults()],
+                'store_id' => '',
+                'convection_id' => '',
             ]
         );
-        if ($request->roles !== 'superadmin' && $request->roles !== 'convection') {
-            $validator->sometimes('store_id', 'required', function ($input) {
-                return $input->roles !== 'superadmin';
-            });
-        }
+        // if ($request->roles !== 'superadmin' && $request->roles !== 'convection') {
+        //     $validator->sometimes('store_id', 'required', function ($input) {
+        //         return $input->roles !== 'superadmin';
+        //     });
+        // }
 
-        if ($request->roles !== 'superadmin' && $request->roles !== 'store') {
-            $validator->sometimes('convection_id', 'required', function ($input) {
-                return $input->roles !== 'superadmin' && $input->roles !== 'store';
-            });
-        }
+        // if ($request->roles !== 'superadmin' && $request->roles !== 'store') {
+        //     $validator->sometimes('convection_id', 'required', function ($input) {
+        //         return $input->roles !== 'superadmin' && $input->roles !== 'store';
+        //     });
+        // }
 
+        // if ($request->roles === 'superadmin'){
+        //     $validator->sometimes()
+        // }
+
+        // Jika roles adalah 'superadmin', maka kedua ID menjadi nullable
+        $validator->sometimes('store_id', 'nullable', function ($input) {
+            return $input->roles === 'superadmin';
+        });
+
+        $validator->sometimes('convection_id', 'nullable', function ($input) {
+            return $input->roles === 'superadmin';
+        });
+
+        // Jika roles adalah 'convection', maka 'convection_id' required, 'store_id' nullable
+        $validator->sometimes('convection_id', 'required', function ($input) {
+            return $input->roles === 'convection';
+        });
+
+        $validator->sometimes('store_id', 'nullable', function ($input) {
+            return $input->roles === 'convection';
+        });
+
+        // Jika roles adalah 'store', maka 'store_id' required, 'convection_id' nullable
+        $validator->sometimes('store_id', 'required', function ($input) {
+            return $input->roles === 'store';
+        });
+
+        $validator->sometimes('convection_id', 'nullable', function ($input) {
+            return $input->roles === 'store';
+        });
         return $validator;
     }
     /**
