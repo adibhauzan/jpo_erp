@@ -36,27 +36,29 @@ class UserController extends Controller
 
 
     /**
-     * @OA\Post(
+     * @OA\Put(
      *     path="/api/auth/user/update/{id}",
      *     summary="Update user information",
      *     operationId="updateUser",
      *     tags={"User"},
-     *     @OA\Parameter(
-     *         name="token",
-     *         in="query",
-     *         required=true,
-     *         description="Bearer token",
-     *         @OA\Schema(type="string")
-     *     ),
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             @OA\Property(property="name", type="string"),
-     *             @OA\Property(property="roles", type="string"),
-     *             @OA\Property(property="phone_number", type="string"),
-     *             @OA\Property(property="username", type="string"),
-     *             @OA\Property(property="password", type="string"),
+     *             @OA\Property(property="name", type="string", example="user updated"),
+     *             @OA\Property(property="roles", type="string", example="store or convection"),
+     *             @OA\Property(property="phone_number", type="string", example="92348943292"),
+     *             @OA\Property(property="username", type="string", example="userupdated"),
+     *             @OA\Property(property="password", type="string", example="userupdated"),
+     *             @OA\Property(property="store_id", type="string", example=""),
+     *             @OA\Property(property="convection_id", type="string", example=""),
      *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID of the user to ban",
+     *         required=true,
+     *         @OA\Schema(type="string", format="uuid")
      *     ),
      *     @OA\Response(
      *         response=200,
@@ -92,7 +94,6 @@ class UserController extends Controller
                 'password' => $request->input('password'),
             ];
 
-            // Memanggil repository untuk melakukan pembaruan data pengguna
             $updatedUser = $this->userRepository->update($id, $userData);
 
             return response()->json(['message' => 'User information updated successfully', 'user' => $updatedUser], 200);
@@ -101,33 +102,49 @@ class UserController extends Controller
         }
     }
 
-    // Metode validasi update
     protected function validateUpdateRequest(Request $request)
     {
-        return Validator::make($request->all(), [
-            'name' => 'required|string',
-            'roles' => ['required', Rule::in(['superadmin', 'store', 'convection'])],
-            'phone_number' => 'required|string|min:8|max:15|regex:/^([0-9\s\-\+\(\)]*)$/',
-            'username' => 'required|string|max:255|unique:users',
-            'password' => ['required', 'string', 'min:8', Password::defaults()],
-        ], [
-            'name.required' => 'The name field is required.',
-            'name.string' => 'The name must be a string.',
-            'roles.required' => 'The roles field is required.',
-            'roles.in' => 'The selected role is invalid.',
-            'phone_number.required' => 'The phone number field is required.',
-            'phone_number.string' => 'The phone number must be a string.',
-            'phone_number.min' => 'The phone number must be at least :min characters.',
-            'phone_number.max' => 'The phone number may not be greater than :max characters.',
-            'phone_number.regex' => 'The phone number format is invalid.',
-            'username.required' => 'The username field is required.',
-            'username.string' => 'The username must be a string.',
-            'username.max' => 'The username may not be greater than :max characters.',
-            'username.unique' => 'The username has already been taken.',
-            'password.required' => 'The password field is required.',
-            'password.string' => 'The password must be a string.',
-            'password.min' => 'The password must be at least :min characters.',
-        ]);
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'name' => 'required|string',
+                'roles' => ['required', Rule::in(['superadmin', 'store', 'convection'])],
+                'phone_number' => 'required|string|min:8|max:15|regex:/^([0-9\s\-\+\(\)]*)$/',
+                'username' => 'required|string|max:255|unique:users',
+                'password' => ['required', 'string', 'min:8', Password::defaults()],
+            ],
+            [
+                'name.required' => 'The name field is required.',
+                'name.string' => 'The name must be a string.',
+                'roles.required' => 'The roles field is required.',
+                'roles.in' => 'The selected role is invalid.',
+                'phone_number.required' => 'The phone number field is required.',
+                'phone_number.string' => 'The phone number must be a string.',
+                'phone_number.min' => 'The phone number must be at least :min characters.',
+                'phone_number.max' => 'The phone number may not be greater than :max characters.',
+                'phone_number.regex' => 'The phone number format is invalid.',
+                'username.required' => 'The username field is required.',
+                'username.string' => 'The username must be a string.',
+                'username.max' => 'The username may not be greater than :max characters.',
+                'username.unique' => 'The username has already been taken.',
+                'password.required' => 'The password field is required.',
+                'password.string' => 'The password must be a string.',
+                'password.min' => 'The password must be at least :min characters.',
+            ]
+        );
+        if ($request->roles !== 'superadmin' && $request->roles !== 'convection') {
+            $validator->sometimes('store_id', 'required', function ($input) {
+                return $input->roles !== 'superadmin';
+            });
+        }
+
+        if ($request->roles !== 'superadmin' && $request->roles !== 'store') {
+            $validator->sometimes('convection_id', 'required', function ($input) {
+                return $input->roles !== 'superadmin' && $input->roles !== 'store';
+            });
+        }
+
+        return $validator;
     }
     /**
      * @OA\Get(
@@ -160,7 +177,7 @@ class UserController extends Controller
         try {
             $users = $this->userRepository->findAll();
 
-            return response()->json(['Message' => 'success fetch Users','users' => $users], 200);
+            return response()->json(['Message' => 'success fetch Users', 'users' => $users], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Failed to fetch users. ' . $e->getMessage()], 500);
         }
@@ -309,7 +326,7 @@ class UserController extends Controller
         }
     }
 
-     /**
+    /**
      * UnBan user.
      *
      * @OA\Post(

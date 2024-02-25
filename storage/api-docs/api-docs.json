@@ -1858,7 +1858,7 @@
             }
         },
         "/api/auth/user/update/{id}": {
-            "post": {
+            "put": {
                 "tags": [
                     "User"
                 ],
@@ -1866,12 +1866,13 @@
                 "operationId": "updateUser",
                 "parameters": [
                     {
-                        "name": "token",
-                        "in": "query",
-                        "description": "Bearer token",
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the user to ban",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "format": "uuid"
                         }
                     }
                 ],
@@ -1882,19 +1883,32 @@
                             "schema": {
                                 "properties": {
                                     "name": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "example": "user updated"
                                     },
                                     "roles": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "example": "store or convection"
                                     },
                                     "phone_number": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "example": "92348943292"
                                     },
                                     "username": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "example": "userupdated"
                                     },
                                     "password": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "example": "userupdated"
+                                    },
+                                    "store_id": {
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "convection_id": {
+                                        "type": "string",
+                                        "example": ""
                                     }
                                 },
                                 "type": "object"
