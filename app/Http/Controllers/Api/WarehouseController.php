@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Validator;
 use App\Repositories\Warehouse\WarehouseRepositoryInterface;
 
@@ -324,4 +325,121 @@ class WarehouseController extends Controller
             return response()->json(['error' => 'Failed to delete warehouse. ' . $e->getMessage()], 422);
         }
     }
+
+       /**
+     * Ban Warehouse.
+     *
+     * @OA\Post(
+     *     path="/api/auth/warehouse/ban/{id}",
+     *     summary="Ban warehouse",
+     *     operationId="banWarehouse",
+     *     tags={"Warehouse"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Success message",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Unauthorized. Token is missing or invalid.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Failed to ban warehouse",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string")
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID of the warehouse to ban",
+     *         required=true,
+     *         @OA\Schema(type="string", format="uuid")
+     *     ),
+     *     security={{"bearerAuth": {}}}
+     * )
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function banWarehouse(Request $request, $id)
+    {
+        try {
+            $this->warehouseRepository->banWarehouse($id);
+            $warehouse = $this->warehouseRepository->find($id);
+            $warehouse->status = 'suspend';
+            $warehouse->save();
+            return response()->json(['message' => 'warehouse berhasil dibanned.']);
+        } catch (QueryException $e) {
+            return response()->json(['error' => 'Gagal memban gudang. Terjadi kesalahan database: ' . $e->getMessage()], 500);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Gagal memban gudang: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * UnBan Warehouse.
+     *
+     * @OA\Post(
+     *     path="/api/auth/warehouse/unban/{id}",
+     *     summary="UnBan Warehouse",
+     *     operationId="unBanWarehouse",
+     *     tags={"Warehouse"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Success message",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string", example="Unauthorized. Token is missing or invalid.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Failed to ban Warehouse",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string")
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID of the warehouse to ban",
+     *         required=true,
+     *         @OA\Schema(type="string", format="uuid")
+     *     ),
+     *     security={{"bearerAuth": {}}}
+     * )
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function unBanWarehouse(Request $request, $id)
+    {
+        try {
+            $warehouse = $this->warehouseRepository->find($id);
+            $warehouse->status = 'active';
+            $warehouse->save();
+            $this->warehouseRepository->unBanWarehouse($id);
+            return response()->json(['message' => 'Warehouse berhasil dipulihkan.']);
+        } catch (QueryException $e) {
+            return response()->json(['error' => 'Gagal memulihkan pengguna. Terjadi kesalahan database: ' . $e->getMessage()], 500);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Gagal memulihkan pengguna: ' . $e->getMessage()], 500);
+        }
+    }
+
 }

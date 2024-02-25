@@ -16,5 +16,8 @@ interface WarehouseRepositoryInterface
 
     public function delete(string $warehouseId);
 
+    public function banWarehouse(string $userId);
+    
+    public function unBanWarehouse(string $userId);
 
 }

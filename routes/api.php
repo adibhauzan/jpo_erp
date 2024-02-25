@@ -72,8 +72,8 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
                 Route::get('/{id}', [WarehouseController::class, 'show']);
                 Route::put('u/{id}', [WarehouseController::class, 'update']);
                 Route::delete('d/{id}', [WarehouseController::class, 'delete']);
-                // Route::post('ban/{id}', [ConvectionController::class, 'ban']);
-                // Route::post('unban/{id}', [ConvectionController::class, 'unBan']);
+                Route::post('ban/{id}', [WarehouseController::class, 'banWarehouse']);
+                Route::post('unban/{id}', [WarehouseController::class, 'unBanWarehouse']);
             });
             // Token
             Route::get('tokens', [TokenController::class, 'index']);

@@ -5,10 +5,12 @@ namespace App\Models;
 use Ramsey\Uuid\Uuid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Mchev\Banhammer\Traits\Bannable;
+
 
 class Warehouse extends Model
 {
-    use HasFactory;
+    use HasFactory, Bannable;
 
     public $incrementing = false;
     protected $keyType = 'string';
@@ -28,6 +30,7 @@ class Warehouse extends Model
         'phone_number',
         'store_id',
         'convection_id',
+        'status',
     ];
 
 
