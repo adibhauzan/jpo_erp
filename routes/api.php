@@ -44,6 +44,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
                 Route::post('ban/{id}', [UserController::class, 'banUser']);
                 Route::post('unban/{id}', [UserController::class, 'unBanUser']);
                 Route::put('update/{id}', [UserController::class, 'update']);
+                Route::delete('d/{id}', [UserController::class, 'delete']);
             });
             Route::get('stores', [StoreController::class, 'index']);
             Route::group(['prefix' => 'store'], function () {

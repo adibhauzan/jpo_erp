@@ -54,7 +54,6 @@ class AuthController extends Controller
      *             @OA\Property(property="password", type="string", default="123456781"),
      *             @OA\Property(property="store_id", type="string", default=""),
      *             @OA\Property(property="convection_id", type="string", default=""),
-     *
      *         )
      *     ),
      *     @OA\Response(
