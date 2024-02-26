@@ -400,11 +400,45 @@ class UserController extends Controller
         }
     }
 
+    
+    /**
+     * @OA\Get(
+     *     path="/api/auth/user/{id}",
+     *     summary="find user",
+     *     operationId="findUser",
+     *     tags={"User"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="success find user",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="users", type="array", @OA\Items())
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="user not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string")
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID of the user to find",
+     *         required=true,
+     *         @OA\Schema(type="string", format="uuid")
+     *     ),
+     *     security={{"bearerAuth": {}}}
+     * )
+     *
+     * @param  String $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function find(string $id)
     {
         try {
             $user = $this->userRepository->find($id);
-            return response()->json(['user' => $user], 200);
+            return response()->json(['message' => 'success find user','user' => $user], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => 'User not found.'], 404);
         }
@@ -419,13 +453,10 @@ class UserController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="delete user succesfull",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="users", type="array", @OA\Items())
-     *         )
      *     ),
      *     @OA\Response(
-     *         response=422,
-     *         description="Failed to fetch users",
+     *         response=404,
+     *         description="user not found",
      *         @OA\JsonContent(
      *             @OA\Property(property="error", type="string")
      *         )
@@ -440,7 +471,7 @@ class UserController extends Controller
      *     security={{"bearerAuth": {}}}
      * )
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request  $id
      * @return \Illuminate\Http\JsonResponse
      */
     public function delete(string $id){
