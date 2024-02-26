@@ -199,79 +199,48 @@ class UserController extends Controller
         }
     }
 
-    // /**
-    //  * Get users by roles.
-    //  * 
-    //  * @OA\Get(
-    //  *     path="/api/auth/user/roles",
-    //  *     summary="Get users by roles",
-    //  *     operationId="getByRoles",
-    //  *     tags={"User"},
-    //  *     @OA\Parameter(
-    //  *         name="token",
-    //  *         in="query",
-    //  *         required=true,
-    //  *         description="Bearer token",
-    //  *         @OA\Schema(type="string")
-    //  *     ),
-    //  *     @OA\Parameter(
-    //  *         name="roles",
-    //  *         in="query",
-    //  *         required=true,
-    //  *         description="Roles of the users",
-    //  *         @OA\Schema(type="string")
-    //  *     ),
-    //  *     @OA\Response(
-    //  *         response=200,
-    //  *         description="List of users",
-    //  *         @OA\JsonContent(
-    //  *             type="array",
-    //  *             @OA\Items(
-    //  *                 @OA\Property(property="id", type="string"),
-    //  *                 @OA\Property(property="roles", type="string"),
-    //  *                 @OA\Property(property="phone_number", type="string"),
-    //  *                 @OA\Property(property="username", type="string"),
-    //  *                 @OA\Property(property="name", type="string"),
-    //  *                 @OA\Property(property="status", type="string", example="active"),
-    //  *                 @OA\Property(property="created_at", type="string"),
-    //  *                 @OA\Property(property="updated_at", type="string"),
-    //  *             )
-    //  *         )
-    //  *     ),
-    //  *     @OA\Response(
-    //  *         response=500,
-    //  *         description="Failed to fetch users by roles",
-    //  *         @OA\JsonContent(
-    //  *             @OA\Property(property="error", type="string")
-    //  *         )
-    //  *     ),
-    //  *     security={{"bearerAuth": {}}}
-    //  * )
-    //  *
-    //  * @param  \Illuminate\Http\Request  $request
-    //  * @return \Illuminate\Http\JsonResponse
-    //  */
-    // public function getByRoles(Request $request)
-    // {
-    //     try {
-    //         $roles = $request->query('roles');
-    //         $users = $this->userRepository->findByRoles($roles);
-    //         return response()->json(['users' => $users], 200);
-    //     } catch (\Exception $e) {
-    //         return response()->json(['error' => 'Failed to fetch users by roles. ' . $e->getMessage()], 500);
-    //     }
-    // }
-
-    // public function getByStatus(Request $request)
-    // {
-    //     try {
-    //         $roles = $request->query('status');
-    //         $users = $this->userRepository->findByStatus($roles);
-    //         return response()->json(['users' => $users], 200);
-    //     } catch (\Exception $e) {
-    //         return response()->json(['error' => 'Failed to fetch users by status. ' . $e->getMessage()], 500);
-    //     }
-    // }
+      /**
+     * @OA\Get(
+     *     path="/api/auth/user/{id}",
+     *     summary="find user",
+     *     operationId="findUser",
+     *     tags={"User"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="success find user",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="users", type="array", @OA\Items())
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="user not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string")
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID of the user to find",
+     *         required=true,
+     *         @OA\Schema(type="string", format="uuid")
+     *     ),
+     *     security={{"bearerAuth": {}}}
+     * )
+     *
+     * @param  String $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function find(string $id)
+    {
+        try {
+            $user = $this->userRepository->find($id);
+            return response()->json(['message' => 'success find user','user' => $user], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'User not found.'], 404);
+        }
+    }
 
     public function findByParameters(Request $request)
     {
@@ -401,48 +370,7 @@ class UserController extends Controller
     }
 
     
-    /**
-     * @OA\Get(
-     *     path="/api/auth/user/{id}",
-     *     summary="find user",
-     *     operationId="findUser",
-     *     tags={"User"},
-     *     @OA\Response(
-     *         response=200,
-     *         description="success find user",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="users", type="array", @OA\Items())
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=404,
-     *         description="user not found",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="error", type="string")
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="ID of the user to find",
-     *         required=true,
-     *         @OA\Schema(type="string", format="uuid")
-     *     ),
-     *     security={{"bearerAuth": {}}}
-     * )
-     *
-     * @param  String $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function find(string $id)
-    {
-        try {
-            $user = $this->userRepository->find($id);
-            return response()->json(['message' => 'success find user','user' => $user], 200);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'User not found.'], 404);
-        }
-    }
+  
 
     /**
      * @OA\Delete(

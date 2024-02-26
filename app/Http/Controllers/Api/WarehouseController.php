@@ -278,55 +278,7 @@ class WarehouseController extends Controller
         }
     }
 
-    /**
-     * Delete Warehouse by ID.
-     *
-     * @OA\Delete(
-     *     path="/api/auth/warehouse/d/{id}",
-     *     summary="Delete warehouse by ID",
-     *     operationId="deleteWarehouse",
-     *     tags={"Warehouse"},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         description="ID of the warehouse to delete",
-     *         @OA\Schema(
-     *             type="string",
-     *             format="uuid"
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Warehouse deleted successfully",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Warehouse deleted successfully")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=422,
-     *         description="Failed to delete warehouse",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="error", type="string")
-     *         )
-     *     ),
-     *     security={{"bearerAuth": {}}}
-     * )
-     *
-     * @param  string  $warehouseId UUID of the warehouse to delete
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function delete(string $warehouseId)
-    {
-        try {
-            $warehouse = $this->warehouseRepository->delete($warehouseId);
-            return response()->json(['message' => 'warehouse deleted successfully'], 200);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to delete warehouse. ' . $e->getMessage()], 422);
-        }
-    }
-
-       /**
+         /**
      * Ban Warehouse.
      *
      * @OA\Post(
@@ -441,5 +393,55 @@ class WarehouseController extends Controller
             return response()->json(['error' => 'Gagal memulihkan pengguna: ' . $e->getMessage()], 500);
         }
     }
+
+    /**
+     * Delete Warehouse by ID.
+     *
+     * @OA\Delete(
+     *     path="/api/auth/warehouse/d/{id}",
+     *     summary="Delete warehouse by ID",
+     *     operationId="deleteWarehouse",
+     *     tags={"Warehouse"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the warehouse to delete",
+     *         @OA\Schema(
+     *             type="string",
+     *             format="uuid"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Warehouse deleted successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Warehouse deleted successfully")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Failed to delete warehouse",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string")
+     *         )
+     *     ),
+     *     security={{"bearerAuth": {}}}
+     * )
+     *
+     * @param  string  $warehouseId UUID of the warehouse to delete
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function delete(string $warehouseId)
+    {
+        try {
+            $warehouse = $this->warehouseRepository->delete($warehouseId);
+            return response()->json(['message' => 'warehouse deleted successfully'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to delete warehouse. ' . $e->getMessage()], 422);
+        }
+    }
+
+  
 
 }

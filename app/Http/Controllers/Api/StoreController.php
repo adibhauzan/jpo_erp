@@ -266,54 +266,6 @@ class StoreController extends Controller
         }
     }
 
-    /**
-     * Delete store by ID.
-     *
-     * @OA\Delete(
-     *     path="/api/auth/store/d/{id}",
-     *     summary="Delete store by ID",
-     *     operationId="deleteStore",
-     *     tags={"Store"},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         description="ID of the store to delete",
-     *         @OA\Schema(
-     *             type="string",
-     *             format="uuid"
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Store deleted successfully",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Store deleted successfully")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=422,
-     *         description="Failed to delete store",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="error", type="string")
-     *         )
-     *     ),
-     *     security={{"bearerAuth": {}}}
-     * )
-     *
-     * @param  string  $storeId UUID of the store to delete
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function delete(string $storeId)
-    {
-        try {
-            $store = $this->storeRepository->delete($storeId);
-            return response()->json(['message' => 'Store deleted successfully'], 200);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to delete Store. ' . $e->getMessage()], 422);
-        }
-    }
-
      /**
      * Ban store by ID.
      *
@@ -455,4 +407,54 @@ class StoreController extends Controller
             return response()->json(['error' => 'Gagal memulihkan Store: ' . $e->getMessage()], 500);
         }
     }
+
+    /**
+     * Delete store by ID.
+     *
+     * @OA\Delete(
+     *     path="/api/auth/store/d/{id}",
+     *     summary="Delete store by ID",
+     *     operationId="deleteStore",
+     *     tags={"Store"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the store to delete",
+     *         @OA\Schema(
+     *             type="string",
+     *             format="uuid"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Store deleted successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Store deleted successfully")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Failed to delete store",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string")
+     *         )
+     *     ),
+     *     security={{"bearerAuth": {}}}
+     * )
+     *
+     * @param  string  $storeId UUID of the store to delete
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function delete(string $storeId)
+    {
+        try {
+            $store = $this->storeRepository->delete($storeId);
+            return response()->json(['message' => 'Store deleted successfully'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to delete Store. ' . $e->getMessage()], 422);
+        }
+    }
+
+    
 }

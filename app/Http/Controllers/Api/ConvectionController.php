@@ -266,56 +266,7 @@ class ConvectionController extends Controller
         }
     }
 
-
-    /**
-     * Delete convection by ID.
-     *
-     * @OA\Delete(
-     *     path="/api/auth/convection/d/{id}",
-     *     summary="Delete convection by ID",
-     *     operationId="deleteConvection",
-     *     tags={"Convection"},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         description="ID of the convection to delete",
-     *         @OA\Schema(
-     *             type="string",
-     *             format="uuid"
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Convection deleted successfully",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="convection deleted successfully")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=422,
-     *         description="Failed to delete Convection",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="error", type="string")
-     *         )
-     *     ),
-     *     security={{"bearerAuth": {}}}
-     * )
-     *
-     * @param  string  $convectionId UUID of the convection to delete
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function delete(string $convectionId)
-    {
-        try {
-            $convection = $this->convectionRepository->delete($convectionId);
-            return response()->json(['message' => 'Convection deleted successfully'], 200);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to delete Convection. ' . $e->getMessage()], 422);
-        }
-    }
-
-    /**
+/**
      * Ban convection by ID.
      *
      * @OA\Post(
@@ -350,7 +301,7 @@ class ConvectionController extends Controller
      *     security={{"bearerAuth": {}}}
      * )
      *
-     * @param  string  $id UUID of the convection to delete
+     * @param  string  $id UUID of the convection to ban
      * @return \Illuminate\Http\JsonResponse
      */
     public function banConvection(string $id)
@@ -457,4 +408,54 @@ class ConvectionController extends Controller
             return response()->json(['error' => 'Gagal memulihkan convection: ' . $e->getMessage()], 500);
         }
     }
+
+    /**
+     * Delete convection by ID.
+     *
+     * @OA\Delete(
+     *     path="/api/auth/convection/d/{id}",
+     *     summary="Delete convection by ID",
+     *     operationId="deleteConvection",
+     *     tags={"Convection"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the convection to delete",
+     *         @OA\Schema(
+     *             type="string",
+     *             format="uuid"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Convection deleted successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="convection deleted successfully")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Failed to delete Convection",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="error", type="string")
+     *         )
+     *     ),
+     *     security={{"bearerAuth": {}}}
+     * )
+     *
+     * @param  string  $convectionId UUID of the convection to delete
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function delete(string $convectionId)
+    {
+        try {
+            $convection = $this->convectionRepository->delete($convectionId);
+            return response()->json(['message' => 'Convection deleted successfully'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to delete Convection. ' . $e->getMessage()], 422);
+        }
+    }
+
+    
 }
