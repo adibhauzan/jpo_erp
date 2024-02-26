@@ -42,6 +42,14 @@
                                     "password": {
                                         "type": "string",
                                         "default": "123456781"
+                                    },
+                                    "store_id": {
+                                        "type": "string",
+                                        "default": ""
+                                    },
+                                    "convection_id": {
+                                        "type": "string",
+                                        "default": ""
                                     }
                                 },
                                 "type": "object"

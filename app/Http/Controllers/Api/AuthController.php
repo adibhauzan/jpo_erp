@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\Api;
 
 use App\Models\User;
@@ -53,6 +52,9 @@ class AuthController extends Controller
      *                 default="store"
      *             ),
      *             @OA\Property(property="password", type="string", default="123456781"),
+     *             @OA\Property(property="store_id", type="string", default=""),
+     *             @OA\Property(property="convection_id", type="string", default=""),
+     *
      *         )
      *     ),
      *     @OA\Response(
@@ -70,7 +72,7 @@ class AuthController extends Controller
      *         )
      *     ),
      *     security={{"bearerAuth": {}}}
-     * 
+     *
      * )
      */
     public function register(Request $request)
