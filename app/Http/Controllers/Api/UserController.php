@@ -77,19 +77,23 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $validator = $this->validateUpdateRequest($request);
-
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 422);
-        }
-
         try {
+            $user = $this->userRepository->find($id);
+
+            
+            $validator = $this->validateUpdateRequest($request);
+
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->errors()], 422);
+            }
+
+
             $userData = [
-                'roles' => $request->input('roles'),
-                'phone_number' => $request->input('phone_number'),
-                'password' => $request->input('password'),
-                'store_id' => $request->input('store_id'),
-                'convection_id' => $request->input('convection_id'),
+                'roles' => $request->input('roles') ?? $user->roles,
+                'phone_number' => $request->input('phone_number')?? $user->phone_number,
+                'password' => $request->input('password')?? $user->password,
+                'store_id' => $request->input('store_id')?? $user->store_id,
+                'convection_id' => $request->input('convection_id')?? $user->convection_id,
             ];
 
             $updatedUser = $this->userRepository->update($id, $userData);
