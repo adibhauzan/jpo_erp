@@ -44,10 +44,8 @@ class UserController extends Controller
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             @OA\Property(property="name", type="string", example="user updated"),
-     *             @OA\Property(property="roles", type="string", example="store or convection"),
+     *             @OA\Property(property="roles", type="string", example="store or convection or superadmin"),
      *             @OA\Property(property="phone_number", type="string", example="92348943292"),
-     *             @OA\Property(property="username", type="string", example="userupdated"),
      *             @OA\Property(property="password", type="string", example="userupdated"),
      *             @OA\Property(property="store_id", type="string", example=""),
      *             @OA\Property(property="convection_id", type="string", example=""),
@@ -87,10 +85,8 @@ class UserController extends Controller
 
         try {
             $userData = [
-                'name' => $request->input('name'),
                 'roles' => $request->input('roles'),
                 'phone_number' => $request->input('phone_number'),
-                'username' => $request->input('username'),
                 'password' => $request->input('password'),
                 'store_id' => $request->input('store_id'),
                 'convection_id' => $request->input('convection_id'),
@@ -109,13 +105,11 @@ class UserController extends Controller
         $validator = Validator::make(
             $request->all(),
             [
-                'name' => 'nullable|string',
-                'roles' => ['nullable', Rule::in(['superadmin', 'store', 'convection'])],
                 'phone_number' => 'nullable|string|min:8|max:15|regex:/^([0-9\s\-\+\(\)]*)$/',
-                'username' => 'nullable|string|max:255|unique:users',
                 'password' => ['nullable', 'string', 'min:8', Password::defaults()],
                 'store_id' => '',
                 'convection_id' => '',
+                'roles' => ['nullable', Rule::in(['superadmin', 'store', 'convection'])],
             ]
         );
         // if ($request->roles !== 'superadmin' && $request->roles !== 'convection') {
@@ -199,7 +193,7 @@ class UserController extends Controller
         }
     }
 
-      /**
+    /**
      * @OA\Get(
      *     path="/api/auth/user/{id}",
      *     summary="find user",
@@ -236,7 +230,7 @@ class UserController extends Controller
     {
         try {
             $user = $this->userRepository->find($id);
-            return response()->json(['message' => 'success find user','user' => $user], 200);
+            return response()->json(['message' => 'success find user', 'user' => $user], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => 'User not found.'], 404);
         }
@@ -369,8 +363,8 @@ class UserController extends Controller
         }
     }
 
-    
-  
+
+
 
     /**
      * @OA\Delete(
@@ -402,8 +396,9 @@ class UserController extends Controller
      * @param  \Illuminate\Http\Request  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function delete(string $id){
-        
+    public function delete(string $id)
+    {
+
         try {
             $user = $this->userRepository->delete($id);
             return response()->json(['message' => 'delete user succesfull'], 200);

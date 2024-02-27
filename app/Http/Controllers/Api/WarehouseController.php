@@ -257,28 +257,36 @@ class WarehouseController extends Controller
      */
     public function update(Request $request, string $warehouseId)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string',
-            'address' => 'required|unique:warehouses,address',
-            'phone_number' => 'required|string|min:8|max:15|unique:warehouses,phone_number|regex:/^([0-9\s\-\+\(\)]*)$/',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 422);
-        }
-
         try {
-            $data = $request->only(['name', 'address', 'phone_number']);
-
-            $warehouse = $this->warehouseRepository->update($warehouseId, $data);
-
-            return response()->json(['message' => 'warehouse updated successfully', 'data' => $warehouse], 200);
+            $warehouse = $this->warehouseRepository->find($warehouseId);
+            
+            $validator = Validator::make($request->all(), [
+                'name' => 'nullable|string',
+                'address' => 'nullable|string',
+                'phone_number' => 'nullable|string|min:8|max:15|regex:/^([0-9\s\-\+\(\)]*)$/',
+            ]);
+    
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->errors()], 422);
+            }
+    
+            $data = [
+                'name' => $request->input('name') ?? $warehouse->name,
+                'address' => $request->input('address') ?? $warehouse->address,
+                'phone_number' => $request->input('phone_number') ?? $warehouse->phone_number,
+            ];
+    
+            $this->warehouseRepository->update($warehouseId, $data);
+    
+            $updatedWarehouse = $this->warehouseRepository->find($warehouseId);
+    
+            return response()->json(['message' => 'Warehouse updated successfully', 'data' => $updatedWarehouse], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Failed to update warehouse. ' . $e->getMessage()], 422);
         }
     }
 
-         /**
+    /**
      * Ban Warehouse.
      *
      * @OA\Post(
@@ -441,7 +449,4 @@ class WarehouseController extends Controller
             return response()->json(['error' => 'Failed to delete warehouse. ' . $e->getMessage()], 422);
         }
     }
-
-  
-
 }

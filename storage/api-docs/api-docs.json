@@ -1890,21 +1890,13 @@
                         "application/json": {
                             "schema": {
                                 "properties": {
-                                    "name": {
-                                        "type": "string",
-                                        "example": "user updated"
-                                    },
                                     "roles": {
                                         "type": "string",
-                                        "example": "store or convection"
+                                        "example": "store or convection or superadmin"
                                     },
                                     "phone_number": {
                                         "type": "string",
                                         "example": "92348943292"
-                                    },
-                                    "username": {
-                                        "type": "string",
-                                        "example": "userupdated"
                                     },
                                     "password": {
                                         "type": "string",
