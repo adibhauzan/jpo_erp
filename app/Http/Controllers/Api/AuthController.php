@@ -1,10 +1,13 @@
 <?php
+
 namespace App\Http\Controllers\Api;
 
 use App\Models\User;
+use App\Models\Convection;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use App\Http\Controllers\Controller;
+use App\Models\Store;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
@@ -112,26 +115,41 @@ class AuthController extends Controller
                 'phone_number' => 'required|string|min:8|max:15|unique:users,phone_number|regex:/^([0-9\s\-\+\(\)]*)$/',
                 'username' => 'required|string|max:255|unique:users,username',
                 'password' => ['required', 'string', 'min:8', Password::defaults()],
+                'store_id' => function ($attribute, $value, $fail) use ($request) {
+                    if ($request->roles !== 'superadmin' && $request->roles !== 'store' && $value !== null) {
+                        $fail('The store_id field is not allowed for this role.');
+                    }
+                    if ($request->roles === 'store' && $value === null) {
+                        $fail('The store_id field is required for this role.');
+                    }
+                    if ($value !== null && !Store::where('id', $value)->exists()) {
+                        $fail('The selected store_id is invalid.');
+                    }
+                },
+                'convection_id' => function ($attribute, $value, $fail) use ($request) {
+                    if ($request->roles !== 'superadmin' && $request->roles !== 'convection' && $value !== null) {
+
+                        $fail('The convection_id field is not allowed for this role.');
+                    }
+                    if ($request->roles === 'convection' && $value === null) {
+                        $fail('The convection_id field is required for this role.');
+                    }
+                    if ($value !== null && !Convection::where('id', $value)->exists()) {
+                        $fail('The selected convection_id is invalid.');
+                    }
+                },
             ]
-            // , [
-            //     'name.required' => 'The name field is required.',
-            //     'name.string' => 'The name must be a string.',
-            //     'roles.required' => 'The roles field is required.',
-            //     'roles.in' => 'The selected role is invalid.',
-            //     'phone_number.required' => 'The phone number field is required.',
-            //     'phone_number.string' => 'The phone number must be a string.',
-            //     'phone_number.min' => 'The phone number must be at least :min characters.',
-            //     'phone_number.max' => 'The phone number may not be greater than :max characters.',
-            //     'phone_number.regex' => 'The phone number format is invalid.',
-            //     'username.required' => 'The username field is required.',
-            //     'username.string' => 'The username must be a string.',
-            //     'username.max' => 'The username may not be greater than :max characters.',
-            //     'username.unique' => 'The username has already been taken.',
-            //     'password.required' => 'The password field is required.',
-            //     'password.string' => 'The password must be a string.',
-            //     'password.min' => 'The password must be at least :min characters.',
-            // ]
         );
+
+        if ($request->roles === 'superadmin') {
+            $validator->after(function ($validator) use ($request) {
+                if ($request->has('store_id')) {
+                    $validator->errors()->add('store_id', 'The store_id field is not allowed for this role.');
+                } else if ($request->has('convection_id')) {
+                    $validator->errors()->add('convection_id', 'The convection_id field is not allowed for this role.');
+                }
+            });
+        }
 
         if ($request->roles !== 'superadmin' && $request->roles !== 'convection') {
             $validator->sometimes('store_id', 'required', function ($input) {
@@ -147,6 +165,8 @@ class AuthController extends Controller
 
         return $validator;
     }
+
+
 
 
 

@@ -79,22 +79,32 @@ class UserController extends Controller
     {
         try {
             $user = $this->userRepository->find($id);
+            $currentRoles = $user->roles;
 
-            
-            $validator = $this->validateUpdateRequest($request);
+            $validator = $this->validateUpdateRequest($request, $currentRoles);
 
             if ($validator->fails()) {
                 return response()->json(['error' => $validator->errors()], 422);
             }
 
-
             $userData = [
-                'roles' => $request->input('roles') ?? $user->roles,
-                'phone_number' => $request->input('phone_number')?? $user->phone_number,
-                'password' => $request->input('password')?? $user->password,
-                'store_id' => $request->input('store_id')?? $user->store_id,
-                'convection_id' => $request->input('convection_id')?? $user->convection_id,
+                'roles' => $request->input('roles') ?? $currentRoles,
+                'phone_number' => $request->input('phone_number') ?? $user->phone_number,
+                'password' => $request->input('password') ?? $user->password,
             ];
+
+            if ($currentRoles === 'convection' && $request->input('roles') === 'superadmin') {
+                $userData['store_id'] = null;
+                $userData['convection_id'] = null;
+            }
+            if ($request->input('roles') === 'superadmin') {
+                $validator->sometimes('store_id', 'nullable', function ($input) {
+                    return true;
+                });
+                $validator->sometimes('convection_id', 'nullable', function ($input) {
+                    return true;
+                });
+            }
 
             $updatedUser = $this->userRepository->update($id, $userData);
 
@@ -104,62 +114,88 @@ class UserController extends Controller
         }
     }
 
-    protected function validateUpdateRequest(Request $request)
+
+
+    protected function validateUpdateRequest(Request $request, $currentRoles)
     {
         $validator = Validator::make(
             $request->all(),
             [
                 'phone_number' => 'nullable|string|min:8|max:15|regex:/^([0-9\s\-\+\(\)]*)$/',
                 'password' => ['nullable', 'string', 'min:8', Password::defaults()],
-                'store_id' => '',
-                'convection_id' => '',
+                'store_id' => ($currentRoles === 'superadmin' && $request->input('roles') !== 'superadmin') ? 'nullable' : ($request->input('roles') === 'store' ? 'required' : 'nullable'),
+                'convection_id' => ($currentRoles === 'superadmin' && $request->input('roles') !== 'superadmin') ? 'nullable' : ($request->input('roles') === 'convection' ? 'required' : 'nullable'),
                 'roles' => ['nullable', Rule::in(['superadmin', 'store', 'convection'])],
             ]
         );
-        // if ($request->roles !== 'superadmin' && $request->roles !== 'convection') {
-        //     $validator->sometimes('store_id', 'required', function ($input) {
-        //         return $input->roles !== 'superadmin';
-        //     });
-        // }
 
-        // if ($request->roles !== 'superadmin' && $request->roles !== 'store') {
-        //     $validator->sometimes('convection_id', 'required', function ($input) {
-        //         return $input->roles !== 'superadmin' && $input->roles !== 'store';
-        //     });
-        // }
+        $validator->after(function ($validator) use ($request, $currentRoles) {
+            $roles = $request->input('roles');
+            $store_id = $request->input('store_id');
+            $convection_id = $request->input('convection_id');
 
-        // if ($request->roles === 'superadmin'){
-        //     $validator->sometimes()
-        // }
+            // Pengecekan untuk roles superadmin
+            $this->validateSuperAdminRoles($validator, $roles, $store_id, $convection_id, $currentRoles);
 
-        // Jika roles adalah 'superadmin', maka kedua ID menjadi nullable
-        $validator->sometimes('store_id', 'nullable', function ($input) {
-            return $input->roles === 'superadmin';
+            // Pengecekan untuk roles convection
+            $this->validateConvectionRoles($validator, $roles, $store_id, $convection_id, $currentRoles);
+
+            // Pengecekan untuk roles store
+            $this->validateStoreRoles($validator, $roles, $store_id, $convection_id, $currentRoles);
         });
 
-        $validator->sometimes('convection_id', 'nullable', function ($input) {
-            return $input->roles === 'superadmin';
-        });
-
-        // Jika roles adalah 'convection', maka 'convection_id' required, 'store_id' nullable
-        $validator->sometimes('convection_id', 'required', function ($input) {
-            return $input->roles === 'convection';
-        });
-
-        $validator->sometimes('store_id', 'nullable', function ($input) {
-            return $input->roles === 'convection';
-        });
-
-        // Jika roles adalah 'store', maka 'store_id' required, 'convection_id' nullable
-        $validator->sometimes('store_id', 'required', function ($input) {
-            return $input->roles === 'store';
-        });
-
-        $validator->sometimes('convection_id', 'nullable', function ($input) {
-            return $input->roles === 'store';
-        });
         return $validator;
     }
+
+
+    protected function validateSuperAdminRoles($validator, $roles, $store_id, $convection_id, $currentRoles)
+    {
+        if ($currentRoles === 'superadmin' || $roles === 'superadmin') {
+            if ($store_id !== null || $convection_id !== null) {
+                $validator->errors()->add('roles', 'Roles superadmin tidak boleh menggunakan store_id atau convection_id.');
+            }
+
+            // Pengecualian untuk roles superadmin saat ini dan roles yang diminta juga superadmin
+            if ($currentRoles === 'superadmin' && $roles === 'superadmin') {
+                $validator->sometimes('convection_id', 'nullable', function ($input) {
+                    return true;
+                });
+            }
+        }
+    }
+
+    protected function validateConvectionRoles($validator, $roles, $store_id, $convection_id, $currentRoles)
+    {
+        if ($currentRoles === 'convection' && $roles !== 'convection') {
+            if ($store_id !== null) {
+                $validator->errors()->add('store_id', 'Roles convection tidak boleh menggunakan store_id.');
+            }
+            if ($convection_id === null) {
+                $validator->errors()->add('convection_id', 'convection_id is required.');
+            }
+        }
+    }
+
+    protected function validateStoreRoles($validator, $roles, $store_id, $convection_id, $currentRoles)
+    {
+        if ($currentRoles === 'store' && $roles !== 'store') {
+            if ($convection_id !== null) {
+                $validator->errors()->add('convection_id', 'Roles store tidak boleh menggunakan convection_id.');
+            }
+            if ($store_id === null) {
+                $validator->errors()->add('store_id', 'store_id is required.');
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
     /**
      * @OA\Get(
      *     path="/api/auth/users/",

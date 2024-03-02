@@ -11,8 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('convections', function (Blueprint $table) {
-            $table->enum('status', ['active', 'suspend'])->default('active');
+        Schema::create('contacts', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->string('name');
+            $table->string('phone_number');
+            $table->string('address');
+            $table->timestamps();
         });
     }
 
@@ -21,9 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('convections', function (Blueprint $table) {
-            $table->dropColumn('status');
-            
-        });
+        Schema::dropIfExists('contacts');
     }
 };

@@ -13,10 +13,16 @@ return new class extends Migration
     {
         Schema::create('warehouses', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->uuid('store_id')->nullable();
+            $table->uuid('convection_id')->nullable();
             $table->string('name');
             $table->string('address');
             $table->string('phone_number');
+            $table->enum('status', ['active', 'suspend'])->default('active');
             $table->timestamps();
+
+            $table->foreign('store_id')->references('id')->on('stores')->onDelete('set null');
+            $table->foreign('convection_id')->references('id')->on('convections')->onDelete('set null');
         });
     }
 

@@ -15,7 +15,8 @@ use App\Repositories\Warehouse\EloquentWarehouseRepository;
 use App\Repositories\Warehouse\WarehouseRepositoryInterface;
 use App\Repositories\Convection\EloquentConvectionRepository;
 use App\Repositories\Convection\ConvectionRepositoryInterface;
-
+use App\Repositories\Contact\ContactRepositoryInterface;
+use App\Repositories\Contact\EloquentContactRepository;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -30,6 +31,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(WarehouseRepositoryInterface::class, EloquentWarehouseRepository::class);
         $this->app->bind(TokenRepositoryInterface::class, EloquentTokenRepository::class);
         $this->app->bind(BankRepositoryInterface::class, EloquentBankRepository::class);
+        $this->app->bind(ContactRepositoryInterface::class, EloquentContactRepository::class);
     }
 
     /**

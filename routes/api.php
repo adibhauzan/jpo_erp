@@ -1,13 +1,14 @@
 <?php
 
-use App\Http\Controllers\Api\BankControler;
-use App\Http\Controllers\Api\TokenController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\BankControler;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
-use App\Http\Controllers\Api\BankController;
 use App\Http\Controllers\Api\StoreController;
+use App\Http\Controllers\Api\TokenController;
+use App\Http\Controllers\Api\BrokerController;
+use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\WarehouseController;
 use App\Http\Controllers\Api\ConvectionController;
 
@@ -26,7 +27,6 @@ use App\Http\Controllers\Api\ConvectionController;
 
 Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
 
-    // Routes for authentication
     Route::middleware(['auth.banned'])->group(function () {
         Route::post('login', [AuthController::class, 'login']);
         Route::post('logout', [AuthController::class, 'logout']);
@@ -54,8 +54,6 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
                 Route::delete('d/{id}', [StoreController::class, 'delete']);
                 Route::post('ban/{id}', [StoreController::class, 'banStore']);
                 Route::post('unban/{id}', [StoreController::class, 'unBanStore']);
-                // Route::post('ban/{id}', [StoreController::class, 'ban']);
-                // Route::post('unban/{id}', [StoreController::class, 'unBan']);
             });
 
             Route::get('convections', [ConvectionController::class, 'index']);
@@ -95,10 +93,15 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
             });
         });
 
-        Route::middleware(['role:store'])->group(function () {
-        });
 
-        Route::middleware(['role:convection'])->group(function () {
+        Route::middleware(['role:store'])->group(function () {
+            Route::get('contacts', [ContactController::class, 'index']);
+            Route::group(['prefix' => 'contact'], function () {
+                Route::post('/', [ContactController::class, 'store']);
+                Route::get('/{id}', [ContactController::class, 'show']);
+                Route::put('u/{id}', [ContactController::class, 'update']);
+                Route::delete('d/{id}', [ContactController::class, 'delete']);
+            });
         });
     });
 });
