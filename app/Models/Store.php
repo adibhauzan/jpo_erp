@@ -32,11 +32,11 @@ class Store extends Model
 
     public function users()
     {
-        return $this->hasMany(User::class, 'store_id', 'id');
+        return $this->hasMany(User::class);
     }
 
     public function warehouses()
     {
-        return $this->hasMany(Warehouse::class, 'store_id', 'id');
+        return $this->hasMany(Warehouse::class);
     }
 }

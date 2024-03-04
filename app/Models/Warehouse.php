@@ -12,6 +12,8 @@ class Warehouse extends Model
 {
     use HasFactory, Bannable;
 
+    protected $primaryKey = 'id';
+
     public $incrementing = false;
     protected $keyType = 'string';
 
@@ -36,6 +38,16 @@ class Warehouse extends Model
 
     public function store()
     {
-        return $this->belongsTo(Store::class, 'store_id', 'id');
+        return $this->belongsTo(Store::class);
+    }
+
+    public function purchaseOrders()
+    {
+        return $this->hasMany(PurchaseOrder::class, 'warehouse_id');
+    }
+
+    public function inventories()
+    {
+        return $this->hasMany(Inventory::class, 'warehouse_id');
     }
 }

@@ -111,8 +111,15 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->belongsTo(Store::class, 'store_id', 'id');
     }
+
+
     public function convection()
     {
         return $this->belongsTo(Convection::class, 'convection_id', 'id');
+    }
+
+    public function warehouses()
+    {
+        return $this->hasMany(Warehouse::class, 'store_id', 'store_id');
     }
 }
