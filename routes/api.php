@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\BrokerController;
 use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\WarehouseController;
 use App\Http\Controllers\Api\ConvectionController;
+use App\Http\Controllers\Api\InventoryController;
 use App\Http\Controllers\Api\PurchaseController;
 
 /*
@@ -112,12 +113,12 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
                 Route::delete('d/{id}', [PurchaseController::class, 'delete']);
             });
 
-            Route::get('inventories', [ContactController::class, 'index']);
+            Route::get('inventories', [InventoryController::class, 'index']);
             Route::group(['prefix' => 'inventory'], function () {
-                Route::post('/', [ContactController::class, 'store']);
-                Route::get('/{id}', [ContactController::class, 'show']);
-                Route::put('u/{id}', [ContactController::class, 'update']);
-                Route::delete('d/{id}', [ContactController::class, 'delete']);
+                Route::get('/{id}', [InventoryController::class, 'show']);
+                // Route::post('/', [InventoryController::class, 'store']);
+                // Route::put('u/{idx}', [InventoryController::class, 'update']);
+                // Route::delete('d/{id}', [InventoryController::class, 'delete']);
             });
         });
     });

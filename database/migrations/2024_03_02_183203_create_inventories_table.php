@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('inventories', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->enum('status', ['draft', 'received', 'done'])->default('draft');
             $table->uuid('contact_id');
             $table->uuid('warehouse_id');
             $table->string('no_po');
@@ -28,6 +29,7 @@ return new class extends Migration
             $table->unsignedBigInteger('gramasi');
             $table->unsignedBigInteger('stock');
             $table->unsignedBigInteger('price');
+            $table->unsignedBigInteger('stock_rib');
 
             $table->foreign('contact_id')->references('id')->on('contacts')->onDelete('cascade');
             $table->foreign('warehouse_id')->references('id')->on('warehouses')->onDelete('cascade');
