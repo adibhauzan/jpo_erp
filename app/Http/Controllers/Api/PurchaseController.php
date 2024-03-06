@@ -56,7 +56,7 @@ class PurchaseController extends Controller
                 'setting' => 'required|integer',
                 'gramasi' => 'required|integer',
                 'stock' => 'required|integer',
-                'attachment_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'attachment_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120',
                 'price' => 'required|numeric',
                 'stock_rib' => 'required|integer',
             ]);
