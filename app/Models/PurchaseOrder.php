@@ -41,6 +41,7 @@ class PurchaseOrder extends Model
         'price',
         'stock_rib',
         'status',
+        'type',
     ];
 
     public function contact()

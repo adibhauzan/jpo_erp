@@ -87,6 +87,7 @@ class PurchaseController extends Controller
             $purchaseOrderData = [
                 'contact_id' => $request->input('contact_id'),
                 'warehouse_id' => $request->input('warehouse_id'),
+                'type' => 'in',
                 'no_po' => $no_po,
                 'no_do' => $no_do,
                 'date' => $request->input('date'),
