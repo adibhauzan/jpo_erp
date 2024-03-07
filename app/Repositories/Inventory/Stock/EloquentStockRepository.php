@@ -31,7 +31,29 @@ class EloquentStockRepository implements StockRepositoryInterface
 
     public function find(string $poId)
     {
-        return PurchaseOrder::findOrFail($poId);
+        $stock = PurchaseOrder::select(
+            'id',
+            'contact_id',
+            'warehouse_id',
+            'no_po',
+            'no_do',
+            'date',
+            'nama_barang',
+            'grade',
+            'sku',
+            'description',
+            'ketebalan',
+            'setting',
+            'gramasi',
+            'stock_rev',
+            'stock_rib_rev',
+            'attachment_image',
+            'price',
+            'status',
+            'type',
+        )->get();
+
+        return $stock;
     }
 
     public function findAll()
@@ -66,4 +88,14 @@ class EloquentStockRepository implements StockRepositoryInterface
         $po = $this->find($poId);
         $po->delete();
     }
+
+    public function update(string $poId, array $data)
+    {
+        $po = PurchaseOrder::all();
+        $po->update($data);
+        $po->refresh();
+        return $po;
+    }
+
+   
 }

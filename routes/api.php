@@ -124,9 +124,10 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
                     Route::delete('d/{id}', [StockController::class, 'delete']);
                 });
                 Route::group(['prefix' => 'transfer-in'], function () {
-                    Route::get('/i/', [TransferInController::class, 'index']);
                     Route::post('/', [TransferInController::class, 'store']);
+                    Route::get('/i/', [TransferInController::class, 'index']);
                     Route::get('/{id}', [TransferInController::class, 'show']);
+                    Route::put('/{id}/receive', [TransferInController::class, 'receive']);
                     Route::put('u/{id}', [TransferInController::class, 'update']);
                     Route::delete('d/{id}', [TransferInController::class, 'delete']);
                 });

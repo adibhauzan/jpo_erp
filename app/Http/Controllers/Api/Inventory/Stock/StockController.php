@@ -25,10 +25,20 @@ class StockController extends Controller
     public function index(){
         try {
             $stock = $this->stockRepository->findAll();
-            return response()->json(['message' => 'Stock retrieved successfully', 'data' => $stock], 200);
+            return response()->json(['message' => 'Stock fetch successfully', 'data' => $stock], 200);
         } catch (\Throwable $e) {
-            return response()->json(['message' => 'Failed retrieved Stock', 'data' => $e->getMessage()], 500);
+            return response()->json(['message' => 'Failed fetch Stock', 'data' => $e->getMessage()], 500);
 
+        }
+    }
+
+    public function show(string $stockId)
+    {
+        try {
+            $transferIn = $this->stockRepository->find($stockId);
+            return response()->json(['message' => 'Stock retrieved successfully', 'data' => $transferIn], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to retrieve Stock. ' . $e->getMessage()], 422);
         }
     }
 }
