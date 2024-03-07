@@ -259,27 +259,27 @@ class WarehouseController extends Controller
     {
         try {
             $warehouse = $this->warehouseRepository->find($warehouseId);
-            
+
             $validator = Validator::make($request->all(), [
                 'name' => 'nullable|string',
                 'address' => 'nullable|string',
                 'phone_number' => 'nullable|string|min:8|max:15|regex:/^([0-9\s\-\+\(\)]*)$/',
             ]);
-    
+
             if ($validator->fails()) {
                 return response()->json(['error' => $validator->errors()], 422);
             }
-    
+
             $data = [
                 'name' => $request->input('name') ?? $warehouse->name,
                 'address' => $request->input('address') ?? $warehouse->address,
                 'phone_number' => $request->input('phone_number') ?? $warehouse->phone_number,
             ];
-    
+
             $this->warehouseRepository->update($warehouseId, $data);
-    
+
             $updatedWarehouse = $this->warehouseRepository->find($warehouseId);
-    
+
             return response()->json(['message' => 'Warehouse updated successfully', 'data' => $updatedWarehouse], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Failed to update warehouse. ' . $e->getMessage()], 422);
@@ -447,6 +447,16 @@ class WarehouseController extends Controller
             return response()->json(['message' => 'warehouse deleted successfully'], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Failed to delete warehouse. ' . $e->getMessage()], 422);
+        }
+    }
+
+    public function getWarehousesByLoggedUser()
+    {
+        try {
+            $warehouses = $this->warehouseRepository->getByLoggedInUser();
+            return response()->json($warehouses);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to retrieve warehouses.'], 500);
         }
     }
 }

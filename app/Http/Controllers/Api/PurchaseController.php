@@ -22,20 +22,17 @@ use App\Repositories\PurchaseOrder\PurchaseOrderRepositoryInterface;
 class PurchaseController extends Controller
 {
     private $purchaseOrderRepository;
-    private $inventoryRepository;
 
 
     /**
      * Create a new purchaseOrderController instance.
      *
      * @param PurchaseOrderRepositoryInterface $purchaseOrderRepository
-     * @param InventoryRepositoryInterface $inventoryRepository
      * @return void
      */
-    public function __construct(PurchaseOrderRepositoryInterface $purchaseOrderRepository, InventoryRepositoryInterface $inventoryRepository)
+    public function __construct(PurchaseOrderRepositoryInterface $purchaseOrderRepository)
     {
         $this->purchaseOrderRepository = $purchaseOrderRepository;
-        $this->inventoryRepository = $inventoryRepository;
     }
 
     public function store(Request $request)
@@ -45,8 +42,6 @@ class PurchaseController extends Controller
             $validator = Validator::make($request->all(), [
                 'contact_id' => 'required|exists:contacts,id',
                 'warehouse_id' => 'required|exists:warehouses,id',
-                // 'no_po' => 'required|string',
-                // 'no_do' => 'required|string',
                 'date' => 'required|date',
                 'nama_barang' => 'required|string',
                 'grade' => 'required|string',
@@ -56,7 +51,7 @@ class PurchaseController extends Controller
                 'setting' => 'required|integer',
                 'gramasi' => 'required|integer',
                 'stock' => 'required|integer',
-                'attachment_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120',
+                'attachment_image' => 'required|string|mimes:jpeg,png,jpg,gif|max:5120',
                 'price' => 'required|numeric',
                 'stock_rib' => 'required|integer',
             ]);
@@ -99,19 +94,17 @@ class PurchaseController extends Controller
                 'setting' => $request->input('setting'),
                 'gramasi' => $request->input('gramasi'),
                 'stock' => $request->input('stock'),
+                'stock_rib' => $request->input('stock_rib'),
                 'attachment_image' => $originalImageName,
                 'price' => $request->input('price'),
-                'stock_rib' => $request->input('stock_rib'),
             ];
 
-            $this->inventoryRepository->create($purchaseOrderData);
             $purchaseOrder = $this->purchaseOrderRepository->create($purchaseOrderData);
 
             return response()->json(['Message' => 'success create new PurchaseOrder', 'data' => $purchaseOrder], 201);
         } catch (\Exception $e) {
             if (isset($randomFileName)) {
                 Storage::delete('public/images/PurchaseOrder/' . $randomFileName);
-                Storage::delete('public/images/InventoryTransferIn/' . $randomFileName);
             }
             return response()->json(['error' => 'Failed to create PurchaseOrder. ' . $e->getMessage()], 422);
         }

@@ -46,8 +46,5 @@ class Warehouse extends Model
         return $this->hasMany(PurchaseOrder::class, 'warehouse_id');
     }
 
-    public function inventories()
-    {
-        return $this->hasMany(Inventory::class, 'warehouse_id');
-    }
+  
 }

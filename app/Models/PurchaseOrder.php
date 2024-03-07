@@ -37,9 +37,11 @@ class PurchaseOrder extends Model
         'setting',
         'gramasi',
         'stock',
+        'stock_rev',
         'attachment_image',
         'price',
         'stock_rib',
+        'stock_rib_rev',
         'status',
         'type',
     ];

@@ -18,9 +18,14 @@ use App\Repositories\Warehouse\EloquentWarehouseRepository;
 use App\Repositories\Inventory\InventoryRepositoryInterface;
 use App\Repositories\Warehouse\WarehouseRepositoryInterface;
 use App\Repositories\Convection\EloquentConvectionRepository;
+use App\Repositories\Inventory\Stock\EloquentStockRepository;
 use App\Repositories\Convection\ConvectionRepositoryInterface;
+use App\Repositories\Inventory\Stock\StockRepositoryInterface;
 use App\Repositories\PurchaseOrder\EloquentPurchaseOrderRepository;
 use App\Repositories\PurchaseOrder\PurchaseOrderRepositoryInterface;
+use App\Repositories\Inventory\Transfer\In\EloquentTransferInRepository;
+use App\Repositories\Inventory\Transfer\In\TransferInRepositoryInterface;
+
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -37,7 +42,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(BankRepositoryInterface::class, EloquentBankRepository::class);
         $this->app->bind(ContactRepositoryInterface::class, EloquentContactRepository::class);
         $this->app->bind(PurchaseOrderRepositoryInterface::class, EloquentPurchaseOrderRepository::class);
-        $this->app->bind(InventoryRepositoryInterface::class, EloquentInventoryRepository::class);
+        $this->app->bind(StockRepositoryInterface::class, EloquentStockRepository::class);
+        $this->app->bind(TransferInRepositoryInterface::class, EloquentTransferInRepository::class);
+        // $this->app->bind(PurchaseOrderRepositoryInterface::class, EloquentPurchaseOrderRepository::class);
     }
 
     /**

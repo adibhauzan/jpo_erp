@@ -9,10 +9,11 @@ use App\Http\Controllers\Api\StoreController;
 use App\Http\Controllers\Api\TokenController;
 use App\Http\Controllers\Api\BrokerController;
 use App\Http\Controllers\Api\ContactController;
+use App\Http\Controllers\Api\PurchaseController;
 use App\Http\Controllers\Api\WarehouseController;
 use App\Http\Controllers\Api\ConvectionController;
-use App\Http\Controllers\Api\InventoryController;
-use App\Http\Controllers\Api\PurchaseController;
+use App\Http\Controllers\Api\Inventory\Stock\StockController;
+use App\Http\Controllers\Api\Inventory\Transfer\TransferInController;
 
 /*
 |--------------------------------------------------------------------------
@@ -97,6 +98,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
 
 
         Route::middleware(['role:store'])->group(function () {
+            Route::get('warehouses-list ', [WarehouseController::class, 'getWarehousesByLoggedUser']);
             Route::get('contacts', [ContactController::class, 'index']);
             Route::group(['prefix' => 'contact'], function () {
                 Route::post('/', [ContactController::class, 'store']);
@@ -113,12 +115,21 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
                 Route::delete('d/{id}', [PurchaseController::class, 'delete']);
             });
 
-            Route::get('inventories', [InventoryController::class, 'index']);
             Route::group(['prefix' => 'inventory'], function () {
-                Route::get('/{id}', [InventoryController::class, 'show']);
-                // Route::post('/', [InventoryController::class, 'store']);
-                // Route::put('u/{idx}', [InventoryController::class, 'update']);
-                // Route::delete('d/{id}', [InventoryController::class, 'delete']);
+                Route::get('stocks', [StockController::class, 'index']);
+                Route::group(['prefix' => 'stock'], function () {
+                    Route::post('/', [StockController::class, 'store']);
+                    Route::get('/{id}', [StockController::class, 'show']);
+                    Route::put('u/{id}', [StockController::class, 'update']);
+                    Route::delete('d/{id}', [StockController::class, 'delete']);
+                });
+                Route::group(['prefix' => 'transfer-in'], function () {
+                    Route::get('/i/', [TransferInController::class, 'index']);
+                    Route::post('/', [TransferInController::class, 'store']);
+                    Route::get('/{id}', [TransferInController::class, 'show']);
+                    Route::put('u/{id}', [TransferInController::class, 'update']);
+                    Route::delete('d/{id}', [TransferInController::class, 'delete']);
+                });
             });
         });
     });

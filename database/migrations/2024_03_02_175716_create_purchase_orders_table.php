@@ -28,9 +28,11 @@ return new class extends Migration
             $table->unsignedBigInteger('ketebalan');
             $table->unsignedBigInteger('setting');
             $table->unsignedBigInteger('gramasi');
-            $table->unsignedBigInteger('stock');
             $table->unsignedBigInteger('price');
+            $table->unsignedBigInteger('stock');
             $table->unsignedBigInteger('stock_rib');
+            $table->unsignedBigInteger('stock_rev')->default(0);
+            $table->unsignedBigInteger('stock_rib_rev')->default(0);
 
             $table->foreign('contact_id')->references('id')->on('contacts')->onDelete('cascade');
             $table->foreign('warehouse_id')->references('id')->on('warehouses')->onDelete('cascade');

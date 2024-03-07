@@ -35,7 +35,29 @@ class EloquentPurchaseOrderRepository implements PurchaseOrderRepositoryInterfac
     }
     public function findAll()
     {
-        return PurchaseOrder::all();
+        $purchaseOrders = PurchaseOrder::select(
+            'id',
+            'contact_id',
+            'warehouse_id',
+            'no_po',
+            'no_do',
+            'date',
+            'nama_barang',
+            'grade',
+            'sku',
+            'description',
+            'ketebalan',
+            'setting',
+            'gramasi',
+            'stock',
+            'stock_rib',
+            'attachment_image',
+            'price',
+            'status',
+            'type',
+        )->get();
+
+        return $purchaseOrders;
     }
 
     public function delete(string $poId)

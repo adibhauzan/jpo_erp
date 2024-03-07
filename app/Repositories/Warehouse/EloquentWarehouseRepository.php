@@ -49,13 +49,24 @@ class EloquentWarehouseRepository implements WarehouseRepositoryInterface
         $warehouse->delete();
     }
 
-    public function banWarehouse(string $warehouseId){
+    public function banWarehouse(string $warehouseId)
+    {
         $warehouse = $this->find($warehouseId);
         $warehouse->ban();
     }
-    
-    public function unBanWarehouse(string $warehouseId){
+
+    public function unBanWarehouse(string $warehouseId)
+    {
         $warehouse = $this->find($warehouseId);
         $warehouse->unban();
+    }
+
+    public function getByLoggedInUser()
+    {
+        $storeId = Auth::user()->store_id;
+
+        return Warehouse::where('store_id', $storeId)
+            ->where('status', 'active')
+            ->get();
     }
 }
