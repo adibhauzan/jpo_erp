@@ -43,6 +43,8 @@ class SalesOrderController extends Controller
                 'sku' => 'required|string|exists:purchase_orders,sku',
                 'broker_fee' => 'required|integer',
                 'date' => 'required|date',
+                'stock_rev' => 'nullable|integer',
+                'stock_rib_rev' => 'nullable|integer',
             ]);
 
             if ($validator->fails()) {
@@ -61,6 +63,8 @@ class SalesOrderController extends Controller
             $data = [
                 'sku' => $request->input('sku'),
                 'broker_fee' => $request->input('broker_fee'),
+                'stock_rev' => $request->input('stock_rev'),
+                'stock_rib_rev' => $request->input('stock_rib_rev'),
                 'date' => $request->input('date'),
                 'no_so' => $no_so,
             ];
@@ -69,7 +73,7 @@ class SalesOrderController extends Controller
 
             return response()->json(['message' => 'success create SO', 'data' => $salesData], 201);
         } catch (\Throwable $e) {
-            return response()->json(['message' => 'failed create SO' . $e->getMessage()], 422);
+            return response()->json(['message' => 'failed create SO ' . $e->getMessage()], 422);
         }
     }
 

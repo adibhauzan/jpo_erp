@@ -15,6 +15,16 @@ class EloquentSalesOrderRepository implements SalesOrderRepositoryInterface
 
     public function create(array $data)
     {
+        $stockRev = (int)$data['stock_rev'];
+        $stockRibRev = (int)$data['stock_rib_rev'];
+
+        DB::table('purchase_orders AS po')
+            ->where('po.sku', $data['sku'])
+            ->update([
+                'po.stock_rev' => DB::raw("po.stock_rev - $stockRev"),
+                'po.stock_rib_rev' => DB::raw("po.stock_rib_rev - $stockRibRev")
+            ]);
+
         return SalesOrder::create($data);
     }
 
@@ -23,7 +33,7 @@ class EloquentSalesOrderRepository implements SalesOrderRepositoryInterface
     {
         $salesOrder =  DB::table('sales_orders')
             ->join('purchase_orders', 'purchase_orders.sku', '=', 'sales_orders.sku')
-            ->select('sales_orders.broker_fee', 'purchase_orders.stock_rev', 'purchase_orders.price', 'sales_orders.id')
+            ->select('sales_orders.broker_fee', 'purchase_orders.stock_rev', 'purchase_orders.stock_rib_rev', 'purchase_orders.price', 'sales_orders.id')
             ->where('sales_orders.id', '=', $soId)->get();
 
         return $salesOrder;
@@ -33,11 +43,6 @@ class EloquentSalesOrderRepository implements SalesOrderRepositoryInterface
         return SalesOrder::all();
     }
 
-    // public function delete(string $poId)
-    // {
-    //     $po = $this->find($poId);
-    //     $po->delete();
-    // }
 
     public function getBySku(string $sku)
     {
@@ -50,14 +55,13 @@ class EloquentSalesOrderRepository implements SalesOrderRepositoryInterface
         return $skuData;
     }
 
-    public function update(string $soId, array $data){
+    public function update(string $soId, array $data)
+    {
         $updateSo = DB::table('purchase_orders AS po')
-        ->join('sales_orders AS so', 'po.sku', '=', 'so.sku')
-        ->where('so.id', $soId)
-        ->update(['po.price' => $data['price'], 'so.broker_fee' => $data['broker_fee'], 'po.stock_rev' => $data['stock_rev']]);
+            ->join('sales_orders AS so', 'po.sku', '=', 'so.sku')
+            ->where('so.id', $soId)
+            ->update(['po.price' => $data['price'], 'so.broker_fee' => $data['broker_fee'], 'po.stock_rev' => $data['stock_rev']]);
 
         return $updateSo;
-    
     }
-
 }

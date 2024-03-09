@@ -174,7 +174,6 @@ class PurchaseController extends Controller
                 $originalImageName = $request->file('attachment_image')->getClientOriginalName();
                 $path = $request->file('attachment_image')->storeAs('public/images/PurchaseOrder', $originalImageName);
 
-                // Delete old attachment if exists
                 if ($purchaseOrder->attachment_image) {
                     Storage::delete('public/images/PurchaseOrder/' . $purchaseOrder->attachment_image);
                 }
@@ -197,7 +196,7 @@ class PurchaseController extends Controller
             $purchaseOrder = $this->purchaseOrderRepository->delete($poId);
             return response()->json(['message' => 'PurchaseOrder deleted successfully'], 200);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to delete PurchaseOrder. ' . $e->getMessage()], 422);
+            return response()->json(['error' => 'sFailed to delete PurchaseOrder. ' . $e->getMessage()], 422);
         }
     }
 }

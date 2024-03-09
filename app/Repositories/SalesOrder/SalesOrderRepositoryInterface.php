@@ -9,10 +9,9 @@ interface SalesOrderRepositoryInterface
 
     public function update(string $soId, array $data);
 
-    public function find(string $poId);
+    public function find(string $soId);
 
     public function findAll();
 
-    // public function delete(string $poId);
     public function getBySku(string $sku);
 }
