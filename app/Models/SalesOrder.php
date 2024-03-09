@@ -3,14 +3,12 @@
 namespace App\Models;
 
 use Ramsey\Uuid\Uuid;
-
-use Mchev\Banhammer\Traits\Bannable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Store extends Model
+class SalesOrder extends Model
 {
-    use HasFactory, Bannable;
+    use HasFactory;
 
     public $incrementing = false;
     protected $keyType = 'string';
@@ -25,20 +23,14 @@ class Store extends Model
     }
 
     protected $fillable = [
-        'name',
-        'address',
-        'phone_number',
+        'sku',
+        'no_so',
+        'date',
+        'broker_fee',
     ];
 
-    public function users()
+    public function purchaseOrder()
     {
-        return $this->hasMany(User::class);
+        return $this->belongsTo(PurchaseOrder::class);
     }
-
-    public function warehouses()
-    {
-        return $this->hasMany(Warehouse::class);
-    }
-
-  
 }

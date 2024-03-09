@@ -14,6 +14,8 @@ use App\Http\Controllers\Api\WarehouseController;
 use App\Http\Controllers\Api\ConvectionController;
 use App\Http\Controllers\Api\Inventory\Stock\StockController;
 use App\Http\Controllers\Api\Inventory\Transfer\TransferInController;
+use App\Http\Controllers\Api\SalesOrderController;
+use App\Models\SalesOrder;
 
 /*
 |--------------------------------------------------------------------------
@@ -131,6 +133,15 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
                     Route::put('u/{id}', [TransferInController::class, 'update']);
                     Route::delete('d/{id}', [TransferInController::class, 'delete']);
                 });
+            });
+
+            Route::get('sales-orders', [SalesOrderController::class, 'index']);
+            Route::group(['prefix' => 'sales-order'], function () {
+                Route::post('/', [SalesOrderController::class, 'store']);
+                Route::get('/{id}', [SalesOrderController::class, 'show']);
+                Route::get('/{sku}', [SalesOrderController::class, 'getSku']);
+                Route::put('u/{id}', [SalesOrderController::class, 'update']);
+                // Route::delete('d/{id}', [PurchaseController::class, 'delete']);
             });
         });
     });

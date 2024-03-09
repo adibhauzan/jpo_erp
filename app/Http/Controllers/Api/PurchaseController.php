@@ -45,13 +45,13 @@ class PurchaseController extends Controller
                 'date' => 'required|date',
                 'nama_barang' => 'required|string',
                 'grade' => 'required|string',
-                'sku' => 'required|string',
+                'sku' => 'required|string|unique:purchase_orders',
                 'description' => 'required|string',
                 'ketebalan' => 'required|integer',
                 'setting' => 'required|integer',
                 'gramasi' => 'required|integer',
                 'stock' => 'required|integer',
-                'attachment_image' => 'required|string|mimes:jpeg,png,jpg,gif|max:5120',
+                'attachment_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120',
                 'price' => 'required|numeric',
                 'stock_rib' => 'required|integer',
             ]);
@@ -134,6 +134,8 @@ class PurchaseController extends Controller
     public function update(Request $request, string $poId)
     {
         try {
+            $status = 'received';
+
             $validator = Validator::make($request->all(), [
                 'date' => 'nullable|date',
                 'nama_barang' => 'nullable|string',
@@ -165,6 +167,7 @@ class PurchaseController extends Controller
                 'gramasi' => $request->input('gramasi') ?? $purchaseOrder->gramasi,
                 'stock' => $request->input('stock') ?? $purchaseOrder->stock,
                 'stock_rib' => $request->input('stock_rib') ?? $purchaseOrder->stock_rib,
+                'status' => $status
             ];
 
             if ($request->hasFile('attachment_image')) {

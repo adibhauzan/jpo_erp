@@ -19,13 +19,14 @@ use App\Repositories\Inventory\InventoryRepositoryInterface;
 use App\Repositories\Warehouse\WarehouseRepositoryInterface;
 use App\Repositories\Convection\EloquentConvectionRepository;
 use App\Repositories\Inventory\Stock\EloquentStockRepository;
+use App\Repositories\SalesOrder\EloquentSalesOrderRepository;
 use App\Repositories\Convection\ConvectionRepositoryInterface;
 use App\Repositories\Inventory\Stock\StockRepositoryInterface;
+use App\Repositories\SalesOrder\SalesOrderRepositoryInterface;
 use App\Repositories\PurchaseOrder\EloquentPurchaseOrderRepository;
 use App\Repositories\PurchaseOrder\PurchaseOrderRepositoryInterface;
 use App\Repositories\Inventory\Transfer\In\EloquentTransferInRepository;
 use App\Repositories\Inventory\Transfer\In\TransferInRepositoryInterface;
-
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -44,7 +45,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(PurchaseOrderRepositoryInterface::class, EloquentPurchaseOrderRepository::class);
         $this->app->bind(StockRepositoryInterface::class, EloquentStockRepository::class);
         $this->app->bind(TransferInRepositoryInterface::class, EloquentTransferInRepository::class);
-        // $this->app->bind(PurchaseOrderRepositoryInterface::class, EloquentPurchaseOrderRepository::class);
+        $this->app->bind(SalesOrderRepositoryInterface::class, EloquentSalesOrderRepository::class);
     }
 
     /**
