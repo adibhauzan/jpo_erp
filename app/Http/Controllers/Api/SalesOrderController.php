@@ -27,14 +27,18 @@ class SalesOrderController extends Controller
     public function getSku(string $sku)
     {
         try {
-            $sku = $this->salesOrderRepository->getBySku($sku);
+            $skuData = $this->salesOrderRepository->getBySku($sku);
 
+            if ($skuData->isEmpty()) {
+                return response()->json(['message' => 'SKU not found'], 404);
+            }
 
-            return response()->json(['message' => 'succes get sku', 'data' => $sku], 200);
+            return response()->json(['message' => 'Success get SKU', 'data' => $skuData], 200);
         } catch (\Throwable $e) {
-            return response()->json(['message' => 'failed get sku', 'data' => $e->getMessage()], 500);
+            return response()->json(['message' => 'Failed to get SKU', 'data' => $e->getMessage()], 500);
         }
     }
+
 
     public function store(Request $request)
     {

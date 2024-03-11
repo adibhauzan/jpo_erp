@@ -5,7 +5,7 @@ namespace App\Repositories\Inventory\Transfer\In;
 
 interface TransferInRepositoryInterface
 {
-    // public function create(array $data);
+    public function create(array $data);
 
     public function update(string $inId, array $data);
 

@@ -139,7 +139,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
             Route::group(['prefix' => 'sales-order'], function () {
                 Route::post('/', [SalesOrderController::class, 'store']);
                 Route::get('/{id}', [SalesOrderController::class, 'show']);
-                Route::get('/{sku}', [SalesOrderController::class, 'getSku']);
+                Route::get('/{sku}/sku', [SalesOrderController::class, 'getSku']);
                 Route::put('u/{id}', [SalesOrderController::class, 'update']);
                 // Route::delete('d/{id}', [PurchaseController::class, 'delete']);
             });
