@@ -101,6 +101,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
 
         Route::middleware(['role:store'])->group(function () {
             Route::get('warehouses-list ', [WarehouseController::class, 'getWarehousesByLoggedUser']);
+            Route::get('warehouse/{id}', [WarehouseController::class, 'show']);
             Route::get('contacts', [ContactController::class, 'index']);
             Route::group(['prefix' => 'contact'], function () {
                 Route::post('/', [ContactController::class, 'store']);
