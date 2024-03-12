@@ -14,4 +14,6 @@ interface SalesOrderRepositoryInterface
     public function findAll();
 
     public function getBySku(string $sku);
+
+    public function getAllSku();
 }

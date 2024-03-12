@@ -64,4 +64,11 @@ class EloquentSalesOrderRepository implements SalesOrderRepositoryInterface
 
         return $updateSo;
     }
+
+    public function getAllSku()
+    {
+        $skus = DB::table('purchase_orders')->pluck('sku');
+
+        return $skus;
+    }
 }

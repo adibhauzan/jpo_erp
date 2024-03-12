@@ -134,4 +134,14 @@ class SalesOrderController extends Controller
             return response()->json(['message' => 'failed update SO' . $e->getMessage()], 422);
         }
     }
+
+    public function findAllSku()
+    {
+        try {
+            $sku = $this->salesOrderRepository->getAllSku();
+            return response()->json(["message" => 'success find all SKU', "data" => $sku], 200);
+        } catch (\Throwable $e) {
+            return response()->json(['message' => 'failed find all' . $e->getMessage()], 422);
+        }
+    }
 }
