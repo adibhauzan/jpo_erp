@@ -58,7 +58,7 @@ class TransferInController extends Controller
                 'setting' => 'nullable|integer',
                 'gramasi' => 'nullable|integer',
                 'stock' => 'nullable|integer',
-                'attachment_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'attachment_image' => 'nullable|mimes:jpeg,png,jpg,gif|max:2048',
                 'stock_rib' => 'nullable|integer',
             ]);
 
@@ -126,7 +126,7 @@ class TransferInController extends Controller
                 'setting' => 'required|integer',
                 'gramasi' => 'required|integer',
                 'stock' => 'required|integer',
-                'attachment_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120',
+                'attachment_image' => 'required',
                 'price' => 'required|numeric',
                 'stock_rib' => 'required|integer',
             ]);
