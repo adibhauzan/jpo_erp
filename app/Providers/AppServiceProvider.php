@@ -27,6 +27,8 @@ use App\Repositories\PurchaseOrder\EloquentPurchaseOrderRepository;
 use App\Repositories\PurchaseOrder\PurchaseOrderRepositoryInterface;
 use App\Repositories\Inventory\Transfer\In\EloquentTransferInRepository;
 use App\Repositories\Inventory\Transfer\In\TransferInRepositoryInterface;
+use App\Repositories\Inventory\Transfer\Out\EloquentTransferOutRepository;
+use App\Repositories\Inventory\Transfer\Out\TransferOutRepositoryInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -46,6 +48,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(StockRepositoryInterface::class, EloquentStockRepository::class);
         $this->app->bind(TransferInRepositoryInterface::class, EloquentTransferInRepository::class);
         $this->app->bind(SalesOrderRepositoryInterface::class, EloquentSalesOrderRepository::class);
+        $this->app->bind(TransferOutRepositoryInterface::class, EloquentTransferOutRepository::class);
     }
 
     /**

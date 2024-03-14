@@ -33,6 +33,8 @@ return new class extends Migration
             $table->unsignedBigInteger('stock_rib');
             $table->unsignedBigInteger('stock_rev')->default(0);
             $table->unsignedBigInteger('stock_rib_rev')->default(0);
+            $table->unsignedBigInteger('stock_out')->default(0);
+            $table->unsignedBigInteger('stock_rib_out')->default(0);
 
             $table->foreign('contact_id')->references('id')->on('contacts')->onDelete('cascade');
             $table->foreign('warehouse_id')->references('id')->on('warehouses')->onDelete('cascade');

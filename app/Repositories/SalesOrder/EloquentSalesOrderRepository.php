@@ -22,7 +22,9 @@ class EloquentSalesOrderRepository implements SalesOrderRepositoryInterface
             ->where('po.sku', $data['sku'])
             ->update([
                 'po.stock_rev' => DB::raw("po.stock_rev - $stockRev"),
-                'po.stock_rib_rev' => DB::raw("po.stock_rib_rev - $stockRibRev")
+                'po.stock_rib_rev' => DB::raw("po.stock_rib_rev - $stockRibRev"),
+                'po.stock_out' => DB::raw("po.stock_out + $stockRev"),
+                'po.stock_rib_out' => DB::raw("po.stock_rib_out + $stockRibRev"),
             ]);
 
         return SalesOrder::create($data);

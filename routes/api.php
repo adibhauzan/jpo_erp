@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\SalesOrder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\BankControler;
@@ -12,10 +13,10 @@ use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\PurchaseController;
 use App\Http\Controllers\Api\WarehouseController;
 use App\Http\Controllers\Api\ConvectionController;
+use App\Http\Controllers\Api\SalesOrderController;
 use App\Http\Controllers\Api\Inventory\Stock\StockController;
 use App\Http\Controllers\Api\Inventory\Transfer\TransferInController;
-use App\Http\Controllers\Api\SalesOrderController;
-use App\Models\SalesOrder;
+use App\Http\Controllers\Api\Inventory\Transfer\TransferOutController;
 
 /*
 |--------------------------------------------------------------------------
@@ -133,6 +134,14 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
                     Route::put('/{id}/receive', [TransferInController::class, 'receive']);
                     Route::put('u/{id}', [TransferInController::class, 'update']);
                     Route::delete('d/{id}', [TransferInController::class, 'delete']);
+                });
+                Route::group(['prefix' => 'transfer-out'], function () {
+                    Route::post('/', [TransferOutController::class, 'store']);
+                    Route::get('/i/', [TransferOutController::class, 'index']);
+                    Route::get('/{id}', [TransferOutController::class, 'show']);
+                    Route::put('/{id}/receive', [TransferOutController::class, 'receive']);
+                    Route::put('u/{id}', [TransferOutController::class, 'update']);
+                    Route::delete('d/{id}', [TransferOutController::class, 'delete']);
                 });
             });
 
