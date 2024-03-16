@@ -50,7 +50,8 @@ class PurchaseController extends Controller
                 'ketebalan' => 'required|integer',
                 'setting' => 'required|integer',
                 'gramasi' => 'required|integer',
-                'stock' => 'required|integer',
+                'stock_roll' => 'required|integer',
+                'stock_kg' => 'required|integer',
                 'attachment_image' => 'required',
                 'price' => 'required|numeric',
                 'stock_rib' => 'required|integer',
@@ -62,15 +63,10 @@ class PurchaseController extends Controller
             }
 
             $currentDate = now();
+            $sequence = PurchaseOrder::whereDate('created_at', $currentDate)->count() + 1;
+            $no_do = 'INV/out/' . $currentDate->format('Y/m/d') . '/' . $sequence;
+            $no_po = 'SO' . str_pad($sequence, 5, '0', STR_PAD_LEFT); // Perbaikan 4: Nomor SO menggunakan timestamp
 
-            $year = $currentDate->format('Y');
-            $month = $currentDate->format('m');
-            $day = $currentDate->format('d');
-
-            $lastSequence = PurchaseOrder::whereDate('created_at', $currentDate)->count() + 1;
-
-            $no_do = 'INV/IN/' . $year . '/' . $month . '/' . $day . '/' . $lastSequence;
-            $no_po = 'PO' . str_pad($lastSequence, 5, '0', STR_PAD_LEFT);
 
             $originalImageName = $request->file('attachment_image')->getClientOriginalName();
             $extension = $request->file('attachment_image')->getClientOriginalExtension();
@@ -82,7 +78,6 @@ class PurchaseController extends Controller
             $purchaseOrderData = [
                 'contact_id' => $request->input('contact_id'),
                 'warehouse_id' => $request->input('warehouse_id'),
-                'type' => 'in',
                 'no_po' => $no_po,
                 'no_do' => $no_do,
                 'date' => $request->input('date'),
@@ -93,7 +88,8 @@ class PurchaseController extends Controller
                 'ketebalan' => $request->input('ketebalan'),
                 'setting' => $request->input('setting'),
                 'gramasi' => $request->input('gramasi'),
-                'stock' => $request->input('stock'),
+                'stock_roll' => $request->input('stock_roll'),
+                'stock_kg' => $request->input('stock_kg'),
                 'stock_rib' => $request->input('stock_rib'),
                 'attachment_image' => $originalImageName,
                 'price' => $request->input('price'),
@@ -145,7 +141,8 @@ class PurchaseController extends Controller
                 'ketebalan' => 'nullable|integer',
                 'setting' => 'nullable|integer',
                 'gramasi' => 'nullable|integer',
-                'stock' => 'nullable|integer',
+                'stock_roll' => 'nullable|integer',
+                'stock_kg' => 'nullable|integer',
                 'attachment_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'stock_rib' => 'nullable|integer',
             ]);
@@ -165,7 +162,8 @@ class PurchaseController extends Controller
                 'ketebalan' => $request->input('ketebalan') ?? $purchaseOrder->ketebalan,
                 'setting' => $request->input('setting') ?? $purchaseOrder->setting,
                 'gramasi' => $request->input('gramasi') ?? $purchaseOrder->gramasi,
-                'stock' => $request->input('stock') ?? $purchaseOrder->stock,
+                'stock_roll' => $request->input('stock_roll') ?? $purchaseOrder->stock_roll,
+                'stock_kg' => $request->input('stock_kg') ?? $purchaseOrder->stock,
                 'stock_rib' => $request->input('stock_rib') ?? $purchaseOrder->stock_rib,
                 'status' => $status
             ];

@@ -12,13 +12,13 @@ class EloquentPurchaseOrderRepository implements PurchaseOrderRepositoryInterfac
     public function create(array $data)
     {
         $user = Auth::user();
-    
+
         $warehouseStoreId = Warehouse::find($data['warehouse_id'])->store->id;
 
         if ($user->store_id !== $warehouseStoreId) {
-            throw new \Exception( 'The selected warehouse is not associated with your store.');
+            throw new \Exception('The selected warehouse is not associated with your store.');
         }
-      return  PurchaseOrder::create($data);
+        return  PurchaseOrder::create($data);
     }
 
     public function update(string $poId, array $data)
@@ -49,12 +49,12 @@ class EloquentPurchaseOrderRepository implements PurchaseOrderRepositoryInterfac
             'ketebalan',
             'setting',
             'gramasi',
-            'stock',
+            'stock_roll',
+            'stock_kg',
             'stock_rib',
             'attachment_image',
             'price',
             'status',
-            'type',
         )->get();
 
         return $purchaseOrders;

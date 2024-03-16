@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('purchase_orders', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->enum('status', ['draft', 'received', 'done'])->default('draft');
-            $table->enum('type', ['in', 'out']);
             $table->uuid('contact_id');
             $table->uuid('warehouse_id');
             $table->string('no_po');
@@ -29,12 +28,13 @@ return new class extends Migration
             $table->unsignedBigInteger('setting');
             $table->unsignedBigInteger('gramasi');
             $table->unsignedBigInteger('price');
-            $table->unsignedBigInteger('stock');
+            $table->unsignedBigInteger('stock_roll');
+            $table->unsignedBigInteger('stock_kg');
             $table->unsignedBigInteger('stock_rib');
-            $table->unsignedBigInteger('stock_rev')->default(0);
+            $table->unsignedBigInteger('stock_roll_rev')->default(0);
+            $table->unsignedBigInteger('stock_kg_rev')->default(0);
             $table->unsignedBigInteger('stock_rib_rev')->default(0);
-            $table->unsignedBigInteger('stock_out')->default(0);
-            $table->unsignedBigInteger('stock_rib_out')->default(0);
+
 
             $table->foreign('contact_id')->references('id')->on('contacts')->onDelete('cascade');
             $table->foreign('warehouse_id')->references('id')->on('warehouses')->onDelete('cascade');

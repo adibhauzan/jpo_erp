@@ -24,6 +24,54 @@ class SalesOrderController extends Controller
         $this->salesOrderRepository = $salesOrderRepository;
     }
 
+    public function store(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'sku' => 'required|string|exists:purchase_orders,sku',
+                'contact_id' => 'required|string|exists:contacts,id',
+                'warehouse_id' => 'required|string|exists:warehouses,id',
+                'broker' => 'required|string|exists:contacts,id',
+                'broker_fee' => 'required|integer',
+                'date' => 'required|date',
+                'stock_roll' => 'required|integer|min:0',
+                'stock_kg' => 'required|integer|min:0',
+                'stock_rib' => 'required|integer|min:0',
+                'price' => 'required|integer|min:1',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->errors()], 422);
+            }
+
+            $currentDate = now();
+            $sequence = SalesOrder::whereDate('created_at', $currentDate)->count() + 1;
+            $no_do = 'INV/out/' . $currentDate->format('Y/m/d') . '/' . $sequence; // Perbaikan 3: Nomor DO menggunakan timestamp
+            $no_so = 'SO' . str_pad($sequence, 5, '0', STR_PAD_LEFT); // Perbaikan 4: Nomor SO menggunakan timestamp
+
+            $data = [
+                'sku' => $request->input('sku'),
+                'contact_id' => $request->input('contact_id'),
+                'warehouse_id' => $request->input('warehouse_id'),
+                'broker' => $request->input('broker'),
+                'broker_fee' => $request->input('broker_fee'),
+                'date' => $request->input('date'),
+                'stock_roll' => $request->input('stock_roll'),
+                'stock_kg' => $request->input('stock_kg'),
+                'stock_rib' => $request->input('stock_rib'),
+                'price' => $request->input('price'),
+                'no_do' => $no_do,
+                'no_so' => $no_so,
+            ];
+
+            $salesData = $this->salesOrderRepository->create($data);
+
+            return response()->json(['message' => 'success create SO', 'data' => $salesData], 201);
+        } catch (\Throwable $e) {
+            return response()->json(['message' => 'failed create SO ' . $e->getMessage()], 422);
+        }
+    }
+
     public function getSku(string $sku)
     {
         try {
@@ -40,52 +88,12 @@ class SalesOrderController extends Controller
     }
 
 
-    public function store(Request $request)
-    {
-        try {
-            $validator = Validator::make($request->all(), [
-                'sku' => 'required|string|exists:purchase_orders,sku',
-                'broker_fee' => 'required|integer',
-                'date' => 'required|date',
-                'stock_rev' => 'nullable|integer',
-                'stock_rib_rev' => 'nullable|integer',
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json(['error' => $validator->errors()], 422);
-            }
-
-            $currentDate = now();
-
-            $year = $currentDate->format('Y');
-            $month = $currentDate->format('m');
-            $day = $currentDate->format('d');
-
-            $lastSequence = SalesOrder::whereDate('created_at', $currentDate)->count() + 1;
-
-            $no_so = 'INV/out/' . $year . '/' . $month . '/' . $day . '/' . $lastSequence;
-            $data = [
-                'sku' => $request->input('sku'),
-                'broker_fee' => $request->input('broker_fee'),
-                'stock_rev' => $request->input('stock_rev'),
-                'stock_rib_rev' => $request->input('stock_rib_rev'),
-                'date' => $request->input('date'),
-                'no_so' => $no_so,
-            ];
-
-            $salesData = $this->salesOrderRepository->create($data);
-
-            return response()->json(['message' => 'success create SO', 'data' => $salesData], 201);
-        } catch (\Throwable $e) {
-            return response()->json(['message' => 'failed create SO ' . $e->getMessage()], 422);
-        }
-    }
 
     public function index()
     {
         try {
             $salesOrders = $this->salesOrderRepository->findAll();
-            return response()->json(['message' => 'success fetch SO', 'data' => $salesOrders], 201);
+            return response()->json(['message' => 'success fetch SO', 'data' => $salesOrders], 200);
         } catch (\Throwable $e) {
             return response()->json(['message' => 'failed fetch SO' . $e->getMessage()], 422);
         }

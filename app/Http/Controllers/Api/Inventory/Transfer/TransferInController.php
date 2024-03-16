@@ -91,7 +91,8 @@ class TransferInController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'stock_rev' => 'nullable|integer',
+                'stock_roll_rev' => 'nullable|integer',
+                'stock_kg_rev' => 'nullable|integer',
                 'stock_rib_rev' => 'nullable|integer',
             ]);
 
@@ -99,10 +100,11 @@ class TransferInController extends Controller
                 return response()->json(['error' => $validator->errors()], 422);
             }
 
-            $quantityStockReceived = $request->input('stock_rev');
+            $quantityStockRollReceived = $request->input('stock_roll_rev');
+            $quantityStockKgReceived = $request->input('stock_kg_rev');
             $quantityRibReceived = $request->input('stock_rib_rev');
 
-            $transferin = $this->transferInRepository->receive($inId, $quantityStockReceived, $quantityRibReceived);
+            $transferin = $this->transferInRepository->receive($inId, $quantityStockRollReceived, $quantityStockKgReceived, $quantityRibReceived);
 
             return response()->json(['message' => 'Transfer in received successfully'], 200);
         } catch (\Exception $e) {

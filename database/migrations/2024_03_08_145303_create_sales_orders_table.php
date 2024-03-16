@@ -13,11 +13,29 @@ return new class extends Migration
     {
         Schema::create('sales_orders', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->enum('status', ['draft', 'received', 'done'])->default('draft');
+            $table->uuid('contact_id');
+            $table->uuid('warehouse_id');
             $table->string('no_so');
-            $table->string('sku');
-            $table->unsignedBigInteger('broker_fee');
+            $table->string('no_do');
             $table->date('date');
+            $table->uuid('broker');
+            $table->unsignedBigInteger('broker_fee');
+            $table->string('sku');
+            $table->string('description');
+            $table->string('attachment_image');
+            $table->unsignedBigInteger('ketebalan');
+            $table->unsignedBigInteger('setting');
+            $table->unsignedBigInteger('gramasi');
+            $table->unsignedBigInteger('price');
+            $table->unsignedBigInteger('stock_roll');
+            $table->unsignedBigInteger('stock_kg');
+            $table->unsignedBigInteger('stock_rib');
             $table->timestamps();
+
+            $table->foreign('broker')->references('id')->on('contacts')->onDelete('cascade');
+            $table->foreign('contact_id')->references('id')->on('contacts')->onDelete('cascade');
+            $table->foreign('warehouse_id')->references('id')->on('warehouses')->onDelete('cascade');
         });
     }
 

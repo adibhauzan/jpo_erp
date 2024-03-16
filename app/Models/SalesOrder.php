@@ -23,14 +23,40 @@ class SalesOrder extends Model
     }
 
     protected $fillable = [
-        'sku',
+        'id',
+        'contact_id',
+        'warehouse_id',
         'no_so',
+        'no_do',
         'date',
+        'nama_barang',
+        'grade',
+        'sku',
+        'description',
+        'ketebalan',
+        'setting',
+        'gramasi',
+        'stock_roll',
+        'stock_kg',
+        'stock_rib',
+        'attachment_image',
+        'price',
         'broker_fee',
+        'broker',
     ];
 
     public function purchaseOrder()
     {
         return $this->belongsTo(PurchaseOrder::class);
+    }
+
+    public function contact()
+    {
+        return $this->belongsTo(Contact::class);
+    }
+
+    public function warehouse()
+    {
+        return $this->belongsTo(Warehouse::class);
     }
 }

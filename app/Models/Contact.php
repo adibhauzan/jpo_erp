@@ -27,4 +27,14 @@ class Contact extends Model
         'phone_number',
         'address',
     ];
+
+    public function salesOrders()
+    {
+        return $this->hasMany(SalesOrder::class);
+    }
+
+    public function purchaseOrders()
+    {
+        return $this->hasMany(PurchaseOrder::class);
+    }
 }

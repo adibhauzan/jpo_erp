@@ -45,12 +45,12 @@ class EloquentStockRepository implements StockRepositoryInterface
             'ketebalan',
             'setting',
             'gramasi',
-            'stock_rev',
+            'stock_roll_rev',
+            'stock_kg_rev',
             'stock_rib_rev',
             'attachment_image',
             'price',
             'status',
-            'type',
         )->get();
 
         return $stock;
@@ -72,12 +72,12 @@ class EloquentStockRepository implements StockRepositoryInterface
             'ketebalan',
             'setting',
             'gramasi',
-            'stock_rev',
+            'stock_roll_rev',
+            'stock_kg_rev',
             'stock_rib_rev',
             'attachment_image',
             'price',
             'status',
-            'type',
         )->get();
 
         return $transferIn;
@@ -96,6 +96,4 @@ class EloquentStockRepository implements StockRepositoryInterface
         $po->refresh();
         return $po;
     }
-
-   
 }

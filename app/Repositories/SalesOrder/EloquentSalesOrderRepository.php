@@ -7,36 +7,76 @@ use App\Models\SalesOrder;
 use App\Models\PurchaseOrder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Repositories\SalesOrder\SalesOrderRepositoryInterface;
 
 class EloquentSalesOrderRepository implements SalesOrderRepositoryInterface
 {
-
-
     public function create(array $data)
     {
-        $stockRev = (int)$data['stock_rev'];
-        $stockRibRev = (int)$data['stock_rib_rev'];
+        // Validasi agar contact_id dan broker tidak sama
+        if ($data['contact_id'] == $data['broker']) { // Perbaikan 1: Menggunakan operator perbandingan
+            throw new \Exception("Contact dan broker tidak boleh sama.");
+        }
 
-        DB::table('purchase_orders AS po')
-            ->where('po.sku', $data['sku'])
-            ->update([
-                'po.stock_rev' => DB::raw("po.stock_rev - $stockRev"),
-                'po.stock_rib_rev' => DB::raw("po.stock_rib_rev - $stockRibRev"),
-                'po.stock_out' => DB::raw("po.stock_out + $stockRev"),
-                'po.stock_rib_out' => DB::raw("po.stock_rib_out + $stockRibRev"),
+        // Mengambil data purchase order berdasarkan SKU
+        $purchaseOrderData = PurchaseOrder::where('sku', $data['sku'])->first();
+
+        // Jika tidak ada data purchase order, throw exception
+        if (!$purchaseOrderData) {
+            throw new \Exception("Data purchase order tidak ditemukan.");
+        }
+
+        // Mengurangi stok purchase order berdasarkan SKU dalam satu transaksi
+        $salesOrder = DB::transaction(function () use ($purchaseOrderData, $data) {
+            if (
+                $data['stock_roll'] > $purchaseOrderData->stock_roll_rev &&
+                $data['stock_kg'] > $purchaseOrderData->stock_kg_rev &&
+                $data['stock_rib'] > $purchaseOrderData->stock_rib_rev
+            ) {
+                throw new \Exception("Stok yang diminta melebihi stok yang tersedia dalam purchase order.");
+            } else if ($data['stock_roll'] > $purchaseOrderData->stock_roll_rev) {
+                throw new \Exception("stok_roll yang diminta melebihi stok_roll yang tersedia dalam Stock.");
+            } else if ($data['stock_kg'] > $purchaseOrderData->stock_kg_rev) {
+                throw new \Exception("stok_kg yang diminta melebihi stok_kg yang tersedia dalam Stock.");
+            } else if ($data['stock_rib'] > $purchaseOrderData->stock_rib_rev) {
+                throw new \Exception("stock_rib yang diminta melebihi stock_rib yang tersedia dalam Stock.");
+            }
+            $purchaseOrderData->stock_roll_rev -= $data['stock_roll'];
+            $purchaseOrderData->stock_kg_rev -= $data['stock_kg'];
+            $purchaseOrderData->stock_rib_rev -= $data['stock_rib'];
+            $purchaseOrderData->save();
+
+            // Membuat sales order baru dengan menggunakan data yang diperoleh
+            return SalesOrder::create([
+                'sku' => $data['sku'],
+                'no_so' => $data['no_so'],
+                'no_do' => $data['no_do'],
+                'date' => $data['date'],
+                'contact_id' => $data['contact_id'],
+                'broker' => $data['broker'],
+                'broker_fee' => $data['broker_fee'],
+                'price' => $data['price'],
+                'ketebalan' => $purchaseOrderData->ketebalan,
+                'setting' => $purchaseOrderData->setting,
+                'gramasi' => $purchaseOrderData->gramasi,
+                'grade' => $purchaseOrderData->grade,
+                'description' => $purchaseOrderData->description,
+                'nama_barang' => $purchaseOrderData->nama_barang,
+                'attachment_image' => $purchaseOrderData->attachment_image,
+                'stock_roll' => $data['stock_roll'],
+                'stock_kg' => $data['stock_kg'],
+                'stock_rib' => $data['stock_rib'],
+                'warehouse_id' => $data['warehouse_id'],
             ]);
+        });
 
-        return SalesOrder::create($data);
+        return $salesOrder; // Perbaikan: Mengembalikan objek SalesOrder dari blok transaksi
     }
-
 
     public function find(string $soId)
     {
-        $salesOrder =  DB::table('sales_orders')
-            ->join('purchase_orders', 'purchase_orders.sku', '=', 'sales_orders.sku')
-            ->select('sales_orders.broker_fee', 'purchase_orders.stock_rev', 'purchase_orders.stock_rib_rev', 'purchase_orders.price', 'sales_orders.id')
-            ->where('sales_orders.id', '=', $soId)->get();
+        $salesOrder = SalesOrder::findOrFail($soId);
 
         return $salesOrder;
     }
