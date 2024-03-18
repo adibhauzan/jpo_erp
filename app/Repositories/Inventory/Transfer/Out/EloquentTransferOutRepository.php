@@ -4,6 +4,7 @@ namespace App\Repositories\Inventory\Transfer\Out;
 
 use App\Models\Warehouse;
 use App\Models\PurchaseOrder;
+use App\Models\SalesOrder;
 use Illuminate\Support\Facades\Auth;
 use App\Repositories\Inventory\Transfer\Out\TransferOutRepositoryInterface;
 
@@ -58,29 +59,9 @@ class EloquentTransferOutRepository implements TransferOutRepositoryInterface
 
     public function findAll()
     {
-        $transferIn = PurchaseOrder::select(
-            'id',
-            'contact_id',
-            'warehouse_id',
-            'no_po',
-            'no_do',
-            'date',
-            'nama_barang',
-            'grade',
-            'sku',
-            'description',
-            'ketebalan',
-            'setting',
-            'gramasi',
-            'stock_out',
-            'stock_rib_out',
-            'attachment_image',
-            'price',
-            'status',
-            'type',
-        )->get();
+        $transferOut = SalesOrder::all();
 
-        return $transferIn;
+        return $transferOut;
     }
 
     public function delete(string $poId)

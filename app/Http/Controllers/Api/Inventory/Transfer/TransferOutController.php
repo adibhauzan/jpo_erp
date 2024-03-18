@@ -29,7 +29,7 @@ class TransferOutController extends Controller
             $transferOut = $this->transferOutRepository->findAll();
             return response()->json(['message' => ' Transfer Out Fetch successfully', 'data' => $transferOut], 200);
         } catch (\Throwable $e) {
-            return response()->json(['message' => 'Failed retrieved Stock', 'data' => $e->getMessage()], 500);
+            return response()->json(['message' => 'Failed Out Fetch  Stock', 'data' => $e->getMessage()], 500);
         }
     }
 
