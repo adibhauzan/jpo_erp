@@ -31,6 +31,7 @@ class EloquentStockRepository implements StockRepositoryInterface
 
     public function find(string $poId)
     {
+        // Perbaikan sintaksis dalam kueri
         $stock = PurchaseOrder::select(
             'id',
             'contact_id',
@@ -50,11 +51,12 @@ class EloquentStockRepository implements StockRepositoryInterface
             'stock_rib_rev',
             'attachment_image',
             'price',
-            'status',
-        )->get();
+            'status'
+        )->where('id', $poId)->first(); // Perbaikan sintaksis where dan gunakan first() untuk mengambil satu baris
 
         return $stock;
     }
+
 
     public function findAll()
     {

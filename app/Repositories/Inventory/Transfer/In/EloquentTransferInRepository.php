@@ -92,22 +92,18 @@ class EloquentTransferInRepository implements TransferInRepositoryInterface
     {
         $purchaseOrder = PurchaseOrder::findOrFail($poId);
 
-        // Memeriksa apakah jumlah yang diterima melebihi stok yang tersedia
         if ($quantityStockRollReceived > $purchaseOrder->stock_roll || $quantityKgReceived > $purchaseOrder->stock_kg || $quantityRibReceived > $purchaseOrder->stock_rib) {
             throw new \Exception('Quantity received exceeds available stock');
         }
 
-        // Memeriksa apakah jumlah yang diterima melebihi stok roll yang tersedia
         if ($quantityStockRollReceived > $purchaseOrder->stock_roll) {
             throw new \Exception('Quantity Stock Roll Receive exceeds available stock roll');
         }
 
-        // Memeriksa apakah jumlah yang diterima melebihi stok kg yang tersedia
         if ($quantityKgReceived > $purchaseOrder->stock_kg) {
             throw new \Exception('Quantity kg received exceeds available stock kg');
         }
 
-        // Memeriksa apakah jumlah yang diterima melebihi stok rib yang tersedia
         if ($quantityRibReceived > $purchaseOrder->stock_rib) {
             throw new \Exception('Quantity rib received exceeds available stock rib');
         }

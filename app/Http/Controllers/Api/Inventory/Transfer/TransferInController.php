@@ -101,9 +101,9 @@ class TransferInController extends Controller
                 return response()->json(['error' => $validator->errors()], 422);
             }
 
-            $quantityStockRollReceived = $request->input('stock_roll_rev');
-            $quantityStockKgReceived = $request->input('stock_kg_rev');
-            $quantityRibReceived = $request->input('stock_rib_rev');
+            $quantityStockRollReceived = $request->input('stock_roll_rev', 0);
+            $quantityStockKgReceived = $request->input('stock_kg_rev', 0);
+            $quantityRibReceived = $request->input('stock_rib_rev', 0);
 
             $transferin = $this->transferInRepository->receive($inId, $quantityStockRollReceived, $quantityStockKgReceived, $quantityRibReceived);
 
