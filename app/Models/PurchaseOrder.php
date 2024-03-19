@@ -44,7 +44,6 @@ class PurchaseOrder extends Model
         'stock_rib_rev',
         'attachment_image',
         'price',
-        'type',
     ];
 
     public function contact()

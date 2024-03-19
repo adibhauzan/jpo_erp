@@ -57,7 +57,8 @@ class TransferInController extends Controller
                 'ketebalan' => 'nullable|integer',
                 'setting' => 'nullable|integer',
                 'gramasi' => 'nullable|integer',
-                'stock' => 'nullable|integer',
+                'stock_roll' => 'nullable|integer',
+                'stock_kg' => 'nullable|integer',
                 'attachment_image' => 'nullable|mimes:jpeg,png,jpg,gif|max:2048',
                 'stock_rib' => 'nullable|integer',
             ]);
@@ -127,7 +128,8 @@ class TransferInController extends Controller
                 'ketebalan' => 'required|integer',
                 'setting' => 'required|integer',
                 'gramasi' => 'required|integer',
-                'stock' => 'required|integer',
+                'stock_roll' => 'required|integer',
+                'stock_kg' => 'required|integer',
                 'attachment_image' => 'required',
                 'price' => 'required|numeric',
                 'stock_rib' => 'required|integer',
@@ -170,7 +172,8 @@ class TransferInController extends Controller
                 'ketebalan' => $request->input('ketebalan'),
                 'setting' => $request->input('setting'),
                 'gramasi' => $request->input('gramasi'),
-                'stock' => $request->input('stock'),
+                'stock_roll' => $request->input('stock_roll'),
+                'stock_kg' => $request->input('stock_kg'),
                 'stock_rib' => $request->input('stock_rib'),
                 'attachment_image' => $originalImageName,
                 'price' => $request->input('price'),
@@ -178,7 +181,7 @@ class TransferInController extends Controller
 
             $purchaseOrder = $this->transferInRepository->create($purchaseOrderData);
 
-            return response()->json(['Message' => 'success create new PurchaseOrder', 'data' => $purchaseOrder], 201);
+            return response()->json(['Message' => 'success create new Transfer In', 'data' => $purchaseOrder], 201);
         } catch (\Exception $e) {
             if (isset($randomFileName)) {
                 Storage::delete('public/images/PurchaseOrder/' . $randomFileName);
