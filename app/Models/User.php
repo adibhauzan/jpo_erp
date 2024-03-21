@@ -15,8 +15,8 @@ class User extends Authenticatable implements JWTSubject
 {
     use HasApiTokens, HasFactory, Notifiable, Bannable;
 
-    public $incrementing = false; // Non-incrementing primary key
-    protected $keyType = 'string'; // Primary key type
+    public $incrementing = false; 
+    protected $keyType = 'string'; 
 
     protected static function boot()
     {

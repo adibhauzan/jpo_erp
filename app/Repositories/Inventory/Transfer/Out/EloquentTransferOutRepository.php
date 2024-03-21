@@ -59,7 +59,27 @@ class EloquentTransferOutRepository implements TransferOutRepositoryInterface
 
     public function findAll()
     {
-        $transferOut = SalesOrder::all();
+        $transferOut = SalesOrder::select(
+            'id',
+            'contact_id',
+            'warehouse_id',
+            'no_so',
+            'no_do',
+            'date',
+            'nama_barang',
+            'grade',
+            'sku',
+            'description',
+            'ketebalan',
+            'setting',
+            'gramasi',
+            'stock_roll',
+            'stock_kg',
+            'stock_rib',
+            'attachment_image',
+            'price',
+            'status',
+        )->get();
 
         return $transferOut;
     }
@@ -97,4 +117,46 @@ class EloquentTransferOutRepository implements TransferOutRepositoryInterface
 
     //     return $purchaseOrder;
     // }
+
+    public function receive(string $soId, int $quantityStockRollReceived, int $quantityKgReceived, int $quantityRibReceived)
+    {
+        $salesOrder = SalesOrder::findOrFail($soId);
+
+        if ($quantityStockRollReceived > $salesOrder->stock_roll || $quantityKgReceived > $salesOrder->stock_kg || $quantityRibReceived > $salesOrder->stock_rib) {
+            throw new \Exception('Quantity received exceeds available stock');
+        }
+
+        if ($quantityStockRollReceived > $salesOrder->stock_roll) {
+            throw new \Exception('Quantity Stock Roll Receive exceeds available stock roll');
+        }
+
+        if ($quantityKgReceived > $salesOrder->stock_kg) {
+            throw new \Exception('Quantity kg received exceeds available stock kg');
+        }
+
+        if ($quantityRibReceived > $salesOrder->stock_rib) {
+            throw new \Exception('Quantity rib received exceeds available stock rib');
+        }
+
+        // Mengurangi stok yang diterima dari stok utama
+        $salesOrder->stock_roll -= $quantityStockRollReceived;
+        $salesOrder->stock_kg -= $quantityKgReceived;
+        $salesOrder->stock_rib -= $quantityRibReceived;
+
+        // Menambahkan stok yang diterima ke stok revisi
+        $salesOrder->stock_roll_rev += $quantityStockRollReceived;
+        $salesOrder->stock_kg_rev += $quantityKgReceived;
+        $salesOrder->stock_rib_rev += $quantityRibReceived;
+
+        // Memperbarui status pesanan berdasarkan stok yang tersisa
+        if ($salesOrder->stock_roll == 0 && $salesOrder->stock_kg == 0 && $salesOrder->stock_rib == 0) {
+            $salesOrder->status = 'done';
+        } else {
+            $salesOrder->status = 'received';
+        }
+
+        $salesOrder->save();
+
+        return $salesOrder;
+    }
 }

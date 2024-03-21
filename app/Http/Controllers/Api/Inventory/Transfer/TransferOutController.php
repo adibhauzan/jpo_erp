@@ -43,6 +43,31 @@ class TransferOutController extends Controller
         }
     }
 
+    public function receive(Request $request, string $outId)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'stock_roll_rev' => 'nullable|integer',
+                'stock_kg_rev' => 'nullable|integer',
+                'stock_rib_rev' => 'nullable|integer',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->errors()], 422);
+            }
+
+            $quantityStockRollReceived = $request->input('stock_roll_rev', 0);
+            $quantityStockKgReceived = $request->input('stock_kg_rev', 0);
+            $quantityRibReceived = $request->input('stock_rib_rev', 0);
+            
+            $this->transferOutRepository->receive($outId, $quantityStockRollReceived, $quantityStockKgReceived, $quantityRibReceived);
+
+            return response()->json(['message' => 'Transfer out received successfully'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
+    }
+
     // public function update(Request $request, string $inId)
     // {
     //     try {
