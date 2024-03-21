@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Inventory\Transfer;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\PurchaseOrder;
+use Illuminate\Support\Carbon;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -95,6 +96,7 @@ class TransferInController extends Controller
                 'stock_roll_rev' => 'nullable|integer',
                 'stock_kg_rev' => 'nullable|integer',
                 'stock_rib_rev' => 'nullable|integer',
+                'date_received' => 'nullable|date',
             ]);
 
             if ($validator->fails()) {
@@ -104,8 +106,9 @@ class TransferInController extends Controller
             $quantityStockRollReceived = $request->input('stock_roll_rev', 0);
             $quantityStockKgReceived = $request->input('stock_kg_rev', 0);
             $quantityRibReceived = $request->input('stock_rib_rev', 0);
+            $date_received = $request->input('date_received', Carbon::now()->toDateString());
 
-            $transferin = $this->transferInRepository->receive($inId, $quantityStockRollReceived, $quantityStockKgReceived, $quantityRibReceived);
+            $transferin = $this->transferInRepository->receive($inId, $quantityStockRollReceived, $quantityStockKgReceived, $quantityRibReceived, $date_received);
 
             return response()->json(['message' => 'Transfer in received successfully'], 200);
         } catch (\Exception $e) {

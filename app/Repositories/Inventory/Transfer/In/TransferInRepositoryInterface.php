@@ -13,7 +13,7 @@ interface TransferInRepositoryInterface
 
     public function findAll();
 
-    public function receive(string $poId, int $quantityStockRollReceived,  int $quantityKgReceivedint, int $quantityRibReceived);
+    public function receive(string $poId, int $quantityStockRollReceived,  int $quantityKgReceivedint, int $quantityRibReceived,  string $date_received);
 
 
     // public function delete(string $poId);

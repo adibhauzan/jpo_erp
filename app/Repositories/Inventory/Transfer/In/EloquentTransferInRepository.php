@@ -88,7 +88,7 @@ class EloquentTransferInRepository implements TransferInRepositoryInterface
         $po = $this->find($poId);
         $po->delete();
     }
-    public function receive(string $poId, int $quantityStockRollReceived, int $quantityKgReceived, int $quantityRibReceived)
+    public function receive(string $poId, int $quantityStockRollReceived, int $quantityKgReceived, int $quantityRibReceived, string $date_received)
     {
         $purchaseOrder = PurchaseOrder::findOrFail($poId);
 
@@ -118,6 +118,7 @@ class EloquentTransferInRepository implements TransferInRepositoryInterface
         $purchaseOrder->stock_kg_rev += $quantityKgReceived;
         $purchaseOrder->stock_rib_rev += $quantityRibReceived;
 
+        $purchaseOrder->date_received = $date_received;
         // Memperbarui status pesanan berdasarkan stok yang tersisa
         if ($purchaseOrder->stock_roll == 0 && $purchaseOrder->stock_kg == 0 && $purchaseOrder->stock_rib == 0) {
             $purchaseOrder->status = 'done';

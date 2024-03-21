@@ -46,6 +46,7 @@ class SalesOrder extends Model
         'price',
         'broker_fee',
         'broker',
+        'date_received',
     ];
 
     public function purchaseOrder()

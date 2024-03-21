@@ -47,9 +47,11 @@ class TransferOutController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
+                'date' => 'nullable|date',
                 'stock_roll_rev' => 'nullable|integer',
                 'stock_kg_rev' => 'nullable|integer',
                 'stock_rib_rev' => 'nullable|integer',
+                'date_received' => 'nullable|integer',
             ]);
 
             if ($validator->fails()) {
@@ -59,6 +61,7 @@ class TransferOutController extends Controller
             $quantityStockRollReceived = $request->input('stock_roll_rev', 0);
             $quantityStockKgReceived = $request->input('stock_kg_rev', 0);
             $quantityRibReceived = $request->input('stock_rib_rev', 0);
+            $date_received = $request->input('date_received');
             
             $this->transferOutRepository->receive($outId, $quantityStockRollReceived, $quantityStockKgReceived, $quantityRibReceived);
 

@@ -118,7 +118,7 @@ class EloquentTransferOutRepository implements TransferOutRepositoryInterface
     //     return $purchaseOrder;
     // }
 
-    public function receive(string $soId, int $quantityStockRollReceived, int $quantityKgReceived, int $quantityRibReceived)
+    public function receive(string $soId, int $quantityStockRollReceived, int $quantityKgReceived, int $quantityRibReceived, string $date_received)
     {
         $salesOrder = SalesOrder::findOrFail($soId);
 
@@ -147,6 +147,7 @@ class EloquentTransferOutRepository implements TransferOutRepositoryInterface
         $salesOrder->stock_roll_rev += $quantityStockRollReceived;
         $salesOrder->stock_kg_rev += $quantityKgReceived;
         $salesOrder->stock_rib_rev += $quantityRibReceived;
+        $salesOrder->date_received += $date_received;
 
         // Memperbarui status pesanan berdasarkan stok yang tersisa
         if ($salesOrder->stock_roll == 0 && $salesOrder->stock_kg == 0 && $salesOrder->stock_rib == 0) {
