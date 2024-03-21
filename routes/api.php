@@ -139,7 +139,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
                     Route::post('/', [TransferOutController::class, 'store']);
                     Route::get('/i/', [TransferOutController::class, 'index']);
                     Route::get('/{id}', [TransferOutController::class, 'show']);
-                    Route::put('/{id}/receive', [TransferOutController::class, 'receive']);
+                    Route::put('/{id}/sent', [TransferOutController::class, 'receive']);
                     Route::put('u/{id}', [TransferOutController::class, 'update']);
                     Route::delete('d/{id}', [TransferOutController::class, 'delete']);
                 });

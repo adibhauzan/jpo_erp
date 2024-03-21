@@ -62,8 +62,8 @@ class TransferOutController extends Controller
             $quantityStockKgReceived = $request->input('stock_kg_rev', 0);
             $quantityRibReceived = $request->input('stock_rib_rev', 0);
             $date_received = $request->input('date_received');
-            
-            $this->transferOutRepository->receive($outId, $quantityStockRollReceived, $quantityStockKgReceived, $quantityRibReceived);
+
+            $this->transferOutRepository->receive($outId, $quantityStockRollReceived, $quantityStockKgReceived, $quantityRibReceived, $date_received);
 
             return response()->json(['message' => 'Transfer out received successfully'], 200);
         } catch (\Exception $e) {
