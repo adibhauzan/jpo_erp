@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Inventory\Transfer;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use App\Repositories\Inventory\Transfer\Out\TransferOutRepositoryInterface;
@@ -61,7 +62,7 @@ class TransferOutController extends Controller
             $quantityStockRollReceived = $request->input('stock_roll_rev', 0);
             $quantityStockKgReceived = $request->input('stock_kg_rev', 0);
             $quantityRibReceived = $request->input('stock_rib_rev', 0);
-            $date_received = $request->input('date_received');
+            $date_received = $request->input('date_received', Carbon::now()->toDateString());
 
             $this->transferOutRepository->receive($outId, $quantityStockRollReceived, $quantityStockKgReceived, $quantityRibReceived, $date_received);
 

@@ -32,11 +32,12 @@ class EloquentTransferOutRepository implements TransferOutRepositoryInterface
 
     public function find(string $poId)
     {
-        $transferIn = PurchaseOrder::select(
+        $transferIn = SalesOrder::select(
             'id',
             'contact_id',
+            'broker',
             'warehouse_id',
-            'no_po',
+            'no_so',
             'no_do',
             'date',
             'nama_barang',
@@ -46,12 +47,12 @@ class EloquentTransferOutRepository implements TransferOutRepositoryInterface
             'ketebalan',
             'setting',
             'gramasi',
-            'stock_out',
-            'stock_rib_out',
+            'stock_roll',
+            'stock_kg',
+            'stock_rib',
             'attachment_image',
             'price',
             'status',
-            'type',
         )->findOrFail($poId);
 
         return $transferIn;
@@ -89,34 +90,6 @@ class EloquentTransferOutRepository implements TransferOutRepositoryInterface
         $po = $this->find($poId);
         $po->delete();
     }
-    // public function receive(string $poId, int $quantityStockReceived, int $quantityRibReceived)
-    // {
-    //     $purchaseOrder = PurchaseOrder::findOrFail($poId);
-
-    //     if ($quantityStockReceived > $purchaseOrder->stock && $quantityRibReceived > $purchaseOrder->stock_rib) {
-    //         throw new \Exception('Quantity received exceeds available stock');
-    //     } else if ($quantityStockReceived > $purchaseOrder->stock) {
-    //         throw new \Exception('Quantity Stock Receive exceeds available stock');
-    //     } else if ($quantityRibReceived > $purchaseOrder->stock_rib) {
-    //         throw new \Exception('Quantity rib received exceeds available stock rib');
-    //     }
-
-    //     $purchaseOrder->stock -= $quantityStockReceived;
-    //     $purchaseOrder->stock_rib -= $quantityRibReceived;
-
-    //     $purchaseOrder->stock_rev += $quantityStockReceived;
-    //     $purchaseOrder->stock_rib_rev += $quantityRibReceived;
-
-    //     if ($purchaseOrder->stock == 0 && $purchaseOrder->stock_rib == 0) {
-    //         $purchaseOrder->status = 'done';
-    //     } else {
-    //         $purchaseOrder->status = 'received';
-    //     }
-
-    //     $purchaseOrder->save();
-
-    //     return $purchaseOrder;
-    // }
 
     public function receive(string $soId, int $quantityStockRollReceived, int $quantityKgReceived, int $quantityRibReceived, string $date_received)
     {
@@ -147,7 +120,7 @@ class EloquentTransferOutRepository implements TransferOutRepositoryInterface
         $salesOrder->stock_roll_rev += $quantityStockRollReceived;
         $salesOrder->stock_kg_rev += $quantityKgReceived;
         $salesOrder->stock_rib_rev += $quantityRibReceived;
-        $salesOrder->date_received += $date_received;
+        $salesOrder->date_received = $date_received;
 
         // Memperbarui status pesanan berdasarkan stok yang tersisa
         if ($salesOrder->stock_roll == 0 && $salesOrder->stock_kg == 0 && $salesOrder->stock_rib == 0) {
