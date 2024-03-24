@@ -150,9 +150,10 @@ class TransferInController extends Controller
             $day = $currentDate->format('d');
 
             $lastSequence = PurchaseOrder::whereDate('created_at', $currentDate)->count() + 1;
+            $sequence = PurchaseOrder::whereDate('created_at', $currentDate)->count() + 1;
 
             $no_do = 'INV/IN/' . $year . '/' . $month . '/' . $day . '/' . $lastSequence;
-            $no_po = 'PO00' . $lastSequence;
+            $no_po = 'SO' . str_pad($sequence, 5, '0', STR_PAD_LEFT);
 
             $originalImageName = $request->file('attachment_image')->getClientOriginalName();
             $extension = $request->file('attachment_image')->getClientOriginalExtension();

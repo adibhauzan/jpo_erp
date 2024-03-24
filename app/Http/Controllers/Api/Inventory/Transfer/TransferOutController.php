@@ -30,7 +30,7 @@ class TransferOutController extends Controller
             $transferOut = $this->transferOutRepository->findAll();
             return response()->json(['message' => ' Transfer Out Fetch successfully', 'data' => $transferOut], 200);
         } catch (\Throwable $e) {
-            return response()->json(['message' => 'Failed Out Fetch  Stock', 'data' => $e->getMessage()], 500);
+            return response()->json(['code'=> 200, 'message' => 'Failed Out Fetch  Stock', 'data' => $e->getMessage()], 500);
         }
     }
 
@@ -113,28 +113,6 @@ class TransferOutController extends Controller
     //     }
     // }
 
-    // public function receive(Request $request, string $inId)
-    // {
-    //     try {
-    //         $validator = Validator::make($request->all(), [
-    //             'stock_rev' => 'nullable|integer',
-    //             'stock_rib_rev' => 'nullable|integer',
-    //         ]);
-
-    //         if ($validator->fails()) {
-    //             return response()->json(['error' => $validator->errors()], 422);
-    //         }
-
-    //         $quantityStockReceived = $request->input('stock_rev');
-    //         $quantityRibReceived = $request->input('stock_rib_rev');
-
-    //         $transferin = $this->transferOutRepository->receive($inId, $quantityStockReceived, $quantityRibReceived);
-
-    //         return response()->json(['message' => 'Transfer in received successfully'], 200);
-    //     } catch (\Exception $e) {
-    //         return response()->json(['error' => $e->getMessage()], 422);
-    //     }
-    // }
 
     // public function store(Request $request)
     // {
