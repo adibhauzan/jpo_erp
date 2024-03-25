@@ -19,8 +19,8 @@ return new class extends Migration
             $table->string('no_so');
             $table->string('no_do');
             $table->date('date');
-            $table->uuid('broker');
-            $table->unsignedBigInteger('broker_fee');
+            $table->uuid('broker')->nullable();
+            $table->unsignedBigInteger('broker_fee')->nullable();
             $table->string('sku');
             $table->string('description');
             $table->string('attachment_image');
