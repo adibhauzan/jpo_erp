@@ -6,6 +6,8 @@ use App\Models\Warehouse;
 use App\Models\PurchaseOrder;
 use Illuminate\Support\Facades\Auth;
 use App\Repositories\Inventory\Transfer\In\TransferInRepositoryInterface;
+use Illuminate\Support\Facades\DB;
+use Ramsey\Uuid\Uuid;
 
 class EloquentTransferInRepository implements TransferInRepositoryInterface
 {
@@ -90,6 +92,10 @@ class EloquentTransferInRepository implements TransferInRepositoryInterface
     }
     public function receive(string $poId, int $quantityStockRollReceived, int $quantityKgReceived, int $quantityRibReceived, string $date_received)
     {
+
+        $purchaseOrder = null;
+
+       DB::transaction(function () use ($poId, $quantityStockRollReceived, $quantityKgReceived, $quantityRibReceived, $date_received) {
         $purchaseOrder = PurchaseOrder::findOrFail($poId);
 
         if ($quantityStockRollReceived > $purchaseOrder->stock_roll || $quantityKgReceived > $purchaseOrder->stock_kg || $quantityRibReceived > $purchaseOrder->stock_rib) {
@@ -119,6 +125,7 @@ class EloquentTransferInRepository implements TransferInRepositoryInterface
         $purchaseOrder->stock_rib_rev += $quantityRibReceived;
 
         $purchaseOrder->date_received = $date_received;
+
         // Memperbarui status pesanan berdasarkan stok yang tersisa
         if ($purchaseOrder->stock_roll == 0 && $purchaseOrder->stock_kg == 0 && $purchaseOrder->stock_rib == 0) {
             $purchaseOrder->status = 'done';
@@ -126,8 +133,29 @@ class EloquentTransferInRepository implements TransferInRepositoryInterface
             $purchaseOrder->status = 'received';
         }
 
+        // Simpan perubahan pada pesanan pembelian
         $purchaseOrder->save();
 
-        return $purchaseOrder;
+        $uuid = Uuid::uuid4()->toString();
+
+        DB::table('bills')->insert([
+            'id'=>  $uuid,
+            'purchase_id' => $poId,
+            'contact_id' => $purchaseOrder->contact_id,
+            'warehouse_id' => $purchaseOrder->warehouse_id,
+            'sku' => $purchaseOrder->sku,
+            'ketebalan' => $purchaseOrder->ketebalan,
+            'setting' => $purchaseOrder->setting,
+            'gramasi' => $purchaseOrder->gramasi,
+            'bill_price' => $purchaseOrder->price,
+            'stock_roll' => $quantityStockRollReceived,
+            'stock_kg' => $quantityKgReceived,
+            'stock_rib' => $quantityRibReceived,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+     });
+
+       return $purchaseOrder;
     }
 }

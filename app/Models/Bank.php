@@ -29,4 +29,14 @@ class Bank extends Model
         'status',
     ];
 
+
+    public function bills()
+    {
+        return $this->hasMany(Bill::class);
+    }
+
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class);
+    }
 }

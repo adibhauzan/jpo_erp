@@ -2,13 +2,15 @@
 
 namespace App\Models;
 
-use Ramsey\Uuid\Uuid;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Ramsey\Uuid\Uuid;
 
-class PurchaseOrder extends Model
+class Invoice extends Model
 {
     use HasFactory;
+
+     protected $primaryKey = 'id';
 
     public $incrementing = false;
     protected $keyType = 'string';
@@ -23,30 +25,29 @@ class PurchaseOrder extends Model
     }
 
     protected $fillable = [
-        'id',
-        'contact_id',
+        'sales_order_id',
         'warehouse_id',
-        'no_po',
-        'no_do',
-        'date',
-        'nama_barang',
-        'grade',
+        'contact_id',
+        'bank_id',
         'sku',
-        'description',
+        'sell_price',
         'ketebalan',
         'setting',
         'gramasi',
         'stock_roll',
         'stock_kg',
         'stock_rib',
-        'stock_roll_rev',
-        'stock_kg_rev',
-        'stock_rib_rev',
-        'attachment_image',
-        'price',
-        'date_received',
+        'bill_price',
+        'paid_price',
+        'is_broker',
+        'broker',
+        'broker_fee',
+        'paid_status'
     ];
 
+    protected $casts = [
+        'is_broker' => 'boolean', // Mengkonversi is_broker ke tipe data boolean
+    ];
     public function contact()
     {
         return $this->belongsTo(Contact::class);
@@ -57,13 +58,13 @@ class PurchaseOrder extends Model
         return $this->belongsTo(Warehouse::class);
     }
 
-    public function salesOrders()
+    public function bank()
     {
-        return $this->hasMany(SalesOrder::class);
+        return $this->belongsTo(Bank::class);
     }
 
-      public function bills()
-    {
-        return $this->hasMany(Bill::class);
+    public function sales_order(){
+        return $this->belongsTo(SalesOrder::class);
     }
+
 }

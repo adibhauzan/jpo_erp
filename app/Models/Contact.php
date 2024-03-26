@@ -37,4 +37,15 @@ class Contact extends Model
     {
         return $this->hasMany(PurchaseOrder::class);
     }
+
+    public function bills()
+    {
+        return $this->hasMany(Bill::class);
+    }
+
+
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class);
+    }
 }

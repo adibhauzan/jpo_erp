@@ -49,4 +49,15 @@ class Warehouse extends Model
     {
         return $this->hasMany(SalesOrder::class);
     }
+
+    public function bills()
+    {
+        return $this->hasMany(Bill::class);
+    }
+
+
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class);
+    }
 }

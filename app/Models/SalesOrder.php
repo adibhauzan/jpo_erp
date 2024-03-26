@@ -63,4 +63,9 @@ class SalesOrder extends Model
     {
         return $this->belongsTo(Warehouse::class);
     }
+
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class);
+    }
 }

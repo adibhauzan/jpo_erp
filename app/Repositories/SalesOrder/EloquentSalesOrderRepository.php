@@ -3,21 +3,20 @@
 namespace App\Repositories\SalesOrder;
 
 use App\Models\Warehouse;
+use App\Models\Invoice;
 use App\Models\SalesOrder;
 use App\Models\PurchaseOrder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Repositories\SalesOrder\SalesOrderRepositoryInterface;
+use Ramsey\Uuid\Uuid;
 
 class EloquentSalesOrderRepository implements SalesOrderRepositoryInterface
 {
     public function create(array $data)
     {
-        // Validasi agar contact_id dan broker tidak sama
-        if ($data['contact_id'] == $data['broker']) { // Perbaikan 1: Menggunakan operator perbandingan
-            throw new \Exception("Contact dan broker tidak boleh sama.");
-        }
+
 
         // Mengambil data purchase order berdasarkan SKU
         $purchaseOrderData = PurchaseOrder::where('sku', $data['sku'])->first();
@@ -27,8 +26,16 @@ class EloquentSalesOrderRepository implements SalesOrderRepositoryInterface
             throw new \Exception("Data purchase order tidak ditemukan.");
         }
 
+
         // Mengurangi stok purchase order berdasarkan SKU dalam satu transaksi
         $salesOrder = DB::transaction(function () use ($purchaseOrderData, $data) {
+
+            // Validasi agar contact_id dan broker tidak sama
+        if ($data['contact_id'] == $data['broker']) { // Perbaikan 1: Menggunakan operator perbandingan
+            throw new \Exception("Contact dan broker tidak boleh sama.");
+        }
+
+
             if (
                 $data['stock_roll'] > $purchaseOrderData->stock_roll_rev &&
                 $data['stock_kg'] > $purchaseOrderData->stock_kg_rev &&
@@ -47,8 +54,10 @@ class EloquentSalesOrderRepository implements SalesOrderRepositoryInterface
             $purchaseOrderData->stock_rib_rev -= $data['stock_rib'];
             $purchaseOrderData->save();
 
+
+            $isBroker = ($data['broker'] != null && $data['broker_fee'] != null) ? 1 : 0;
             // Membuat sales order baru dengan menggunakan data yang diperoleh
-            return SalesOrder::create([
+            $salesOrder = SalesOrder::create([
                 'sku' => $data['sku'],
                 'no_so' => $data['no_so'],
                 'no_do' => $data['no_do'],
@@ -69,6 +78,36 @@ class EloquentSalesOrderRepository implements SalesOrderRepositoryInterface
                 'stock_rib' => $data['stock_rib'],
                 'warehouse_id' => $data['warehouse_id'],
             ]);
+
+            // Membuat invoice baru
+            $uuid = Uuid::uuid4()->toString();
+            $invoiceData = [
+                'id' => $uuid,
+                'sales_order_id' => $salesOrder->id,
+                'warehouse_id' => $salesOrder->warehouse_id,
+                'contact_id' => $salesOrder->contact_id,
+                'bank_id' => $salesOrder->bank_id,
+                'sku' => $salesOrder->sku,
+                'sell_price' => $salesOrder->price,
+                'ketebalan' => $salesOrder->ketebalan,
+                'setting' => $salesOrder->setting,
+                'gramasi' => $salesOrder->gramasi,
+                'stock_roll' => $salesOrder->stock_roll,
+                'stock_kg' => $salesOrder->stock_kg,
+                'stock_rib' => $salesOrder->stock_rib,
+                'bill_price' => $salesOrder->price,
+                'paid_price' => 0,
+                'is_broker' => $isBroker,
+                'broker' => $salesOrder->broker,
+                'broker_fee' => $salesOrder->broker_fee,
+                'paid_status' => 'unpaid',
+            ];
+
+            // Simpan invoice
+            Invoice::create($invoiceData);
+
+            // Setelah sales order dan invoice dibuat, kembalikan sales order
+            return $salesOrder;
         });
 
         return $salesOrder; // Perbaikan: Mengembalikan objek SalesOrder dari blok transaksi
