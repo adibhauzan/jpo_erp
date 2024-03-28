@@ -42,6 +42,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         Route::post('refresh', [AuthController::class, 'refresh']);
         Route::post('me', [AuthController::class, 'me']);
         Route::get('banks', [BankControler::class, 'index']);
+        Route::get('bank/{id}', [BankControler::class, 'show']);
 
 
         // Routes accessible only by superadmin role
@@ -96,7 +97,6 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
             // Bank
             Route::group(['prefix' => 'bank'], function () {
                 Route::post('/', [BankControler::class, 'store']);
-                Route::get('/{id}', [BankControler::class, 'show']);
                 Route::put('u/{id}', [BankControler::class, 'update']);
                 Route::delete('d/{id}', [BankControler::class, 'delete']);
             });
