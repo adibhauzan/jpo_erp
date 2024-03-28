@@ -10,7 +10,7 @@ class Invoice extends Model
 {
     use HasFactory;
 
-     protected $primaryKey = 'id';
+    protected $primaryKey = 'id';
 
     public $incrementing = false;
     protected $keyType = 'string';
@@ -25,6 +25,7 @@ class Invoice extends Model
     }
 
     protected $fillable = [
+        'no_invoice',
         'sales_order_id',
         'warehouse_id',
         'contact_id',
@@ -63,8 +64,13 @@ class Invoice extends Model
         return $this->belongsTo(Bank::class);
     }
 
-    public function sales_order(){
+    public function sales_order()
+    {
         return $this->belongsTo(SalesOrder::class);
     }
 
+    public function commisions()
+    {
+        return $this->hasMany(Commision::class);
+    }
 }

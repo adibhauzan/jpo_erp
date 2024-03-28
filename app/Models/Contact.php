@@ -48,4 +48,9 @@ class Contact extends Model
     {
         return $this->hasMany(Invoice::class);
     }
+
+    public function commisions()
+    {
+        return $this->hasMany(Commision::class);
+    }
 }

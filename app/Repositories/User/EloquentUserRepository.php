@@ -23,7 +23,7 @@ class EloquentUserRepository implements UserRepositoryInterface
 
     public function findAll()
     {
-        return User::all();
+        return User::orderBy('created_at', 'desc')->get();
     }
 
     public function find(string $userId)

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('bills', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->string('no_bill');
             $table->uuid('purchase_id');
             $table->uuid('bank_id')->nullable()->default(null);
             $table->uuid('contact_id');

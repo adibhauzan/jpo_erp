@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('invoices', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->string('no_invoice');
             $table->uuid('sales_order_id');
             $table->uuid('warehouse_id');
             $table->uuid('contact_id');
@@ -30,7 +31,7 @@ return new class extends Migration
             $table->boolean('is_broker')->default(0);
             $table->uuid('broker')->nullable();
             $table->unsignedBigInteger('broker_fee')->nullable();
-            $table->enum('paid_status', ['unpaid','partialy_paid', 'paid'])->default('unpaid');
+            $table->enum('paid_status', ['unpaid', 'partialy_paid', 'paid'])->default('unpaid');
             $table->timestamps();
 
 
@@ -39,8 +40,6 @@ return new class extends Migration
             $table->foreign('broker')->references('id')->on('contacts')->onDelete('cascade');
             $table->foreign('warehouse_id')->references('id')->on('warehouses')->onDelete('cascade');
             $table->foreign('bank_id')->references('id')->on('banks')->onDelete('cascade');
-
-
         });
     }
 

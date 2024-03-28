@@ -45,8 +45,17 @@ class SalesOrderController extends Controller
             }
 
             $currentDate = now();
-            $sequence = SalesOrder::whereDate('created_at', $currentDate)->count() + 1;
-            $no_do = 'INV/out/' . $currentDate->format('Y/m/d') . '/' . $sequence; // Perbaikan 3: Nomor DO menggunakan timestamp
+
+            $year = $currentDate->format('Y');
+            $month = $currentDate->format('m');
+            $day = $currentDate->format('d');
+
+            // Mengambil jumlah total entri dari tabel PurchaseOrder
+            $totalOrders = SalesOrder::count();
+
+            // Nomor urutan adalah jumlah total entri ditambah 1
+            $sequence = $totalOrders + 1;
+            $no_do = 'INV/OUT/' . $year . '/' . $month . '/' . $day . '/' . $sequence;
             $no_so = 'SO' . str_pad($sequence, 5, '0', STR_PAD_LEFT); // Perbaikan 4: Nomor SO menggunakan timestamp
 
             $data = [

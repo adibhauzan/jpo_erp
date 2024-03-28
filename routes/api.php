@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\BankControler;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BillController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\StoreController;
 use App\Http\Controllers\Api\TokenController;
@@ -17,6 +18,7 @@ use App\Http\Controllers\Api\SalesOrderController;
 use App\Http\Controllers\Api\Inventory\Stock\StockController;
 use App\Http\Controllers\Api\Inventory\Transfer\TransferInController;
 use App\Http\Controllers\Api\Inventory\Transfer\TransferOutController;
+use App\Http\Controllers\Api\InvoiceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -152,6 +154,26 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
                 Route::get('/{id}', [SalesOrderController::class, 'show']);
                 Route::get('/{sku}/sku', [SalesOrderController::class, 'getSku']);
                 Route::put('u/{id}', [SalesOrderController::class, 'update']);
+                // Route::delete('d/{id}', [PurchaseController::class, 'delete']);
+            });
+
+            Route::get('invoices', [InvoiceController::class, 'index']);
+            Route::group(['prefix' => 'invoice'], function () {
+                Route::get('/{id}', [InvoiceController::class, 'show']);
+                // Route::post('/', [SalesOrderController::class, 'store']);
+                // Route::get('all-sku', [SalesOrderController::class, 'findAllSku']);
+                // Route::get('/{sku}/sku', [SalesOrderController::class, 'getSku']);
+                // Route::put('u/{id}', [SalesOrderController::class, 'update']);
+                // Route::delete('d/{id}', [PurchaseController::class, 'delete']);
+            });
+
+            Route::get('bills', [BillController::class, 'index']);
+            Route::group(['prefix' => 'bill'], function () {
+                Route::get('/{id}', [BillController::class, 'show']);
+                // Route::post('/', [SalesOrderController::class, 'store']);
+                // Route::get('all-sku', [SalesOrderController::class, 'findAllSku']);
+                // Route::get('/{sku}/sku', [SalesOrderController::class, 'getSku']);
+                // Route::put('u/{id}', [SalesOrderController::class, 'update']);
                 // Route::delete('d/{id}', [PurchaseController::class, 'delete']);
             });
         });

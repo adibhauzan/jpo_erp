@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Inventory\Transfer\In;
 
+use App\Models\Bill;
 use App\Models\Warehouse;
 use App\Models\PurchaseOrder;
 use Illuminate\Support\Facades\Auth;
@@ -80,7 +81,11 @@ class EloquentTransferInRepository implements TransferInRepositoryInterface
             'attachment_image',
             'price',
             'status',
-        )->get();
+            'created_at',
+            'updated_at'
+        )
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return $transferIn;
     }
@@ -90,72 +95,85 @@ class EloquentTransferInRepository implements TransferInRepositoryInterface
         $po = $this->find($poId);
         $po->delete();
     }
+
     public function receive(string $poId, int $quantityStockRollReceived, int $quantityKgReceived, int $quantityRibReceived, string $date_received)
     {
 
         $purchaseOrder = null;
 
-       DB::transaction(function () use ($poId, $quantityStockRollReceived, $quantityKgReceived, $quantityRibReceived, $date_received) {
-        $purchaseOrder = PurchaseOrder::findOrFail($poId);
+        DB::transaction(function () use ($poId, $quantityStockRollReceived, $quantityKgReceived, $quantityRibReceived, $date_received) {
+            $purchaseOrder = PurchaseOrder::findOrFail($poId);
 
-        if ($quantityStockRollReceived > $purchaseOrder->stock_roll || $quantityKgReceived > $purchaseOrder->stock_kg || $quantityRibReceived > $purchaseOrder->stock_rib) {
-            throw new \Exception('Quantity received exceeds available stock');
-        }
+            if ($quantityStockRollReceived > $purchaseOrder->stock_roll || $quantityKgReceived > $purchaseOrder->stock_kg || $quantityRibReceived > $purchaseOrder->stock_rib) {
+                throw new \Exception('Quantity received exceeds available stock');
+            }
 
-        if ($quantityStockRollReceived > $purchaseOrder->stock_roll) {
-            throw new \Exception('Quantity Stock Roll Receive exceeds available stock roll');
-        }
+            if ($quantityStockRollReceived > $purchaseOrder->stock_roll) {
+                throw new \Exception('Quantity Stock Roll Receive exceeds available stock roll');
+            }
 
-        if ($quantityKgReceived > $purchaseOrder->stock_kg) {
-            throw new \Exception('Quantity kg received exceeds available stock kg');
-        }
+            if ($quantityKgReceived > $purchaseOrder->stock_kg) {
+                throw new \Exception('Quantity kg received exceeds available stock kg');
+            }
 
-        if ($quantityRibReceived > $purchaseOrder->stock_rib) {
-            throw new \Exception('Quantity rib received exceeds available stock rib');
-        }
+            if ($quantityRibReceived > $purchaseOrder->stock_rib) {
+                throw new \Exception('Quantity rib received exceeds available stock rib');
+            }
 
-        // Mengurangi stok yang diterima dari stok utama
-        $purchaseOrder->stock_roll -= $quantityStockRollReceived;
-        $purchaseOrder->stock_kg -= $quantityKgReceived;
-        $purchaseOrder->stock_rib -= $quantityRibReceived;
+            // Mengurangi stok yang diterima dari stok utama
+            $purchaseOrder->stock_roll -= $quantityStockRollReceived;
+            $purchaseOrder->stock_kg -= $quantityKgReceived;
+            $purchaseOrder->stock_rib -= $quantityRibReceived;
 
-        // Menambahkan stok yang diterima ke stok revisi
-        $purchaseOrder->stock_roll_rev += $quantityStockRollReceived;
-        $purchaseOrder->stock_kg_rev += $quantityKgReceived;
-        $purchaseOrder->stock_rib_rev += $quantityRibReceived;
+            // Menambahkan stok yang diterima ke stok revisi
+            $purchaseOrder->stock_roll_rev += $quantityStockRollReceived;
+            $purchaseOrder->stock_kg_rev += $quantityKgReceived;
+            $purchaseOrder->stock_rib_rev += $quantityRibReceived;
 
-        $purchaseOrder->date_received = $date_received;
+            $purchaseOrder->date_received = $date_received;
 
-        // Memperbarui status pesanan berdasarkan stok yang tersisa
-        if ($purchaseOrder->stock_roll == 0 && $purchaseOrder->stock_kg == 0 && $purchaseOrder->stock_rib == 0) {
-            $purchaseOrder->status = 'done';
-        } else {
-            $purchaseOrder->status = 'received';
-        }
+            // Memperbarui status pesanan berdasarkan stok yang tersisa
+            if ($purchaseOrder->stock_roll == 0 && $purchaseOrder->stock_kg == 0 && $purchaseOrder->stock_rib == 0) {
+                $purchaseOrder->status = 'done';
+            } else {
+                $purchaseOrder->status = 'received';
+            }
 
-        // Simpan perubahan pada pesanan pembelian
-        $purchaseOrder->save();
+            // Simpan perubahan pada pesanan pembelian
+            $purchaseOrder->save();
 
-        $uuid = Uuid::uuid4()->toString();
+            $uuid = Uuid::uuid4()->toString();
 
-        DB::table('bills')->insert([
-            'id'=>  $uuid,
-            'purchase_id' => $poId,
-            'contact_id' => $purchaseOrder->contact_id,
-            'warehouse_id' => $purchaseOrder->warehouse_id,
-            'sku' => $purchaseOrder->sku,
-            'ketebalan' => $purchaseOrder->ketebalan,
-            'setting' => $purchaseOrder->setting,
-            'gramasi' => $purchaseOrder->gramasi,
-            'bill_price' => $purchaseOrder->price,
-            'stock_roll' => $quantityStockRollReceived,
-            'stock_kg' => $quantityKgReceived,
-            'stock_rib' => $quantityRibReceived,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-     });
+            $currentDate = now();
 
-       return $purchaseOrder;
+            $year = $currentDate->format('Y');
+            $month = $currentDate->format('m');
+            $day = $currentDate->format('d');
+
+            $totalOrders = Bill::count();
+
+            $sequence = $totalOrders + 1;
+            $no_bill = 'BILL/' . $year . '/' . $month . '/' . $day . '/' . $sequence;
+
+            DB::table('bills')->insert([
+                'id' =>  $uuid,
+                'no_bill' => $no_bill,
+                'purchase_id' => $poId,
+                'contact_id' => $purchaseOrder->contact_id,
+                'warehouse_id' => $purchaseOrder->warehouse_id,
+                'sku' => $purchaseOrder->sku,
+                'ketebalan' => $purchaseOrder->ketebalan,
+                'setting' => $purchaseOrder->setting,
+                'gramasi' => $purchaseOrder->gramasi,
+                'bill_price' => $purchaseOrder->price,
+                'stock_roll' => $quantityStockRollReceived,
+                'stock_kg' => $quantityKgReceived,
+                'stock_rib' => $quantityRibReceived,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        });
+
+        return $purchaseOrder;
     }
 }

@@ -23,9 +23,10 @@ class Bill extends Model
         });
     }
 
-   protected $fillable = [
-       'purchase_id',
-       'id',
+    protected $fillable = [
+        'no_bill',
+        'purchase_id',
+        'id',
         'bank_id',
         'contact_id',
         'warehouse_id',
@@ -61,5 +62,4 @@ class Bill extends Model
     {
         return $this->belongsTo(PurchaseOrder::class);
     }
-
 }

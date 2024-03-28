@@ -27,7 +27,7 @@ class EloquentTokenRepository implements TokenRepositoryInterface
 
     public function findAll()
     {
-        return Token::all();
+        return Token::orderBy('created_at', 'desc')->get();
     }
 
     public function delete(string $tokenId)

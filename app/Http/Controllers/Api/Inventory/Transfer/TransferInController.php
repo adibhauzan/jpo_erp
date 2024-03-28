@@ -149,10 +149,14 @@ class TransferInController extends Controller
             $month = $currentDate->format('m');
             $day = $currentDate->format('d');
 
-            $lastSequence = PurchaseOrder::whereDate('created_at', $currentDate)->count() + 1;
-            $sequence = PurchaseOrder::whereDate('created_at', $currentDate)->count() + 1;
+            // Mengambil jumlah total entri dari tabel PurchaseOrder
+            $totalOrders = PurchaseOrder::count();
 
-            $no_do = 'INV/IN/' . $year . '/' . $month . '/' . $day . '/' . $lastSequence;
+            // Nomor urutan adalah jumlah total entri ditambah 1
+            $sequence = $totalOrders + 1;
+
+            // Menggunakan nomor urutan yang baru untuk membuat nomor DO dan nomor PO
+            $no_do = 'INV/IN/' . $year . '/' . $month . '/' . $day . '/' . $sequence;
             $no_po = 'SO' . str_pad($sequence, 5, '0', STR_PAD_LEFT);
 
             $originalImageName = $request->file('attachment_image')->getClientOriginalName();

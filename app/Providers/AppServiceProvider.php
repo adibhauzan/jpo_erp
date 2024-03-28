@@ -4,15 +4,19 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use App\Repositories\Bank\EloquentBankRepository;
+use App\Repositories\Bill\EloquentBillRepository;
 use App\Repositories\User\EloquentUserRepository;
 use App\Repositories\Bank\BankRepositoryInterface;
+use App\Repositories\Bill\BillRepositoryInterface;
 use App\Repositories\User\UserRepositoryInterface;
 use App\Repositories\Store\EloquentStoreRepository;
 use App\Repositories\Token\EloquentTokenRepository;
 use App\Repositories\Store\StoreRepositoryInterface;
 use App\Repositories\Token\TokenRepositoryInterface;
 use App\Repositories\Contact\EloquentContactRepository;
+use App\Repositories\Invoice\EloquentInvoiceRepository;
 use App\Repositories\Contact\ContactRepositoryInterface;
+use App\Repositories\Invoice\InvoiceRepositoryInterface;
 use App\Repositories\Inventory\EloquentInventoryRepository;
 use App\Repositories\Warehouse\EloquentWarehouseRepository;
 use App\Repositories\Inventory\InventoryRepositoryInterface;
@@ -49,6 +53,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(TransferInRepositoryInterface::class, EloquentTransferInRepository::class);
         $this->app->bind(SalesOrderRepositoryInterface::class, EloquentSalesOrderRepository::class);
         $this->app->bind(TransferOutRepositoryInterface::class, EloquentTransferOutRepository::class);
+        $this->app->bind(BillRepositoryInterface::class, EloquentBillRepository::class);
+        $this->app->bind(InvoiceRepositoryInterface::class, EloquentInvoiceRepository::class);
     }
 
     /**

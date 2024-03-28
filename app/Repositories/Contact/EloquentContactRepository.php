@@ -27,7 +27,7 @@ class EloquentContactRepository implements ContactRepositoryInterface
 
     public function findAll()
     {
-        return Contact::all();
+        return Contact::orderBy('created_at', 'desc')->get();
     }
 
     public function delete(string $contactId)

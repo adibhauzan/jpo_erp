@@ -27,7 +27,7 @@ class EloquentWarehouseRepository implements WarehouseRepositoryInterface
     }
     public function findAll()
     {
-        return Warehouse::all();
+        return Warehouse::orderBy('created_at', 'desc')->get();
     }
 
 

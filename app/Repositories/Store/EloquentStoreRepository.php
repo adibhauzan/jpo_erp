@@ -27,7 +27,7 @@ class EloquentStoreRepository implements StoreRepositoryInterface
     }
     public function findAll()
     {
-        return Store::all();
+        return Store::orderBy('created_at', 'desc')->get();
     }
 
 
@@ -54,11 +54,10 @@ class EloquentStoreRepository implements StoreRepositoryInterface
         $store = $this->find($storeId);
         $store->ban();
     }
-    
+
     public function unBanStore(string $storeId)
     {
         $store = $this->find($storeId);
         $store->unban();
     }
-
 }

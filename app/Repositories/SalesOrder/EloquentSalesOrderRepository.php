@@ -2,22 +2,21 @@
 
 namespace App\Repositories\SalesOrder;
 
-use App\Models\Warehouse;
+use Ramsey\Uuid\Uuid;
 use App\Models\Invoice;
+use App\Models\Commision;
+use App\Models\Warehouse;
 use App\Models\SalesOrder;
 use App\Models\PurchaseOrder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Repositories\SalesOrder\SalesOrderRepositoryInterface;
-use Ramsey\Uuid\Uuid;
 
 class EloquentSalesOrderRepository implements SalesOrderRepositoryInterface
 {
     public function create(array $data)
     {
-
-
         // Mengambil data purchase order berdasarkan SKU
         $purchaseOrderData = PurchaseOrder::where('sku', $data['sku'])->first();
 
@@ -31,9 +30,9 @@ class EloquentSalesOrderRepository implements SalesOrderRepositoryInterface
         $salesOrder = DB::transaction(function () use ($purchaseOrderData, $data) {
 
             // Validasi agar contact_id dan broker tidak sama
-        if ($data['contact_id'] == $data['broker']) { // Perbaikan 1: Menggunakan operator perbandingan
-            throw new \Exception("Contact dan broker tidak boleh sama.");
-        }
+            if ($data['contact_id'] == $data['broker']) { // Perbaikan 1: Menggunakan operator perbandingan
+                throw new \Exception("Contact dan broker tidak boleh sama.");
+            }
 
 
             if (
@@ -81,9 +80,21 @@ class EloquentSalesOrderRepository implements SalesOrderRepositoryInterface
 
             // Membuat invoice baru
             $uuid = Uuid::uuid4()->toString();
+            $currentDate = now();
+
+            $year = $currentDate->format('Y');
+            $month = $currentDate->format('m');
+            $day = $currentDate->format('d');
+
+            $totalOrders = Invoice::count();
+
+            $sequence = $totalOrders + 1;
+            $no_invoice = 'INVOICE/' . $year . '/' . $month . '/' . $day . '/' . $sequence;
+            $no_commision = 'COMMISIONS/' . $year . '/' . $month . '/' . $day . '/' . $sequence;
             $invoiceData = [
                 'id' => $uuid,
                 'sales_order_id' => $salesOrder->id,
+                'no_invoice' => $no_invoice,
                 'warehouse_id' => $salesOrder->warehouse_id,
                 'contact_id' => $salesOrder->contact_id,
                 'bank_id' => $salesOrder->bank_id,
@@ -101,16 +112,28 @@ class EloquentSalesOrderRepository implements SalesOrderRepositoryInterface
                 'broker' => $salesOrder->broker,
                 'broker_fee' => $salesOrder->broker_fee,
                 'paid_status' => 'unpaid',
+                'created_at' => $currentDate,
+                'updated_at' => $currentDate
             ];
 
-            // Simpan invoice
             Invoice::create($invoiceData);
 
-            // Setelah sales order dan invoice dibuat, kembalikan sales order
+            if ($isBroker) {
+                $commision = Commision::create([
+                    'no_commision' => $no_commision,
+                    'ref_dokumen_id' => $invoiceData['no_invoice'],
+                    'broker' => $data['broker'],
+                    'broker_fee' => $data['broker_fee'],
+                    'paid_price' => 0,
+                    'paid_status' => 'unpaid',
+                    'created_at' => $currentDate,
+                    'updated_at' => $currentDate
+                ]);
+            }
             return $salesOrder;
         });
 
-        return $salesOrder; // Perbaikan: Mengembalikan objek SalesOrder dari blok transaksi
+        return $salesOrder;
     }
 
     public function find(string $soId)
@@ -121,7 +144,7 @@ class EloquentSalesOrderRepository implements SalesOrderRepositoryInterface
     }
     public function findAll()
     {
-        return SalesOrder::all();
+        return SalesOrder::orderBy('created_at', 'desc')->get();
     }
 
 

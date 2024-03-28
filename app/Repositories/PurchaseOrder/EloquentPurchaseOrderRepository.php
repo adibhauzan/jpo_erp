@@ -55,7 +55,9 @@ class EloquentPurchaseOrderRepository implements PurchaseOrderRepositoryInterfac
             'attachment_image',
             'price',
             'status',
-        )->get();
+            'created_at',
+            'updated_at'
+        )->orderBy('created_at', 'desc')->get();
 
         return $purchaseOrders;
     }

@@ -27,7 +27,7 @@ class EloquentConvectionRepository implements ConvectionRepositoryInterface
     }
     public function findAll()
     {
-        return Convection::all();
+        return Convection::orderBy('created_at', 'desc')->get();
     }
 
 
@@ -54,7 +54,7 @@ class EloquentConvectionRepository implements ConvectionRepositoryInterface
         $convection = $this->find($convectionId);
         $convection->ban();
     }
-    
+
     public function unBanConvection(string $convectionId)
     {
         $convection = $this->find($convectionId);

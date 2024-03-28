@@ -27,7 +27,7 @@ class EloquentBankRepository implements BankRepositoryInterface
 
     public function findAll()
     {
-        return Bank::all();
+        return Bank::orderBy('created_at', 'desc')->get();
     }
 
     public function delete(string $bankId)
