@@ -39,7 +39,7 @@ class Invoice extends Model
         'stock_kg',
         'stock_rib',
         'bill_price',
-        'paid_price',
+        'payment',
         'is_broker',
         'broker',
         'broker_fee',

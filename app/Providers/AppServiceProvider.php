@@ -17,8 +17,10 @@ use App\Repositories\Contact\EloquentContactRepository;
 use App\Repositories\Invoice\EloquentInvoiceRepository;
 use App\Repositories\Contact\ContactRepositoryInterface;
 use App\Repositories\Invoice\InvoiceRepositoryInterface;
+use App\Repositories\Commision\EloquentCommisionRepository;
 use App\Repositories\Inventory\EloquentInventoryRepository;
 use App\Repositories\Warehouse\EloquentWarehouseRepository;
+use App\Repositories\Commision\CommisionRepositoryInterface;
 use App\Repositories\Inventory\InventoryRepositoryInterface;
 use App\Repositories\Warehouse\WarehouseRepositoryInterface;
 use App\Repositories\Convection\EloquentConvectionRepository;
@@ -55,6 +57,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(TransferOutRepositoryInterface::class, EloquentTransferOutRepository::class);
         $this->app->bind(BillRepositoryInterface::class, EloquentBillRepository::class);
         $this->app->bind(InvoiceRepositoryInterface::class, EloquentInvoiceRepository::class);
+        $this->app->bind(CommisionRepositoryInterface::class, EloquentCommisionRepository::class);
     }
 
     /**

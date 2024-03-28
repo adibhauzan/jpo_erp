@@ -11,14 +11,15 @@ use App\Http\Controllers\Api\StoreController;
 use App\Http\Controllers\Api\TokenController;
 use App\Http\Controllers\Api\BrokerController;
 use App\Http\Controllers\Api\ContactController;
+use App\Http\Controllers\Api\InvoiceController;
 use App\Http\Controllers\Api\PurchaseController;
+use App\Http\Controllers\Api\ComissionController;
 use App\Http\Controllers\Api\WarehouseController;
 use App\Http\Controllers\Api\ConvectionController;
 use App\Http\Controllers\Api\SalesOrderController;
 use App\Http\Controllers\Api\Inventory\Stock\StockController;
 use App\Http\Controllers\Api\Inventory\Transfer\TransferInController;
 use App\Http\Controllers\Api\Inventory\Transfer\TransferOutController;
-use App\Http\Controllers\Api\InvoiceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,6 +41,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         Route::post('logout', [AuthController::class, 'logout']);
         Route::post('refresh', [AuthController::class, 'refresh']);
         Route::post('me', [AuthController::class, 'me']);
+        Route::get('banks', [BankControler::class, 'index']);
 
 
         // Routes accessible only by superadmin role
@@ -92,7 +94,6 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
             });
 
             // Bank
-            Route::get('banks', [BankControler::class, 'index']);
             Route::group(['prefix' => 'bank'], function () {
                 Route::post('/', [BankControler::class, 'store']);
                 Route::get('/{id}', [BankControler::class, 'show']);
@@ -160,6 +161,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
             Route::get('invoices', [InvoiceController::class, 'index']);
             Route::group(['prefix' => 'invoice'], function () {
                 Route::get('/{id}', [InvoiceController::class, 'show']);
+                Route::put('/{id}/payment', [InvoiceController::class, 'pay']);
                 // Route::post('/', [SalesOrderController::class, 'store']);
                 // Route::get('all-sku', [SalesOrderController::class, 'findAllSku']);
                 // Route::get('/{sku}/sku', [SalesOrderController::class, 'getSku']);
@@ -170,6 +172,18 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
             Route::get('bills', [BillController::class, 'index']);
             Route::group(['prefix' => 'bill'], function () {
                 Route::get('/{id}', [BillController::class, 'show']);
+                Route::put('/{id}/payment', [BillController::class, 'pay']);
+                // Route::post('/', [SalesOrderController::class, 'store']);
+                // Route::get('all-sku', [SalesOrderController::class, 'findAllSku']);
+                // Route::get('/{sku}/sku', [SalesOrderController::class, 'getSku']);
+                // Route::put('u/{id}', [SalesOrderController::class, 'update']);
+                // Route::delete('d/{id}', [PurchaseController::class, 'delete']);
+            });
+
+            Route::get('comissions', [ComissionController::class, 'index']);
+            Route::group(['prefix' => 'commission'], function () {
+                Route::get('/{id}', [ComissionController::class, 'show']);
+                Route::put('/{id}/payment', [ComissionController::class, 'pay']);
                 // Route::post('/', [SalesOrderController::class, 'store']);
                 // Route::get('all-sku', [SalesOrderController::class, 'findAllSku']);
                 // Route::get('/{sku}/sku', [SalesOrderController::class, 'getSku']);

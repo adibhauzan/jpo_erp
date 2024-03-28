@@ -106,7 +106,6 @@ class EloquentSalesOrderRepository implements SalesOrderRepositoryInterface
                 'stock_roll' => $salesOrder->stock_roll,
                 'stock_kg' => $salesOrder->stock_kg,
                 'stock_rib' => $salesOrder->stock_rib,
-                'bill_price' => $salesOrder->price,
                 'paid_price' => 0,
                 'is_broker' => $isBroker,
                 'broker' => $salesOrder->broker,

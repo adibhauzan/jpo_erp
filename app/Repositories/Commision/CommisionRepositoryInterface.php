@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Repositories\Bill;
+namespace App\Repositories\Commision;
 
-interface BillRepositoryInterface
+interface CommisionRepositoryInterface
 {
     // public function create(array $data);
 
     // public function update(string $bankId, array $data);
 
-    public function find(string $billId);
+    public function find(string $commisionId);
 
     public function findAll();
 
@@ -16,5 +16,5 @@ interface BillRepositoryInterface
 
     // public function delete(string $bankId);
 
-    public function pay(string $billId, $paid_price, $bank_id);
+    public function pay(string $commisionId, $paid_price, $bank_id);
 }

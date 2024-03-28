@@ -26,8 +26,7 @@ return new class extends Migration
             $table->unsignedBigInteger('stock_roll');
             $table->unsignedBigInteger('stock_kg');
             $table->unsignedBigInteger('stock_rib');
-            $table->unsignedBigInteger('bill_price')->default(0);
-            $table->unsignedBigInteger('paid_price')->default(0);
+            $table->unsignedBigInteger('payment')->default(0);
             $table->boolean('is_broker')->default(0);
             $table->uuid('broker')->nullable();
             $table->unsignedBigInteger('broker_fee')->nullable();

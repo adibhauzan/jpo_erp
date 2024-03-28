@@ -4,43 +4,43 @@ namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Repositories\Bill\BillRepositoryInterface;
 use Illuminate\Support\Facades\Validator;
+use App\Repositories\Commision\CommisionRepositoryInterface;
 
-class BillController extends Controller
+class ComissionController extends Controller
 {
-    private $billRepository;
+    private $commisionRepository;
 
 
     /**
-     * Create a new billController instance.
+     * Create a new commisionController instance.
      *
-     * @param BillRepositoryInterface $billRepository
+     * @param CommisionRepositoryInterface $commisionRepository
      * @return void
      */
-    public function __construct(BillRepositoryInterface $billRepository)
+    public function __construct(CommisionRepositoryInterface $commisionRepository)
     {
-        $this->billRepository = $billRepository;
+        $this->commisionRepository = $commisionRepository;
     }
 
     public function index(Request $request)
     {
         try {
-            $bills = $this->billRepository->findAll();
+            $commisions = $this->commisionRepository->findAll();
 
-            return response()->json(['code' => 200, 'Message' => 'success fetch Bills', 'data' => $bills], 200);
+            return response()->json(['code' => 200, 'Message' => 'success fetch commisions', 'data' => $commisions], 200);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to fetch Bills. ' . $e->getMessage()], 500);
+            return response()->json(['error' => 'Failed to fetch commisions. ' . $e->getMessage()], 500);
         }
     }
 
-    public function show(string $billId)
+    public function show(string $commisionId)
     {
         try {
-            $bill = $this->billRepository->find($billId);
-            return response()->json(['message' => 'Bill retrieved successfully', 'data' => $bill], 200);
+            $commision = $this->commisionRepository->find($commisionId);
+            return response()->json(['message' => 'commision retrieved successfully', 'data' => $commision], 200);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to retrieve Bill. ' . $e->getMessage()], 422);
+            return response()->json(['error' => 'Failed to retrieve commision. ' . $e->getMessage()], 422);
         }
     }
 
@@ -59,7 +59,7 @@ class BillController extends Controller
             $paid_price = $request->input('paid_price', 0);
             $bank_id = $request->input('bank_id', null);
 
-            $this->billRepository->pay($billId,$paid_price,$bank_id);
+            $this->commisionRepository->pay($billId, $paid_price, $bank_id);
 
             return response()->json(["code" => 200, "Message" => "Success Pay Bill Price"], 200);
         } catch (\Exception $e) {

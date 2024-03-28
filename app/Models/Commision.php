@@ -29,7 +29,7 @@ class Commision extends Model
         'ref_dokumen_id',
         'broker',
         'broker_fee',
-        'paid_price',
+        'payment',
         'paid_status'
     ];
 

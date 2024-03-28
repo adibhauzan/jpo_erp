@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('ref_dokumen_id');
             $table->uuid('broker');
             $table->unsignedBigInteger('broker_fee');
-            $table->unsignedBigInteger('paid_price');
+            $table->unsignedBigInteger('payment')->default(0);
             $table->enum('paid_status', ['unpaid', 'partialy_paid', 'paid'])->default('unpaid');
             $table->timestamps();
 

@@ -15,4 +15,6 @@ interface InvoiceRepositoryInterface
     // public function findByParameters(array $parameters);
 
     // public function delete(string $bankId);
+    //
+    public function pay(string $invoiceId, $paid_price, $bank_id);
 }
