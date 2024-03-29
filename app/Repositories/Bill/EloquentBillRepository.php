@@ -40,21 +40,24 @@ class EloquentBillRepository implements BillRepositoryInterface
     // }
     //
 
-    public function pay(string $billId, $paid_price, $bank_id)
+    public function pay(string $billId, $paid_price, $nama_bank, $nama_rekening, $no_rekening)
+
     {
         $bill = null;
 
-        DB::transaction(function () use ($billId, $paid_price, $bank_id) {
+        DB::transaction(function () use ($billId, $paid_price, $nama_bank, $nama_rekening, $no_rekening) {
             $bill = Bill::findOrFail($billId);
-            $bank = Bank::findOrFail($bank_id);
 
             if ($paid_price > $bill->bill_price) {
                 throw new \Exception('Uang yang dibayar melebihi bill price');
             }
 
             $bill->payment += $paid_price;
+            $bill->nama_bank = $nama_bank;
+            $bill->nama_rekening = $nama_rekening;
+            $bill->no_rekening = $no_rekening;
 
-            if($bill->payment > $bill->bill_price){
+            if ($bill->payment > $bill->bill_price) {
                 throw new \Exception('Uang yang dibayar melebihi bill price');
             }
 
@@ -64,15 +67,9 @@ class EloquentBillRepository implements BillRepositoryInterface
                 $bill->paid_status = 'partialy_paid';
             }
 
-            $bill->bank_id = $bank->id;
-
-
-
             $bill->save();
-
         });
 
         return $bill;
-
     }
 }

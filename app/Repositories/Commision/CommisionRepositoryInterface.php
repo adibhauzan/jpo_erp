@@ -16,5 +16,5 @@ interface CommisionRepositoryInterface
 
     // public function delete(string $bankId);
 
-    public function pay(string $commisionId, $paid_price, $bank_id);
+    public function pay(string $commisionId, $paid_price, $nama_bank, $nama_rekening, $no_rekening);
 }

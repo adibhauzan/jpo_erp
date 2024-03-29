@@ -15,7 +15,9 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('no_bill');
             $table->uuid('purchase_id');
-            $table->uuid('bank_id')->nullable()->default(null);
+            $table->string('nama_bank')->default(null);
+            $table->string('no_rekening')->default(null);
+            $table->string('nama_rekening')->default(null);
             $table->uuid('contact_id');
             $table->uuid('warehouse_id');
             $table->string('sku');
@@ -26,14 +28,13 @@ return new class extends Migration
             $table->unsignedBigInteger('stock_roll');
             $table->unsignedBigInteger('stock_kg');
             $table->unsignedBigInteger('stock_rib');
-            $table->unsignedBigInteger('bill_price')->default(0);
+            $table->unsignedBigInteger('bill_price');
             $table->unsignedBigInteger('payment')->default(0);
             $table->enum('paid_status', ['unpaid', 'partialy_paid', 'paid'])->default('unpaid');
             $table->timestamps();
 
             $table->foreign('contact_id')->references('id')->on('contacts')->onDelete('cascade');
             $table->foreign('warehouse_id')->references('id')->on('warehouses')->onDelete('cascade');
-            $table->foreign('bank_id')->references('id')->on('banks')->onDelete('cascade');
             $table->foreign('purchase_id')->references('id')->on('purchase_orders')->onDelete('cascade');
         });
     }

@@ -44,22 +44,28 @@ class ComissionController extends Controller
         }
     }
 
-    public function pay(Request $request, string $billId)
+    public function pay(Request $request, string $commisionId)
     {
         try {
+
+            $commision = $this->commisionRepository->find($commisionId);
             $validator = Validator::make($request->all(), [
-                'paid_price' => 'nullable|integer',
-                'bank_id' => 'nullable|exists:banks,id'
+                'paid_price' => 'required|integer',
+                'nama_bank' => 'required',
+                'nama_rekening' => 'required',
+                'no_rekening' => 'required|string|min:10|max:17|regex:/^([0-9\s\-\+\(\)]*)$/',
             ]);
 
             if ($validator->fails()) {
                 return response()->json(['error' => $validator->errors()], 422);
             }
 
-            $paid_price = $request->input('paid_price', 0);
-            $bank_id = $request->input('bank_id', null);
+            $paid_price = $request->input('paid_price', $commision->paid_price);
+            $nama_bank = $request->input('nama_bank', $commision->nama_bank);
+            $nama_rekening = $request->input('nama_rekening', $commision->nama_rekening);
+            $no_rekening = $request->input('no_rekening', $commision->no_rekening);
 
-            $this->commisionRepository->pay($billId, $paid_price, $bank_id);
+            $this->commisionRepository->pay($commisionId, $paid_price, $nama_bank, $nama_rekening, $no_rekening);
 
             return response()->json(["code" => 200, "Message" => "Success Pay Bill Price"], 200);
         } catch (\Exception $e) {

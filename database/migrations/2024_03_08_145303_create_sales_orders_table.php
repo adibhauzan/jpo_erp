@@ -33,9 +33,9 @@ return new class extends Migration
             $table->unsignedBigInteger('stock_roll');
             $table->unsignedBigInteger('stock_kg');
             $table->unsignedBigInteger('stock_rib');
-            $table->unsignedBigInteger('stock_roll_rev');
-            $table->unsignedBigInteger('stock_kg_rev');
-            $table->unsignedBigInteger('stock_rib_rev');
+            $table->unsignedBigInteger('stock_roll_rev')->default(0);
+            $table->unsignedBigInteger('stock_kg_rev')->default(0);
+            $table->unsignedBigInteger('stock_rib_rev')->default(0);
             $table->date('date_received')->nullable();
             $table->timestamps();
 

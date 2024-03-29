@@ -40,20 +40,21 @@ class EloquentCommisionRepository implements CommisionRepositoryInterface
     // }
     //
 
-    public function pay(string $commisionId, $paid_price, $bank_id)
+    public function pay(string $commisionId, $paid_price, $nama_bank, $nama_rekening, $no_rekening)
     {
         $commision = null;
 
-        DB::transaction(function () use ($commisionId, $paid_price, $bank_id) {
+        DB::transaction(function () use ($commisionId, $paid_price, $nama_bank, $nama_rekening, $no_rekening) {
             $commision = Commision::findOrFail($commisionId);
-            $bank = Bank::findOrFail($bank_id);
 
             if ($paid_price > $commision->broker_fee) {
                 throw new \Exception('Uang yang dibayar melebihi broker_fee');
             }
 
             $commision->payment += $paid_price;
-
+            $commision->nama_bank = $nama_bank;
+            $commision->nama_rekening = $nama_rekening;
+            $commision->no_rekening = $no_rekening;
             if ($commision->payment > $commision->broker_fee) {
                 throw new \Exception('Uang yang dibayar melebihi broker_fee');
             }
@@ -64,7 +65,6 @@ class EloquentCommisionRepository implements CommisionRepositoryInterface
                 $commision->paid_status = 'partialy_paid';
             }
 
-            $commision->bank_id = $bank->id;
 
 
 
