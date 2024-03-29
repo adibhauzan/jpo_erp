@@ -63,9 +63,16 @@ class PurchaseController extends Controller
             }
 
             $currentDate = now();
-            $sequence = PurchaseOrder::whereDate('created_at', $currentDate)->count() + 1;
-            $no_do = 'INV/IN/' . $currentDate->format('Y/m/d') . '/' . $sequence;
-            $no_po = 'PO' . str_pad($sequence, 5, '0', STR_PAD_LEFT); // Perbaikan 4: Nomor SO menggunakan timestamp
+
+            $year = $currentDate->format('Y');
+            $month = $currentDate->format('m');
+            $day = $currentDate->format('d');
+
+            $totalOrders = PurchaseOrder::count();
+
+            $sequence = $totalOrders + 1;
+            $no_do = 'INV/OUT/' . $year . '/' . $month . '/' . $day . '/' . $sequence;
+            $no_po = 'SO' . str_pad($sequence, 5, '0', STR_PAD_LEFT); // Perbaikan 4: Nomor SO menggunakan timestamp
 
 
             $originalImageName = $request->file('attachment_image')->getClientOriginalName();
