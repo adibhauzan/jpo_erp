@@ -25,6 +25,7 @@ class Bill extends Model
 
     protected $fillable = [
         'no_bill',
+        'nama_barang',
         'purchase_id',
         'id',
         'bank_id',

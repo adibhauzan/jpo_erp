@@ -19,6 +19,7 @@ return new class extends Migration
             $table->uuid('contact_id');
             $table->uuid('warehouse_id');
             $table->string('sku');
+            $table->string('nama_barang');
             $table->unsignedBigInteger('ketebalan');
             $table->unsignedBigInteger('setting');
             $table->unsignedBigInteger('gramasi');
@@ -27,7 +28,7 @@ return new class extends Migration
             $table->unsignedBigInteger('stock_rib');
             $table->unsignedBigInteger('bill_price')->default(0);
             $table->unsignedBigInteger('payment')->default(0);
-            $table->enum('paid_status', ['unpaid','partialy_paid', 'paid'])->default('unpaid');
+            $table->enum('paid_status', ['unpaid', 'partialy_paid', 'paid'])->default('unpaid');
             $table->timestamps();
 
             $table->foreign('contact_id')->references('id')->on('contacts')->onDelete('cascade');

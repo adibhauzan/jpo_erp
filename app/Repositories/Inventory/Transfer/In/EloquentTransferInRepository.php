@@ -159,6 +159,7 @@ class EloquentTransferInRepository implements TransferInRepositoryInterface
                 'id' =>  $uuid,
                 'no_bill' => $no_bill,
                 'purchase_id' => $poId,
+                'nama_barang' => $purchaseOrder->nama_barang,
                 'contact_id' => $purchaseOrder->contact_id,
                 'warehouse_id' => $purchaseOrder->warehouse_id,
                 'sku' => $purchaseOrder->sku,

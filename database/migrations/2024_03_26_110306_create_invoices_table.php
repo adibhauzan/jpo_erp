@@ -19,6 +19,7 @@ return new class extends Migration
             $table->uuid('contact_id');
             $table->uuid('bank_id')->nullable();
             $table->string('sku');
+            $table->string('nama_barang');
             $table->unsignedBigInteger('sell_price');
             $table->unsignedBigInteger('ketebalan');
             $table->unsignedBigInteger('setting');

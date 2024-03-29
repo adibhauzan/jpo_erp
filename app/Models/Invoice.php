@@ -31,6 +31,7 @@ class Invoice extends Model
         'contact_id',
         'bank_id',
         'sku',
+        'nama_barang',
         'sell_price',
         'ketebalan',
         'setting',

@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('commisions', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('no_commision');
+            $table->uuid('bank_id')->nullable()->default(null);
             $table->string('ref_dokumen_id');
             $table->uuid('broker');
             $table->unsignedBigInteger('broker_fee');
@@ -22,6 +23,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('broker')->references('id')->on('contacts')->onDelete('cascade');
+            $table->foreign('bank_id')->references('id')->on('banks')->onDelete('cascade');
         });
     }
 

@@ -64,7 +64,7 @@ class PurchaseController extends Controller
 
             $currentDate = now();
             $sequence = PurchaseOrder::whereDate('created_at', $currentDate)->count() + 1;
-            $no_do = 'INV/out/' . $currentDate->format('Y/m/d') . '/' . $sequence;
+            $no_do = 'INV/IN/' . $currentDate->format('Y/m/d') . '/' . $sequence;
             $no_po = 'PO' . str_pad($sequence, 5, '0', STR_PAD_LEFT); // Perbaikan 4: Nomor SO menggunakan timestamp
 
 
