@@ -148,7 +148,40 @@ class EloquentSalesOrderRepository implements SalesOrderRepositoryInterface
     }
     public function findAll()
     {
-        return SalesOrder::orderBy('created_at', 'desc')->get();
+        $salesOrders = SalesOrder::select(
+            'id',
+            'status',
+            'contact_id',
+            'warehouse_id',
+            'no_so',
+            'no_do',
+            'date',
+            'broker',
+            'broker_fee',
+            'sku',
+            'nama_barang',
+            'grade',
+            'description',
+            'attachment_image',
+            'ketebalan',
+            'setting',
+            'gramasi',
+            'price',
+            'stock_roll',
+            'stock_kg',
+            'stock_rib',
+            'stock_roll_rev',
+            'stock_kg_rev',
+            'stock_rib_rev',
+            'date_received',
+            'created_at',
+            'updated_at'
+        )
+            ->with(['contact:id,name', 'warehouse:id,name'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return $salesOrders;
     }
 
 

@@ -29,7 +29,33 @@ class EloquentInvoiceRepository implements InvoiceRepositoryInterface
 
     public function findAll()
     {
-        return Invoice::orderBy('created_at', 'desc')->get();
+        return Invoice::select(
+            'id',
+            'no_invoice',
+            'sales_order_id',
+            'warehouse_id',
+            'contact_id',
+            'bank_id',
+            'sku',
+            'nama_barang',
+            'sell_price',
+            'ketebalan',
+            'setting',
+            'gramasi',
+            'stock_roll',
+            'stock_kg',
+            'stock_rib',
+            'sell_price',
+            'payment',
+            'is_broker',
+            'broker',
+            'broker_fee',
+            'paid_status',
+            'created_at',
+            'updated_at'
+        )->with(['contact:id,name'])
+            ->orderBy('created_at', 'desc')
+            ->get();
     }
 
     //     public function delete(string $contactId)

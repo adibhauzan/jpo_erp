@@ -29,7 +29,31 @@ class EloquentBillRepository implements BillRepositoryInterface
 
     public function findAll()
     {
-        return Bill::orderBy('created_at', 'desc')->get();
+        return Bill::select(
+            'id',
+            'no_bill',
+            'nama_barang',
+            'purchase_id',
+            'nama_bank',
+            'nama_rekening',
+            'no_rekening',
+            'contact_id',
+            'warehouse_id',
+            'sku',
+            'ketebalan',
+            'setting',
+            'gramasi',
+            'payment',
+            'bill_price',
+            'stock_roll',
+            'stock_kg',
+            'stock_rib',
+            'paid_status',
+            'created_at',
+            'updated_at'
+        )->with(['contact:id,name'])
+            ->orderBy('created_at', 'desc')
+            ->get();
     }
 
     //     public function delete(string $contactId)

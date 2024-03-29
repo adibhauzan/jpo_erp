@@ -24,10 +24,10 @@ class Bill extends Model
     }
 
     protected $fillable = [
+        'id',
         'no_bill',
         'nama_barang',
         'purchase_id',
-        'id',
         'nama_bank',
         'nama_rekening',
         'no_rekening',

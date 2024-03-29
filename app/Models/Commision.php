@@ -24,6 +24,7 @@ class Commision extends Model
     }
 
     protected $fillable = [
+        'id',
         'nama_bank',
         'nama_rekening',
         'no_rekening',

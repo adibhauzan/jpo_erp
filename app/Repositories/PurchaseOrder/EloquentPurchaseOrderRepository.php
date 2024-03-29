@@ -57,10 +57,14 @@ class EloquentPurchaseOrderRepository implements PurchaseOrderRepositoryInterfac
             'status',
             'created_at',
             'updated_at'
-        )->orderBy('created_at', 'desc')->get();
+        )
+            ->with(['contact:id,name', 'warehouse:id,name'])
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return $purchaseOrders;
     }
+
 
     public function delete(string $poId)
     {

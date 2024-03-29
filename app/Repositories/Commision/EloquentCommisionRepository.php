@@ -29,7 +29,27 @@ class EloquentCommisionRepository implements CommisionRepositoryInterface
 
     public function findAll()
     {
-        return Commision::orderBy('created_at', 'desc')->get();
+        $commissions = DB::table('commisions')
+            ->select(
+                'commisions.id',
+                'commisions.nama_bank',
+                'commisions.nama_rekening',
+                'commisions.no_rekening',
+                'commisions.no_commision',
+                'commisions.ref_dokumen_id',
+                'commisions.broker',
+                'commisions.broker_fee',
+                'commisions.payment',
+                'commisions.paid_status',
+                'contacts.name as broker_name',
+                'commisions.created_at',
+                'commisions.updated_at',
+            )
+            ->join('contacts', 'commisions.broker', '=', 'contacts.id')
+            ->orderBy('commisions.created_at', 'desc')
+            ->get();
+
+        return $commissions;
     }
 
     //     public function delete(string $contactId)
