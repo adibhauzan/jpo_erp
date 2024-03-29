@@ -72,7 +72,7 @@ class PurchaseController extends Controller
 
             $sequence = $totalOrders + 1;
             $no_do = 'INV/OUT/' . $year . '/' . $month . '/' . $day . '/' . $sequence;
-            $no_po = 'SO' . str_pad($sequence, 5, '0', STR_PAD_LEFT); // Perbaikan 4: Nomor SO menggunakan timestamp
+            $no_po = 'PO' . str_pad($sequence, 5, '0', STR_PAD_LEFT); // Perbaikan 4: Nomor SO menggunakan timestamp
 
 
             $originalImageName = $request->file('attachment_image')->getClientOriginalName();
