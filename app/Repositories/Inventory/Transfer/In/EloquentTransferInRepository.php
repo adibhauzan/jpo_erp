@@ -83,7 +83,7 @@ class EloquentTransferInRepository implements TransferInRepositoryInterface
             'status',
             'created_at',
             'updated_at'
-        )
+        )->with(['contact:id,name', 'warehouse:id,name'])
             ->orderBy('created_at', 'desc')
             ->get();
 
