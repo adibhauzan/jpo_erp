@@ -26,16 +26,16 @@ return new class extends Migration
             $table->string('grade');
             $table->string('description');
             $table->string('attachment_image');
-            $table->unsignedBigInteger('ketebalan');
-            $table->unsignedBigInteger('setting');
-            $table->unsignedBigInteger('gramasi');
+            $table->string('ketebalan');
+            $table->string('setting');
+            $table->string('gramasi');
             $table->unsignedBigInteger('price');
-            $table->unsignedBigInteger('stock_roll');
-            $table->unsignedBigInteger('stock_kg');
-            $table->unsignedBigInteger('stock_rib');
-            $table->unsignedBigInteger('stock_roll_rev')->default(0);
-            $table->unsignedBigInteger('stock_kg_rev')->default(0);
-            $table->unsignedBigInteger('stock_rib_rev')->default(0);
+            $table->decimal('stock_roll', 10, 2);
+            $table->decimal('stock_kg', 10, 2);
+            $table->decimal('stock_rib', 10, 2);
+            $table->decimal('stock_roll_rev', 10, 2)->default(0);
+            $table->decimal('stock_kg_rev', 10, 2)->default(0);
+            $table->decimal('stock_rib_rev', 10, 2)->default(0);
             $table->date('date_received')->nullable();
             $table->timestamps();
 

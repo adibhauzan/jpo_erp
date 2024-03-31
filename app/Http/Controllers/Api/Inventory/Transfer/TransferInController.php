@@ -58,10 +58,10 @@ class TransferInController extends Controller
                 'ketebalan' => 'nullable|integer',
                 'setting' => 'nullable|integer',
                 'gramasi' => 'nullable|integer',
-                'stock_roll' => 'nullable|integer',
-                'stock_kg' => 'nullable|integer',
+                'stock_roll' => 'nullable|numeric',
+                'stock_kg' => 'nullable|numeric',
+                'stock_rib' => 'nullable|numeric',
                 'attachment_image' => 'nullable|mimes:jpeg,png,jpg,gif|max:2048',
-                'stock_rib' => 'nullable|integer',
             ]);
 
             if ($validator->fails()) {
@@ -93,9 +93,9 @@ class TransferInController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'stock_roll_rev' => 'nullable|integer',
-                'stock_kg_rev' => 'nullable|integer',
-                'stock_rib_rev' => 'nullable|integer',
+                'stock_roll_rev' => 'nullable|numeric',
+                'stock_kg_rev' => 'nullable|numeric',
+                'stock_rib_rev' => 'nullable|numeric',
                 'date_received' => 'nullable|date',
             ]);
 
@@ -128,14 +128,14 @@ class TransferInController extends Controller
                 'grade' => 'required|string',
                 'sku' => 'required|string|unique:purchase_orders',
                 'description' => 'required|string',
-                'ketebalan' => 'required|integer',
-                'setting' => 'required|integer',
-                'gramasi' => 'required|integer',
-                'stock_roll' => 'required|integer',
-                'stock_kg' => 'required|integer',
+                'ketebalan' => 'required',
+                'setting' => 'required',
+                'gramasi' => 'required',
+                'stock_roll' => 'required|numeric',
+                'stock_kg' => 'required|numeric',
                 'attachment_image' => 'required',
                 'price' => 'required|numeric',
-                'stock_rib' => 'required|integer',
+                'stock_rib' => 'required|numeric',
             ]);
 
 

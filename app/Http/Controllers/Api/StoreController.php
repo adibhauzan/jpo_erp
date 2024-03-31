@@ -71,8 +71,8 @@ class StoreController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string',
-            'address' => 'required|unique:stores,address',
-            'phone_number' => 'required|string|min:8|max:15|unique:stores,phone_number|regex:/^([0-9\s\-\+\(\)]*)$/',
+            'address' => 'required',
+            'phone_number' => 'required|string|min:8|max:15|regex:/^([0-9\s\-\+\(\)]*)$/',
         ]);
 
         if ($validator->fails()) {
@@ -247,34 +247,34 @@ class StoreController extends Controller
     {
         try {
             $store = $this->storeRepository->find($storeId);
-            
+
             $validator = Validator::make($request->all(), [
                 'name' => 'nullable|string',
                 'address' => 'nullable|string',
                 'phone_number' => 'nullable|string|min:8|max:15|regex:/^([0-9\s\-\+\(\)]*)$/',
             ]);
-    
+
             if ($validator->fails()) {
                 return response()->json(['error' => $validator->errors()], 422);
             }
-    
+
             $data = [
                 'name' => $request->input('name') ?? $store->name,
                 'address' => $request->input('address') ?? $store->address,
                 'phone_number' => $request->input('phone_number') ?? $store->phone_number,
             ];
-    
+
             $this->storeRepository->update($storeId, $data);
-    
+
             $updatedStore = $this->storeRepository->find($storeId);
-    
+
             return response()->json(['message' => 'Store updated successfully', 'data' => $updatedStore], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Failed to update Store. ' . $e->getMessage()], 422);
         }
     }
 
-     /**
+    /**
      * Ban store by ID.
      *
      * @OA\Post(
@@ -344,7 +344,7 @@ class StoreController extends Controller
         }
     }
 
-  /**
+    /**
      * UnBan Store by ID.
      *
      * @OA\Post(
@@ -463,6 +463,4 @@ class StoreController extends Controller
             return response()->json(['error' => 'Failed to delete Store. ' . $e->getMessage()], 422);
         }
     }
-
-    
 }

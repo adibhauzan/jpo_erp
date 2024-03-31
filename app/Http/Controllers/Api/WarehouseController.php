@@ -76,8 +76,8 @@ class WarehouseController extends Controller
                 'string',
             ],
             'name' => 'required|string',
-            'address' => 'required|unique:warehouses,address',
-            'phone_number' => 'required|string|min:8|max:15|unique:warehouses,phone_number|regex:/^([0-9\s\-\+\(\)]*)$/',
+            'address' => 'required',
+            'phone_number' => 'required|string|min:8|max:15|regex:/^([0-9\s\-\+\(\)]*)$/',
 
         ]);
 

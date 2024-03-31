@@ -47,14 +47,14 @@ class PurchaseController extends Controller
                 'grade' => 'required|string',
                 'sku' => 'required|string|unique:purchase_orders',
                 'description' => 'required|string',
-                'ketebalan' => 'required|integer',
-                'setting' => 'required|integer',
-                'gramasi' => 'required|integer',
-                'stock_roll' => 'required|integer',
-                'stock_kg' => 'required|integer',
+                'ketebalan' => 'required|string',
+                'setting' => 'required|string',
+                'gramasi' => 'required|string',
+                'stock_roll' => 'required|numeric',
+                'stock_kg' => 'required|numeric',
+                'stock_rib' => 'required|numeric',
                 'attachment_image' => 'required',
                 'price' => 'required|numeric',
-                'stock_rib' => 'required|integer',
             ]);
 
 
@@ -71,7 +71,7 @@ class PurchaseController extends Controller
             $totalOrders = PurchaseOrder::count();
 
             $sequence = $totalOrders + 1;
-            $no_do = 'INV/OUT/' . $year . '/' . $month . '/' . $day . '/' . $sequence;
+            $no_do = 'INV/IN/' . $year . '/' . $month . '/' . $day . '/' . $sequence;
             $no_po = 'PO' . str_pad($sequence, 5, '0', STR_PAD_LEFT); // Perbaikan 4: Nomor SO menggunakan timestamp
 
 
@@ -148,10 +148,10 @@ class PurchaseController extends Controller
                 'ketebalan' => 'nullable|integer',
                 'setting' => 'nullable|integer',
                 'gramasi' => 'nullable|integer',
-                'stock_roll' => 'nullable|integer',
-                'stock_kg' => 'nullable|integer',
+                'stock_roll' => 'nullable|numeric',
+                'stock_kg' => 'nullable|numeric',
+                'stock_rib' => 'nullable|numeric',
                 'attachment_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-                'stock_rib' => 'nullable|integer',
             ]);
 
             if ($validator->fails()) {

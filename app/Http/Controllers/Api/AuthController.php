@@ -112,7 +112,7 @@ class AuthController extends Controller
             [
                 'name' => 'required|string',
                 'roles' => ['required', Rule::in(['superadmin', 'store', 'convection'])],
-                'phone_number' => 'required|string|min:8|max:15|unique:users,phone_number|regex:/^([0-9\s\-\+\(\)]*)$/',
+                'phone_number' => 'required|string|min:8|max:15|regex:/^([0-9\s\-\+\(\)]*)$/',
                 'username' => 'required|string|max:255|unique:users,username',
                 'password' => ['required', 'string', 'min:8', Password::defaults()],
                 'store_id' => function ($attribute, $value, $fail) use ($request) {

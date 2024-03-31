@@ -96,7 +96,7 @@ class EloquentTransferInRepository implements TransferInRepositoryInterface
         $po->delete();
     }
 
-    public function receive(string $poId, int $quantityStockRollReceived, int $quantityKgReceived, int $quantityRibReceived, string $date_received)
+    public function receive(string $poId, float $quantityStockRollReceived, float $quantityKgReceived, float $quantityRibReceived, string $date_received)
     {
 
         $purchaseOrder = null;
@@ -120,11 +120,6 @@ class EloquentTransferInRepository implements TransferInRepositoryInterface
                 throw new \Exception('Quantity rib received exceeds available stock rib');
             }
 
-            // Mengurangi stok yang diterima dari stok utama
-            $purchaseOrder->stock_roll -= $quantityStockRollReceived;
-            $purchaseOrder->stock_kg -= $quantityKgReceived;
-            $purchaseOrder->stock_rib -= $quantityRibReceived;
-
             // Menambahkan stok yang diterima ke stok revisi
             $purchaseOrder->stock_roll_rev += $quantityStockRollReceived;
             $purchaseOrder->stock_kg_rev += $quantityKgReceived;
@@ -133,7 +128,7 @@ class EloquentTransferInRepository implements TransferInRepositoryInterface
             $purchaseOrder->date_received = $date_received;
 
             // Memperbarui status pesanan berdasarkan stok yang tersisa
-            if ($purchaseOrder->stock_roll == 0 && $purchaseOrder->stock_kg == 0 && $purchaseOrder->stock_rib == 0) {
+            if ($purchaseOrder->stock_roll == $purchaseOrder->stock_roll_rev  && $purchaseOrder->stock_kg ==  $purchaseOrder->stock_kg_rev && $purchaseOrder->stock_rib ==  $purchaseOrder->stock_rib_rev) {
                 $purchaseOrder->status = 'done';
             } else {
                 $purchaseOrder->status = 'received';

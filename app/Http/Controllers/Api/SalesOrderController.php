@@ -34,9 +34,9 @@ class SalesOrderController extends Controller
                 'broker' => 'nullable|string|exists:contacts,id',
                 'broker_fee' => 'nullable|integer',
                 'date' => 'required|date',
-                'stock_roll' => 'required|integer|min:0',
-                'stock_kg' => 'required|integer|min:0',
-                'stock_rib' => 'required|integer|min:0',
+                'stock_roll' => 'required|numeric',
+                'stock_kg' => 'required|numeric',
+                'stock_rib' => 'required|numeric',
                 'price' => 'required|integer|min:1',
             ]);
 

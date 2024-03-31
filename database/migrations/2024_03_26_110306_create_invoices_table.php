@@ -21,12 +21,12 @@ return new class extends Migration
             $table->string('sku');
             $table->string('nama_barang');
             $table->unsignedBigInteger('sell_price');
-            $table->unsignedBigInteger('ketebalan');
-            $table->unsignedBigInteger('setting');
-            $table->unsignedBigInteger('gramasi');
-            $table->unsignedBigInteger('stock_roll');
-            $table->unsignedBigInteger('stock_kg');
-            $table->unsignedBigInteger('stock_rib');
+            $table->string('ketebalan');
+            $table->string('setting');
+            $table->string('gramasi');
+            $table->decimal('stock_roll', 10, 2);
+            $table->decimal('stock_kg', 10, 2);
+            $table->decimal('stock_rib', 10, 2);
             $table->unsignedBigInteger('payment')->default(0);
             $table->boolean('is_broker')->default(0);
             $table->uuid('broker')->nullable();

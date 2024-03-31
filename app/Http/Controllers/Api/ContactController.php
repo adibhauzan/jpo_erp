@@ -67,8 +67,8 @@ class ContactController extends Controller
             $request->all(),
             [
                 'name' => 'required|string',
-                'phone_number' => 'required|string|min:8|max:15|unique:contacts,phone_number|regex:/^([0-9\s\-\+\(\)]*)$/',
-                'address' => 'required|unique:contacts,address',
+                'phone_number' => 'required|string|min:8|max:15|regex:/^([0-9\s\-\+\(\)]*)$/',
+                'address' => 'required',
 
             ]
         );

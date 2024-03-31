@@ -96,7 +96,7 @@ class EloquentTransferOutRepository implements TransferOutRepositoryInterface
         $po->delete();
     }
 
-    public function receive(string $soId, int $quantityStockRollReceived, int $quantityKgReceived, int $quantityRibReceived, string $date_received)
+    public function receive(string $soId, float $quantityStockRollReceived, float $quantityKgReceived, float $quantityRibReceived, string $date_received)
     {
         $salesOrder = SalesOrder::findOrFail($soId);
 
@@ -115,11 +115,6 @@ class EloquentTransferOutRepository implements TransferOutRepositoryInterface
         if ($quantityRibReceived > $salesOrder->stock_rib) {
             throw new \Exception('Quantity rib received exceeds available stock rib');
         }
-
-        // Mengurangi stok yang diterima dari stok utama
-        $salesOrder->stock_roll -= $quantityStockRollReceived;
-        $salesOrder->stock_kg -= $quantityKgReceived;
-        $salesOrder->stock_rib -= $quantityRibReceived;
 
         // Menambahkan stok yang diterima ke stok revisi
         $salesOrder->stock_roll_rev += $quantityStockRollReceived;
