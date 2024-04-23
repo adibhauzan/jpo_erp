@@ -7,21 +7,25 @@ use App\Http\Controllers\Controller;
 use App\Models\SalesOrder;
 use Illuminate\Support\Facades\Validator;
 use App\Repositories\SalesOrder\SalesOrderRepositoryInterface;
+use App\Repositories\Token\TokenRepositoryInterface;
 
 class SalesOrderController extends Controller
 {
     private $salesOrderRepository;
+    private $tokenRepository;
 
 
     /**
      * Create a new salesOrderController instance.
      *
      * @param SalesOrderRepositoryInterface $salesOrderRepository
+     * @param TokenRepositoryInterface $tokenRepository
      * @return void
      */
-    public function __construct(SalesOrderRepositoryInterface $salesOrderRepository)
+    public function __construct(SalesOrderRepositoryInterface $salesOrderRepository, TokenRepositoryInterface $tokenRepository)
     {
         $this->salesOrderRepository = $salesOrderRepository;
+        $this->tokenRepository = $tokenRepository;
     }
 
     public function store(Request $request)
@@ -125,15 +129,19 @@ class SalesOrderController extends Controller
         try {
             $so = $this->salesOrderRepository->find($soId);
             $validator = Validator::make($request->all(), [
-                'stock_rev' => 'nullable|integer',
-                'broker_fee' => 'nullable|integer',
-                'price' => 'nullable|integer',
+                'broker_fee' => 'nullable',
+                'harga_jual' => 'nullable',
+                'stock_roll' => 'nullable',
+                'stock_kg' => 'nullable',
+                'stock_rib' => 'nullable',
+                'token' => 'required|exist:tokens,name'
             ]);
 
             if ($validator->fails()) {
                 return response()->json(['error' => $validator->errors()], 422);
             }
 
+            $token = $this->tokenRepository->find($request->input('token'));
 
             $data = [
                 'stock_rev' => $request->input('stock_rev') ?? $so->stock_rev,
@@ -141,7 +149,7 @@ class SalesOrderController extends Controller
                 'price' => $request->input('price') ?? $so->price,
             ];
 
-            $updatedSO = $this->salesOrderRepository->update($soId, $data);
+            $updatedSO = $this->salesOrderRepository->update($soId, $data, $token);
             $soYangSudahDiUpdate = $this->salesOrderRepository->find($soId);
 
 

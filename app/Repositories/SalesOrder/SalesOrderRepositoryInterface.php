@@ -7,7 +7,7 @@ interface SalesOrderRepositoryInterface
 {
     public function create(array $data);
 
-    public function update(string $soId, array $data);
+    public function update(string $soId, array $data, $token);
 
     public function find(string $soId);
 

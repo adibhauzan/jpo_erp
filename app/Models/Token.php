@@ -24,8 +24,12 @@ class Token extends Model
 
     protected $fillable = [
         'user_id',
-        'token',
+        'token_update',
         'status',
     ];
 
+    public function users()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

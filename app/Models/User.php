@@ -15,8 +15,8 @@ class User extends Authenticatable implements JWTSubject
 {
     use HasApiTokens, HasFactory, Notifiable, Bannable;
 
-    public $incrementing = false; 
-    protected $keyType = 'string'; 
+    public $incrementing = false;
+    protected $keyType = 'string';
 
     protected static function boot()
     {
@@ -121,5 +121,10 @@ class User extends Authenticatable implements JWTSubject
     public function warehouses()
     {
         return $this->hasMany(Warehouse::class, 'store_id', 'store_id');
+    }
+
+    public function token()
+    {
+        return $this->hasMany(Token::class);
     }
 }

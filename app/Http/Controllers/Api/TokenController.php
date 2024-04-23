@@ -75,7 +75,7 @@ class TokenController extends Controller
     public function store(Request $request, $jumlah)
     {
         $validator = Validator::make($request->all(), [
-            'token' => ['required', 'string', 'regex:/^[a-zA-Z0-9\s]+$/']
+            'token_update' => ['required', 'string', 'regex:/^[a-zA-Z0-9\s]+$/']
         ]);
 
         if ($validator->fails()) {
@@ -93,7 +93,7 @@ class TokenController extends Controller
                 $randomString = Str::random(10);
 
                 $tokenData = [
-                    'token' => GenerateRandomToken::generateRandomToken($request->input('token') . $timestamp . $randomString),
+                    'token_update' => GenerateRandomToken::generateRandomToken($request->input('token_update') . $timestamp . $randomString),
                 ];
 
                 $tokens[] = $this->tokenRepository->create($tokenData);
@@ -196,7 +196,7 @@ class TokenController extends Controller
         }
     }
 
-      /**
+    /**
      * Delete Token by ID.
      *
      * @OA\Delete(

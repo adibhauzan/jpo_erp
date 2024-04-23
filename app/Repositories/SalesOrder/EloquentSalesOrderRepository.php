@@ -8,6 +8,7 @@ use App\Models\Commision;
 use App\Models\Warehouse;
 use App\Models\SalesOrder;
 use App\Models\PurchaseOrder;
+use App\Models\Token;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -196,15 +197,40 @@ class EloquentSalesOrderRepository implements SalesOrderRepositoryInterface
         return $skuData;
     }
 
-    public function update(string $soId, array $data)
+    public function update(string $soId, array $data, $token)
     {
-        $updateSo = DB::table('purchase_orders AS po')
-            ->join('sales_orders AS so', 'po.sku', '=', 'so.sku')
-            ->where('so.id', $soId)
-            ->update(['po.price' => $data['price'], 'so.broker_fee' => $data['broker_fee'], 'po.stock_rev' => $data['stock_rev']]);
+        $tokenInput = DB::table('tokens')->select('token', 'status')->where('token', '=', $token)->first();
 
-        return $updateSo;
+        if (!$tokenInput) {
+            throw new \Exception("Token yang diinput tidak valid");
+        } else if ($tokenInput->status !== 'not') {
+            throw new \Exception("Token yang diinput sudah digunakan");
+        }
+
+        $salesOrder = SalesOrder::where('id', $soId)
+            ->select('id', 'broker_fee', 'harga_jual', 'stock_roll', 'stock_kg', 'stock_rib')
+            ->first();
+
+        if (!$salesOrder) {
+            throw new \Exception("Id Sales Order Tidak Ditemukan");
+        }
+
+        $updateSo = $salesOrder->update([
+            'broker_fee' => $data['broker_fee'],
+            'harga_jual' => $data['harga_jual'],
+            'stock_roll' => $data['stock_roll'],
+            'stock_kg' => $data['stock_kg'],
+            'stock_rib' => $data['stock_rib']
+        ]);
+
+        if ($updateSo) {
+            DB::table('tokens')->where('token', $token)->update(['status' => 'used']);
+            return $updateSo;
+        } else {
+            throw new \Exception("Gagal memperbarui sales order.");
+        }
     }
+
 
     public function getAllSku()
     {

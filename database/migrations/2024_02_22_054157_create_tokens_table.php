@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('tokens', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('user_id')->nullable();
-            $table->string('token');
+            $table->string('token_update');
             $table->enum('status', ['used', 'not'])->default('not');
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');

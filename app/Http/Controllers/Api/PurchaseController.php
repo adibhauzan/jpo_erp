@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use App\Repositories\Inventory\InventoryRepositoryInterface;
 use App\Repositories\PurchaseOrder\PurchaseOrderRepositoryInterface;
+use App\Repositories\Token\TokenRepositoryInterface;
 
 /**
  * @OA\Tag(
@@ -22,17 +23,20 @@ use App\Repositories\PurchaseOrder\PurchaseOrderRepositoryInterface;
 class PurchaseController extends Controller
 {
     private $purchaseOrderRepository;
+    private $tokenRepository;
 
 
     /**
      * Create a new purchaseOrderController instance.
      *
      * @param PurchaseOrderRepositoryInterface $purchaseOrderRepository
+     * @param TokenRepositoryInterface $tokenRepository
      * @return void
      */
-    public function __construct(PurchaseOrderRepositoryInterface $purchaseOrderRepository)
+    public function __construct(PurchaseOrderRepositoryInterface $purchaseOrderRepository, TokenRepositoryInterface $tokenRepository)
     {
         $this->purchaseOrderRepository = $purchaseOrderRepository;
+        $this->tokenRepository = $tokenRepository;
     }
 
     public function store(Request $request)
@@ -137,60 +141,31 @@ class PurchaseController extends Controller
     public function update(Request $request, string $poId)
     {
         try {
-            $status = 'received';
-
-            $validator = Validator::make($request->all(), [
-                'date' => 'nullable|date',
-                'nama_barang' => 'nullable|string',
-                'grade' => 'nullable|string',
-                'sku' => 'nullable|string',
-                'description' => 'nullable|string',
-                'ketebalan' => 'nullable|integer',
-                'setting' => 'nullable|integer',
-                'gramasi' => 'nullable|integer',
+            $validator = validator()->make($request->all(), [
                 'stock_roll' => 'nullable|numeric',
                 'stock_kg' => 'nullable|numeric',
                 'stock_rib' => 'nullable|numeric',
-                'attachment_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'token_update' => 'required',
             ]);
 
             if ($validator->fails()) {
                 return response()->json(['error' => $validator->errors()], 422);
             }
 
-            $purchaseOrder = $this->purchaseOrderRepository->find($poId);
+            $data = $request->only(['stock_roll', 'stock_kg', 'stock_rib']);
+            $token = $request->input('token_update');
 
-            $data = [
-                'date' => $request->input('date') ?? $purchaseOrder->date,
-                'nama_barang' => $request->input('nama_barang') ?? $purchaseOrder->nama_barang,
-                'grade' => $request->input('grade') ?? $purchaseOrder->grade,
-                'sku' => $request->input('sku') ?? $purchaseOrder->sku,
-                'description' => $request->input('description') ?? $purchaseOrder->description,
-                'ketebalan' => $request->input('ketebalan') ?? $purchaseOrder->ketebalan,
-                'setting' => $request->input('setting') ?? $purchaseOrder->setting,
-                'gramasi' => $request->input('gramasi') ?? $purchaseOrder->gramasi,
-                'stock_roll' => $request->input('stock_roll') ?? $purchaseOrder->stock_roll,
-                'stock_kg' => $request->input('stock_kg') ?? $purchaseOrder->stock,
-                'stock_rib' => $request->input('stock_rib') ?? $purchaseOrder->stock_rib,
-                'status' => $status
-            ];
-
-            if ($request->hasFile('attachment_image')) {
-                $originalImageName = $request->file('attachment_image')->getClientOriginalName();
-                $path = $request->file('attachment_image')->storeAs('public/images/PurchaseOrder', $originalImageName);
-
-                if ($purchaseOrder->attachment_image) {
-                    Storage::delete('public/images/PurchaseOrder/' . $purchaseOrder->attachment_image);
-                }
-
-                $data['attachment_image'] = $originalImageName;
+            $po = $this->purchaseOrderRepository->update($poId, $data, $token);
+            if (isset($po['stock_kg'])) {
+                $po['stock_kg'] = (float) $po['stock_kg'];
             }
-
-            $po =  $this->purchaseOrderRepository->update($poId, $data);
+            if (isset($po['stock_rib'])) {
+                $po['stock_rib'] = (float) $po['stock_rib'];
+            }
 
             return response()->json(['message' => 'PurchaseOrder updated successfully', 'data' => $po], 200);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to update PurchaseOrder. ' . $e->getMessage()], 422);
+            return response()->json(['error' => $e->getMessage()], 422);
         }
     }
 
