@@ -44,6 +44,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         Route::get('banks', [BankControler::class, 'index']);
         Route::get('bank/{id}', [BankControler::class, 'show']);
 
+        Route::get('stocks', [StockController::class, 'index']);
 
         // Routes accessible only by superadmin role
         Route::middleware(['role:superadmin'])->group(function () {
@@ -123,7 +124,6 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
             });
 
             Route::group(['prefix' => 'inventory'], function () {
-                Route::get('stocks', [StockController::class, 'index']);
                 Route::group(['prefix' => 'stock'], function () {
                     Route::get('/{id}', [StockController::class, 'show']);
                     Route::post('u/{id}', [StockController::class, 'update']);
