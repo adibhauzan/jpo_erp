@@ -2,17 +2,21 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\Token;
 use App\Models\Warehouse;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\PurchaseOrder;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\ValidationTokenUpdate;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use App\Repositories\Token\TokenRepositoryInterface;
+use App\Service\PurchaseOrder\EloquentPurchaseOrderService;
 use App\Repositories\Inventory\InventoryRepositoryInterface;
 use App\Repositories\PurchaseOrder\PurchaseOrderRepositoryInterface;
-use App\Repositories\Token\TokenRepositoryInterface;
 
 /**
  * @OA\Tag(
@@ -23,20 +27,19 @@ use App\Repositories\Token\TokenRepositoryInterface;
 class PurchaseController extends Controller
 {
     private $purchaseOrderRepository;
-    private $tokenRepository;
+    private $purchaseOrderService;
 
 
     /**
      * Create a new purchaseOrderController instance.
      *
      * @param PurchaseOrderRepositoryInterface $purchaseOrderRepository
-     * @param TokenRepositoryInterface $tokenRepository
+     * @param EloquentPurchaseOrderService $purchaseOrderService
      * @return void
      */
-    public function __construct(PurchaseOrderRepositoryInterface $purchaseOrderRepository, TokenRepositoryInterface $tokenRepository)
+    public function __construct(PurchaseOrderRepositoryInterface $purchaseOrderRepository)
     {
         $this->purchaseOrderRepository = $purchaseOrderRepository;
-        $this->tokenRepository = $tokenRepository;
     }
 
     public function store(Request $request)
@@ -138,169 +141,111 @@ class PurchaseController extends Controller
         }
     }
 
-    // public function update(Request $request, string $poId)
-    // {
-    //     try {
-
-    //         $validator = validator()->make($request->all(), [
-    //             'stock_roll' => 'nullable|numeric',
-    //             'stock_kg' => 'nullable|numeric',
-    //             'stock_rib' => 'nullable|numeric',
-    //             'token_update' => 'required',
-    //         ]);
-
-    //         if ($validator->fails()) {
-    //             return response()->json(['error' => $validator->errors()], 422);
-    //         }
-
-    //         $data = $request->only(['stock_roll', 'stock_kg', 'stock_rib']);
-    //         $token = $request->input('token_update');
-
-    //         $po = $this->purchaseOrderRepository->update($poId, $data, $token);
-    //         if (isset($po['stock_kg'])) {
-    //             $po['stock_kg'] = (float) $po['stock_kg'];
-    //         }
-    //         if (isset($po['stock_rib'])) {
-    //             $po['stock_rib'] = (float) $po['stock_rib'];
-    //         }
-    //         return response()->json(['message' => 'PurchaseOrder updated successfully', 'data' => $po], 200);
-    //     } catch (\Exception $e) {
-    //         return response()->json(['error' => $e->getMessage()], 422);
-    //     }
-    // }
-
-    // public function update(Request $request, string $poId)
-    // {
-    //     try {
-    //         $validator = validator()->make($request->all(), [
-    //             'stock_roll' => 'nullable|numeric',
-    //             'stock_kg' => 'nullable|numeric',
-    //             'stock_rib' => 'nullable|numeric',
-    //             'token_update' => 'required|string',
-    //         ]);
-
-    //         if ($validator->fails()) {
-    //             return response()->json(['error' => $validator->errors()], 422);
-    //         }
-
-    //         $data = $request->only(['stock_roll', 'stock_kg', 'stock_rib']);
-    //         $token = $request->input((string)'token_update');
-
-    //         $po = $this->purchaseOrderRepository->update($poId, $data, $token);
-    //         $po['stock_roll'] = (float) $po['stock_roll'];
-    //         $po['stock_kg'] = (float) $po['stock_kg'];
-    //         $po['stock_rib'] = (float) $po['stock_rib'];
-
-    //         return response()->json(['message' => 'PurchaseOrder updated successfully'], 200);
-    //     } catch (\Exception $e) {
-    //         return response()->json(['error' => $e->getMessage()], 422);
-    //     }
-    // }
-
-    // public function update(Request $request, string $poId)
-    // {
-    //     // try {
-
-    //     //     $validator1 = Validator::make($request->only('stock_roll', 'stock_kg', 'stock_rib'), [
-    //     //         'stock_roll' => 'nullable|numeric',
-    //     //         'stock_kg' => 'nullable|numeric',
-    //     //         'stock_rib' => 'nullable|numeric',
-    //     //     ]);
-
-    //     //     // Validasi untuk parameter ke-3 dari repository
-    //     //     $validator2 = Validator::make($request->only('token_update'), [
-    //     //         'token_update' => 'nullable|string',
-    //     //     ]);
-
-    //     //     // Periksa jika validasi gagal untuk salah satu validator
-    //     //     if ($validator1->fails()) {
-    //     //         // Lakukan sesuatu jika validasi gagal untuk parameter ke-2 dari repository
-    //     //         return response()->json(['error' => $validator1->errors()], 422);
-    //     //     }
-
-    //     //     if ($validator2->fails()) {
-    //     //         // Lakukan sesuatu jika validasi gagal untuk parameter ke-3 dari repository
-    //     //         return response()->json(['error' => $validator2->errors()], 422);
-    //     //     }
-
-    //     //     // Mengambil data dari request
-    //     //     $data = $request->only(['stock_roll', 'stock_kg', 'stock_rib']);
-    //     //     $token = $request->input((string)'token_update');
-
-    //     //     // Melakukan pembaruan pada repository dengan data yang diberikan
-    //     //     $po = $this->purchaseOrderRepository->update($poId, $data, $token);
-
-    //     //     // Mengonversi data yang diperbarui ke float (jika diperlukan)
-    //     //     $po['stock_roll'] = (float) $po['stock_roll'];
-    //     //     $po['stock_kg'] = (float) $po['stock_kg'];
-    //     //     $po['stock_rib'] = (float) $po['stock_rib'];
-
-    //     //     return response()->json(['message' => 'PurchaseOrder updated successfully'], 200);
-    //     // } catch (\Exception $e) {
-    //     //     return response()->json(['error' => $e->getMessage()], 422);
-    //     // }
-
-    //     try {
-    //         // Validasi input request
-    //         $validator = Validator::make($request->all(), [
-    //             'stock_roll' => 'nullable|numeric',
-    //             'stock_kg' => 'nullable|numeric',
-    //             'stock_rib' => 'nullable|numeric',
-    //             'token_update' => 'nullable|string', // Token harus disertakan dalam request
-    //         ]);
-
-    //         // Jika validasi gagal, kembalikan respons dengan kesalahan
-    //         if ($validator->fails()) {
-    //             return response()->json(['error' => $validator->errors()], 422);
-    //         }
-
-    //         // Mengambil data dari request
-    //         $data = $validator->validated();
-    //         $token = $data['token_update']; // Mendapatkan token dari data validasi
-    //         unset($data['token_update']); // Menghapus token dari data update
-
-    //         // Melakukan pembaruan pada repository dengan data yang diberikan
-    //         $po = $this->purchaseOrderRepository->update($poId, $data, (string)$token);
-
-    //         // Mengonversi data yang diperbarui ke float (jika diperlukan)
-    //         $po['stock_roll'] = (float) $po['stock_roll'];
-    //         $po['stock_kg'] = (float) $po['stock_kg'];
-    //         $po['stock_rib'] = (float) $po['stock_rib'];
-
-    //         // Memberikan respons bahwa PurchaseOrder berhasil diperbarui
-    //         return response()->json(['message' => 'PurchaseOrder updated successfully'], 200);
-    //     } catch (\Exception $e) {
-    //         // Jika terjadi kesalahan, kembalikan respons dengan pesan kesalahan
-    //         return response()->json(['error' => $e->getMessage()], 422);
-    //     }
-    // }
-
-
-    public function update(Request $request, string $poId)
+    public function update(Request $request, $id)
     {
         try {
-            // Validasi request
-            $request->validate([
+            $user = Auth::user();
+            if (!$user) {
+                return response()->json(['error' => 'User not authenticated'], 401);
+            }
+
+            if (!$request->has('update_key')) {
+                return response()->json(['error' => 'Update key is required'], 422);
+            }
+            $updateKey = $request->input('update_key');
+
+            $validationToken = ValidationTokenUpdate::where('update_key', $updateKey)
+                ->where('status', 'not')
+                ->first();
+
+            if (!$validationToken) {
+                return response()->json(['error' => 'Update key not found or already used'], 404);
+            }
+
+            $purchaseOrder = PurchaseOrder::find($id);
+            if (!$purchaseOrder) {
+                return response()->json(['error' => 'Purchase Order not found'], 404);
+            }
+
+            $validator = Validator::make($request->all(), [
+                'date' => 'nullable|date',
+                'nama_barang' => 'nullable|string',
+                'grade' => 'nullable|string',
+                'sku' => 'nullable|string',
+                'description' => 'nullable|string',
+                'ketebalan' => 'nullable|string',
+                'setting' => 'nullable|string',
+                'gramasi' => 'nullable|string',
                 'stock_roll' => 'nullable|numeric',
                 'stock_kg' => 'nullable|numeric',
                 'stock_rib' => 'nullable|numeric',
-                // 'bujang' => 'nullable|exists:tokens,token_update'
             ]);
 
-            $data = $request->only(['stock_roll', 'stock_kg', 'stock_rib']);
-            $tokenUpdate = $request->input('token_update');
-
-            $success = $this->purchaseOrderRepository->update($poId, $data, $tokenUpdate);
-
-            if ($success) {
-                return response()->json(['message' => 'Purchase order berhasil diperbarui'], 200);
-            } else {
-                return response()->json(['message' => 'Gagal memperbarui purchase order. Token tidak valid'], 403);
+            if ($validator->fails()) {
+                return response()->json(['error' => $validator->errors()], 422);
             }
+
+            if ($request->hasFile('attachment_image')) {
+                $validator = Validator::make($request->all(), [
+                    'attachment_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:6144',
+                ]);
+
+                if ($validator->fails()) {
+                    return response()->json(['error' => $validator->errors()], 422);
+                }
+                if ($purchaseOrder->attachment_image) {
+                    Storage::delete('public/images/PurchaseOrder/' . $purchaseOrder->attachment_image);
+                }
+
+                // Simpan gambar baru
+                $originalImageName = $request->file('attachment_image')->getClientOriginalName();
+                $slug = Str::slug($request->input('nama_barang'));
+                $request->file('attachment_image')->storeAs('public/images/PurchaseOrder/', $originalImageName);
+
+                // Update NewsArticle
+                $purchaseOrder->update([
+                    'date' => $request->input('date') ?? $purchaseOrder->date,
+                    'nama_barang' => $request->input('nama_barang') ?? $purchaseOrder->nama_barang,
+                    'grade' => $request->input('grade') ?? $purchaseOrder->grade,
+                    'sku' => $request->input('sku') ?? $purchaseOrder->sku,
+                    'attachment_image' => $originalImageName,
+                    'description' => $request->input('description') ?? $purchaseOrder->description,
+                    'ketebalan' => $request->input('ketebalan') ?? $purchaseOrder->ketebalan,
+                    'setting' => $request->input('setting') ?? $purchaseOrder->setting,
+                    'gramasi' => $request->input('gramasi') ?? $purchaseOrder->gramasi,
+                    'stock_roll' => $request->input('stock_roll') ?? $purchaseOrder->stock_roll,
+                    'stock_kg' => $request->input('stock_kg') ?? $purchaseOrder->stock_kg,
+                    'stock_rib' => $request->input('stock_rib') ?? $purchaseOrder->stock_rib,
+                ]);
+            } else {
+                $purchaseOrder->update([
+                    'date' => $request->input('date') ?? $purchaseOrder->date,
+                    'nama_barang' => $request->input('nama_barang') ?? $purchaseOrder->nama_barang,
+                    'grade' => $request->input('grade') ?? $purchaseOrder->grade,
+                    'sku' => $request->input('sku') ?? $purchaseOrder->sku,
+                    'description' => $request->input('description') ?? $purchaseOrder->description,
+                    'ketebalan' => $request->input('ketebalan') ?? $purchaseOrder->ketebalan,
+                    'setting' => $request->input('setting') ?? $purchaseOrder->setting,
+                    'gramasi' => $request->input('gramasi') ?? $purchaseOrder->gramasi,
+                    'stock_roll' => $request->input('stock_roll') ?? $purchaseOrder->stock_roll,
+                    'stock_kg' => $request->input('stock_kg') ?? $purchaseOrder->stock_kg,
+                    'stock_rib' => $request->input('stock_rib') ?? $purchaseOrder->stock_rib,
+                ]);
+            }
+
+            $validationToken->update([
+                'status' => 'used',
+                'user_id' => $user->id,
+            ]);
+
+            return response()->json(['data' => $purchaseOrder], 200);
         } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 400);
+            return response()->json(['error' => 'Failed to update the NewsArticle. ' . $e->getMessage()], 500);
         }
     }
+
+
+
 
     public function delete(string $poId)
     {

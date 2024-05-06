@@ -35,6 +35,8 @@ use App\Repositories\Inventory\Transfer\In\EloquentTransferInRepository;
 use App\Repositories\Inventory\Transfer\In\TransferInRepositoryInterface;
 use App\Repositories\Inventory\Transfer\Out\EloquentTransferOutRepository;
 use App\Repositories\Inventory\Transfer\Out\TransferOutRepositoryInterface;
+use App\Service\PurchaseOrder\EloquentPurchaseOrderService;
+use App\Service\PurchaseOrder\PurchaseOrderServiceInterface;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -43,6 +45,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+
+        // Repository
         $this->app->bind(UserRepositoryInterface::class, EloquentUserRepository::class);
         $this->app->bind(StoreRepositoryInterface::class, EloquentStoreRepository::class);
         $this->app->bind(ConvectionRepositoryInterface::class, EloquentConvectionRepository::class);
@@ -58,6 +62,12 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(BillRepositoryInterface::class, EloquentBillRepository::class);
         $this->app->bind(InvoiceRepositoryInterface::class, EloquentInvoiceRepository::class);
         $this->app->bind(CommisionRepositoryInterface::class, EloquentCommisionRepository::class);
+
+        // End Repository
+
+        // Service
+        $this->app->bind(PurchaseOrderServiceInterface::class, EloquentPurchaseOrderService::class);
+        // End Service
     }
 
     /**

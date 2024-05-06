@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Ramsey\Uuid\Uuid;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Token extends Model
+class ValidationTokenUpdate extends Model
 {
     use HasFactory;
 
@@ -24,12 +24,12 @@ class Token extends Model
 
     protected $fillable = [
         'user_id',
-        'token_update',
         'status',
+        'update_key'
     ];
 
     public function users()
     {
-        return $this->belongsTo(User::class);
+        return $this->hasMany(User::class);
     }
 }

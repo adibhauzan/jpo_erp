@@ -25,6 +25,7 @@ class EloquentConvectionRepository implements ConvectionRepositoryInterface
     {
         return Convection::findOrFail($convectionId);
     }
+
     public function findAll()
     {
         return Convection::orderBy('created_at', 'desc')->get();

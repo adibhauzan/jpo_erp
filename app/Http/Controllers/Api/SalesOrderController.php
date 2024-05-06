@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\Models\SalesOrder;
+use Illuminate\Http\Request;
+use App\Models\PurchaseOrder;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use App\Models\ValidationTokenUpdate;
 use Illuminate\Support\Facades\Validator;
-use App\Repositories\SalesOrder\SalesOrderRepositoryInterface;
 use App\Repositories\Token\TokenRepositoryInterface;
+use App\Repositories\SalesOrder\SalesOrderRepositoryInterface;
 
 class SalesOrderController extends Controller
 {
@@ -123,42 +127,79 @@ class SalesOrderController extends Controller
         }
     }
 
-    public function update(string $soId, Request $request)
+    public function update(Request $request, $id)
     {
-
-        try {
-            $so = $this->salesOrderRepository->find($soId);
-            $validator = Validator::make($request->all(), [
-                'broker_fee' => 'nullable',
-                'harga_jual' => 'nullable',
-                'stock_roll' => 'nullable',
-                'stock_kg' => 'nullable',
-                'stock_rib' => 'nullable',
-                'token' => 'required|exist:tokens,name'
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json(['error' => $validator->errors()], 422);
-            }
-
-            $token = $this->tokenRepository->find($request->input('token'));
-
-            $data = [
-                'stock_rev' => $request->input('stock_rev') ?? $so->stock_rev,
-                'broker_fee' => $request->input('broker_fee') ?? $so->broker_fee,
-                'price' => $request->input('price') ?? $so->price,
-            ];
-
-            $updatedSO = $this->salesOrderRepository->update($soId, $data, $token);
-            $soYangSudahDiUpdate = $this->salesOrderRepository->find($soId);
-
-
-
-            return response()->json(["message" => 'success updated SO', "data" => $soYangSudahDiUpdate], 200);
-        } catch (\Throwable $e) {
-            return response()->json(['message' => 'failed update SO' . $e->getMessage()], 422);
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => 'User not authenticated'], 401);
         }
+
+        $validationToken = ValidationTokenUpdate::where('update_key', $request->input('update_key'))
+            ->where('status', 'not')
+            ->first();
+
+        if (!$validationToken) {
+            return response()->json(['error' => 'Update key not found or already used'], 400);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'update_key' => 'required',
+            'broker_fee' => 'nullable|integer',
+            'stock_roll' => 'nullable|numeric',
+            'stock_kg' => 'nullable|numeric',
+            'stock_rib' => 'nullable|numeric',
+            'price' => 'nullable'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => 'Validation failed', 'errors' => $validator->errors()], 400);
+        }
+
+        return DB::transaction(function () use ($id, $request, $user, $validationToken) {
+            try {
+                $salesOrder = SalesOrder::findOrFail($id);
+
+                $oldStock = [
+                    'stock_roll' => $salesOrder->stock_roll,
+                    'stock_kg' => $salesOrder->stock_kg,
+                    'stock_rib' => $salesOrder->stock_rib,
+                ];
+
+                $salesOrder->update($request->only('stock_roll', 'stock_kg', 'stock_rib'));
+
+                $diffStock = [
+                    'stock_roll' => $request->stock_roll - $oldStock['stock_roll'],
+                    'stock_kg' => $request->stock_kg - $oldStock['stock_kg'],
+                    'stock_rib' => $request->stock_rib - $oldStock['stock_rib'],
+                ];
+
+                $purchaseOrder = PurchaseOrder::where('sku', $salesOrder->sku)->firstOrFail();
+
+                if (($purchaseOrder->stock_roll_rev - $diffStock['stock_roll'] < 0) ||
+                    ($purchaseOrder->stock_kg_rev - $diffStock['stock_kg'] < 0) ||
+                    ($purchaseOrder->stock_rib_rev - $diffStock['stock_rib'] < 0)
+                ) {
+                    return response()->json(['error' => 'Requested stock exceeds available purchase order capacity'], 400);
+                }
+
+                $purchaseOrder->stock_roll_rev -= $diffStock['stock_roll'];
+                $purchaseOrder->stock_kg_rev -= $diffStock['stock_kg'];
+                $purchaseOrder->stock_rib_rev -= $diffStock['stock_rib'];
+                $purchaseOrder->save();
+
+                $validationToken->update([
+                    'status' => 'used',
+                    'user_id' => $user->id,
+                ]);
+
+                return response()->json(['message' => 'Data updated successfully'], 200);
+            } catch (\Exception $e) {
+                return response()->json(['error' => 'Failed to update the SO. ' . $e->getMessage()], 500);
+            }
+        });
     }
+
+
 
     public function findAllSku()
     {

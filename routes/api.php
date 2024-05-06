@@ -118,17 +118,15 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
             Route::group(['prefix' => 'purchase-order'], function () {
                 Route::post('/', [PurchaseController::class, 'store']);
                 Route::get('/{id}', [PurchaseController::class, 'show']);
-                Route::put('u/{id}', [PurchaseController::class, 'update']);
+                Route::post('u/{id}', [PurchaseController::class, 'update']);
                 Route::delete('d/{id}', [PurchaseController::class, 'delete']);
             });
 
             Route::group(['prefix' => 'inventory'], function () {
                 Route::get('stocks', [StockController::class, 'index']);
                 Route::group(['prefix' => 'stock'], function () {
-                    Route::post('/', [StockController::class, 'store']);
                     Route::get('/{id}', [StockController::class, 'show']);
-                    Route::put('u/{id}', [StockController::class, 'update']);
-                    Route::delete('d/{id}', [StockController::class, 'delete']);
+                    Route::post('u/{id}', [StockController::class, 'update']);
                 });
                 Route::group(['prefix' => 'transfer-in'], function () {
                     Route::post('/', [TransferInController::class, 'store']);

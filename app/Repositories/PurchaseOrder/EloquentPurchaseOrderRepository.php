@@ -23,66 +23,15 @@ class EloquentPurchaseOrderRepository implements PurchaseOrderRepositoryInterfac
         return  PurchaseOrder::create($data);
     }
 
-    // public function update(string $poId, array $data, string $token)
-    // {
-    //     $tokenInput = DB::table('tokens')
-    //         ->where('token_update', $token)
-    //         ->where('status', 'not')
-    //         ->first();
-
-    //     if (!$tokenInput) {
-    //         throw new \Exception("Token yang dimasukkan tidak valid atau sudah digunakan");
-    //     }
-
-    //     $po = $this->find($poId);
-
-    //     $updateData = [
-    //         'stock_roll' => $data['stock_roll'] ?? $po->stock_roll,
-    //         'stock_kg' => $data['stock_kg'] ?? $po->stock_kg,
-    //         'stock_rib' => $data['stock_rib'] ?? $po->stock_rib,
-    //     ];
-
-    //     $updateResult = $po->update($updateData);
-
-    //     if (!$updateResult) {
-    //         throw new \Exception("Gagal memperbarui Purchase Order. Kemungkinan ID tidak ditemukan atau tidak ada perubahan yang dimasukkan.");
-    //     }
-
-    //     $user = Auth::user();
-    //     if (!$user) {
-    //         throw new \Exception("Tidak ada pengguna yang masuk ketika mencoba memperbarui Purchase Order dengan token: $token");
-    //     }
-
-    //     $userId = $user->id;
-    //     DB::table('tokens')
-    //         ->where('token_update', $tokenInput->token_update)
-    //         ->update(['status' => 'used', 'user_id' => $userId]);
-
-    //     return $updateData;
-    // }
-
-    public function update(string $poId, array $data, $tokenUpdate)
+    public function update(string $poId, array $data)
     {
-        $token = Token::where('token_update', $tokenUpdate)->first();
-
-        if (!$token) {
-            throw new \Exception("Token yang dimasukkan tidak ditemukan");
-        }
-
-        if ($token->status === 'used') {
-            throw new \Exception("Token sudah digunakan");
-        }
-
         $purchaseOrder = $this->find($poId);
 
         $purchaseOrder->stock_roll = $data['stock_roll'] ?? $purchaseOrder->stock_roll;
         $purchaseOrder->stock_kg = $data['stock_kg'] ?? $purchaseOrder->stock_kg;
         $purchaseOrder->stock_rib = $data['stock_rib'] ?? $purchaseOrder->stock_rib;
-        $purchaseOrder->save();
+        $purchaseOrder->refresh();
 
-        $token->user_id = Auth::id();
-        $token->status = 'used';
-        $token->save();
 
         return true;
     }

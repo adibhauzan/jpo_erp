@@ -2,14 +2,16 @@
 
 namespace App\Repositories\Token;
 
+use Exception;
 use App\Models\Token;
+use App\Models\ValidationTokenUpdate;
 
 class EloquentTokenRepository implements TokenRepositoryInterface
 {
 
     public function create(array $data)
     {
-        return Token::create($data);
+        return ValidationTokenUpdate::create($data);
     }
 
     public function update(string $tokenId, array $data)
@@ -22,12 +24,27 @@ class EloquentTokenRepository implements TokenRepositoryInterface
 
     public function find(string $tokenId)
     {
-        return Token::findOrFail($tokenId);
+        return ValidationTokenUpdate::findOrFail($tokenId);
+    }
+
+    public function findTokenUpdate(string $tokenUpdate)
+    {
+        try {
+            $token = ValidationTokenUpdate::where('token_update', $tokenUpdate)->firstOrFail();
+
+            if ($token->status == "used") {
+                throw new \Exception('Token sudah digunakan');
+            }
+
+            return $token;
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $exception) {
+            throw new \Exception('Token tidak ditemukan');
+        }
     }
 
     public function findAll()
     {
-        return Token::orderBy('created_at', 'desc')->get();
+        return ValidationTokenUpdate::orderBy('created_at', 'desc')->get();
     }
 
     public function delete(string $tokenId)

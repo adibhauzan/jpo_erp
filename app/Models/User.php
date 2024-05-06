@@ -125,6 +125,6 @@ class User extends Authenticatable implements JWTSubject
 
     public function token()
     {
-        return $this->hasMany(Token::class);
+        return $this->hasMany(ValidationTokenUpdate::class);
     }
 }

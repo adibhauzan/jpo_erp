@@ -12,6 +12,8 @@ interface TokenRepositoryInterface
 
     public function findAll();
 
+    public function findTokenUpdate(string $tokenUpdate);
+
     // public function findByParameters(array $parameters);
 
     public function delete(string $tokenId);
