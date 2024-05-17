@@ -64,7 +64,6 @@ class EloquentWarehouseRepository implements WarehouseRepositoryInterface
     public function getByLoggedInUser()
     {
         $storeId = Auth::user()->store_id;
-
         return Warehouse::where('store_id', $storeId)
             ->where('status', 'active')
             ->get();
