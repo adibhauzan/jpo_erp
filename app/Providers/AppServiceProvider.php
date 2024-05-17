@@ -18,10 +18,8 @@ use App\Repositories\Invoice\EloquentInvoiceRepository;
 use App\Repositories\Contact\ContactRepositoryInterface;
 use App\Repositories\Invoice\InvoiceRepositoryInterface;
 use App\Repositories\Commision\EloquentCommisionRepository;
-use App\Repositories\Inventory\EloquentInventoryRepository;
 use App\Repositories\Warehouse\EloquentWarehouseRepository;
 use App\Repositories\Commision\CommisionRepositoryInterface;
-use App\Repositories\Inventory\InventoryRepositoryInterface;
 use App\Repositories\Warehouse\WarehouseRepositoryInterface;
 use App\Repositories\Convection\EloquentConvectionRepository;
 use App\Repositories\Inventory\Stock\EloquentStockRepository;
@@ -62,12 +60,6 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(BillRepositoryInterface::class, EloquentBillRepository::class);
         $this->app->bind(InvoiceRepositoryInterface::class, EloquentInvoiceRepository::class);
         $this->app->bind(CommisionRepositoryInterface::class, EloquentCommisionRepository::class);
-
-        // End Repository
-
-        // Service
-        $this->app->bind(PurchaseOrderServiceInterface::class, EloquentPurchaseOrderService::class);
-        // End Service
     }
 
     /**
