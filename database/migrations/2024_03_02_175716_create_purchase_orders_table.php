@@ -31,11 +31,6 @@ return new class extends Migration
             $table->decimal('stock_roll', 10, 2);
             $table->decimal('stock_kg', 10, 2);
             $table->decimal('stock_rib', 10, 2);
-            $table->decimal('stock_roll_rev', 10, 2)->default(0);
-            $table->decimal('stock_kg_rev', 10, 2)->default(0);
-            $table->decimal('stock_rib_rev', 10, 2)->default(0);
-            $table->date('date_received')->nullable();
-
             $table->foreign('contact_id')->references('id')->on('contacts')->onDelete('cascade');
             $table->foreign('warehouse_id')->references('id')->on('warehouses')->onDelete('cascade');
 

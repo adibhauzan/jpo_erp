@@ -11,10 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->uuid('convection_id')->nullable()->after('store_id');
-
-            $table->foreign('convection_id')->references('id')->on('convections')->onDelete('set null');
+        Schema::table('stocks', function (Blueprint $table) {
+            $table->string('sku')->after('warehouse_id');
         });
     }
 
@@ -23,8 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropForeign(['convection_id']);
+        Schema::table('stocks', function (Blueprint $table) {
             $table->dropColumn('convection_id');
         });
     }
