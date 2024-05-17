@@ -93,9 +93,9 @@ class TransferInController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'stock_roll_rev' => 'nullable|numeric',
-                'stock_kg_rev' => 'nullable|numeric',
-                'stock_rib_rev' => 'nullable|numeric',
+                'stock_roll' => 'nullable|numeric',
+                'stock_kg' => 'nullable|numeric',
+                'stock_rib' => 'nullable|numeric',
                 'date_received' => 'nullable|date',
             ]);
 
@@ -103,9 +103,9 @@ class TransferInController extends Controller
                 return response()->json(['error' => $validator->errors()], 422);
             }
 
-            $quantityStockRollReceived = $request->input('stock_roll_rev', 0);
-            $quantityStockKgReceived = $request->input('stock_kg_rev', 0);
-            $quantityRibReceived = $request->input('stock_rib_rev', 0);
+            $quantityStockRollReceived = $request->input('stock_roll', 0);
+            $quantityStockKgReceived = $request->input('stock_kg', 0);
+            $quantityRibReceived = $request->input('stock_rib', 0);
             $date_received = $request->input('date_received', Carbon::now()->toDateString());
 
             $transferin = $this->transferInRepository->receive($inId, $quantityStockRollReceived, $quantityStockKgReceived, $quantityRibReceived, $date_received);

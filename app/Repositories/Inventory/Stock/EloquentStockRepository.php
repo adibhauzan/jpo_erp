@@ -2,101 +2,179 @@
 
 namespace App\Repositories\Inventory\Stock;
 
+use App\Models\Stock;
+use Ramsey\Uuid\Uuid;
 use App\Models\Warehouse;
 use App\Models\PurchaseOrder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Repositories\Inventory\Stock\StockRepositoryInterface;
 
 class EloquentStockRepository implements StockRepositoryInterface
 {
-    // public function create(array $data)
-    // {
-    //     $user = Auth::user();
 
-    //     $warehouseStoreId = Warehouse::find($data['warehouse_id'])->store->id;
-
-    //     if ($user->store_id !== $warehouseStoreId) {
-    //         throw new \Exception( 'The selected warehouse is not associated with your store.');
-    //     }
-    //   return  PurchaseOrder::create($data);
-    // }
-
-    // public function update(string $poId, array $data)
-    // {
-    //     $po = $this->find($poId);
-    //     $po->update($data);
-    //     $po->refresh();
-    //     return $po;
-    // }
-
-    public function find(string $poId)
+    public function findAll()
     {
-        // Perbaikan sintaksis dalam kueri
-        $stock = PurchaseOrder::select(
+        $stock = Stock::select(
             'id',
-            'contact_id',
             'warehouse_id',
-            'no_po',
-            'no_do',
-            'date',
+            'po_id',
+            'stock_roll',
+            'stock_kg',
+            'stock_rib',
+            'date_received',
+            'created_at',
+            'updated_at'
+        )->orderBy('created_at', 'desc')->get();
+        return $stock;
+    }
+
+    public function find(string $stockId)
+    {
+        $stock = Stock::select(
+            'id',
+            'warehouse_id',
+            'po_id',
             'nama_barang',
             'grade',
             'sku',
             'description',
+            'attachment_image',
             'ketebalan',
             'setting',
             'gramasi',
-            'stock_roll_rev',
-            'stock_kg_rev',
-            'stock_rib_rev',
-            'attachment_image',
+            'stock_roll',
+            'stock_kg',
+            'stock_rib',
             'price',
-            'status'
-        )->where('id', $poId)->first(); // Perbaikan sintaksis where dan gunakan first() untuk mengambil satu baris
+        )->where('id', $stockId)->first();
 
         return $stock;
     }
 
-
-    public function findAll()
+    public function delete(string $stockId)
     {
-        $transferIn = PurchaseOrder::select(
-            'id',
-            'contact_id',
-            'warehouse_id',
-            'no_po',
-            'no_do',
-            'date',
-            'nama_barang',
-            'grade',
-            'sku',
-            'description',
-            'ketebalan',
-            'setting',
-            'gramasi',
-            'stock_roll_rev',
-            'stock_kg_rev',
-            'stock_rib_rev',
-            'attachment_image',
-            'price',
-            'status',
-            'created_at',
-            'updated_at'
-        )->orderBy('created_at', 'desc')->get();
-        return $transferIn;
+        $stock = $this->find($stockId);
+        $stock->delete();
     }
 
-    public function delete(string $poId)
+    public function update(string $stockId, array $data)
     {
-        $po = $this->find($poId);
-        $po->delete();
+        $stock = Stock::all();
+        $stock->update($data);
+        $stock->refresh();
+        return $stock;
     }
 
-    public function update(string $poId, array $data)
+
+    public function getWarehouseIdsWithStock($sku)
     {
-        $po = PurchaseOrder::all();
-        $po->update($data);
-        $po->refresh();
-        return $po;
+        return Stock::with(['warehouse:id,name'])
+            ->where('sku', $sku)
+            ->where(function ($query) {
+                $query->where('stock_roll', '<>', 0.00)
+                    ->orWhere('stock_kg', '<>', 0.00)
+                    ->orWhere('stock_rib', '<>', 0.00);
+            })
+            ->get(['id', 'warehouse_id']);
+    }
+
+    public function getAllStocksIdAndSku()
+    {
+        return DB::select('SELECT id, sku, po_id FROM stocks');
+    }
+
+    public function getWarehouseByLoggedInUser()
+    {
+        $storeId = Auth::user()->store_id;
+        return Warehouse::where('store_id', $storeId)
+            ->where('status', 'active')
+            ->get();
+    }
+
+    public function transferStock($sku, $warehouseIdFrom, $warehouseIdTo, $jumlahStockRoll, $jumlahStockKg, $jumlahStockRib, $tanggalDiterima)
+    {
+        DB::transaction(function () use ($sku, $warehouseIdFrom, $warehouseIdTo, $jumlahStockRoll, $jumlahStockKg, $jumlahStockRib, $tanggalDiterima) {
+            if ($jumlahStockRoll < 0 || $jumlahStockKg < 0 || $jumlahStockRib < 0) {
+                throw new \Exception('Nilai stok yang ditransfer tidak boleh negatif');
+            }
+
+            $stokExistingFrom = $this->getExistingStock($sku, $warehouseIdFrom);
+
+            $this->validateStock($stokExistingFrom, $jumlahStockRoll, $jumlahStockKg, $jumlahStockRib);
+
+            $this->updateSourceWarehouseStock($stokExistingFrom, $jumlahStockRoll, $jumlahStockKg, $jumlahStockRib);
+
+            $this->updateOrInsertDestinationWarehouseStock($sku, $warehouseIdTo, $jumlahStockRoll, $jumlahStockKg, $jumlahStockRib, $tanggalDiterima);
+        });
+    }
+
+    private function getExistingStock($sku, $warehouseId)
+    {
+        $stokExisting = DB::table('stocks')
+            ->where('sku', $sku)
+            ->where('warehouse_id', $warehouseId)
+            ->first();
+
+        if (!$stokExisting) {
+            throw new \Exception('Stok tidak ditemukan di gudang asal');
+        }
+
+        return $stokExisting;
+    }
+
+    private function validateStock($stokExisting, $jumlahStockRoll, $jumlahStockKg, $jumlahStockRib)
+    {
+        if ($stokExisting->stock_roll < $jumlahStockRoll || $stokExisting->stock_kg < $jumlahStockKg || $stokExisting->stock_rib < $jumlahStockRib) {
+            throw new \Exception('Jumlah stok yang diminta untuk transfer melebihi stok yang tersedia di gudang asal');
+        }
+    }
+
+    private function updateSourceWarehouseStock($stokExisting, $jumlahStockRoll, $jumlahStockKg, $jumlahStockRib)
+    {
+        DB::table('stocks')->where('id', $stokExisting->id)->update([
+            'stock_roll' => $stokExisting->stock_roll - $jumlahStockRoll,
+            'stock_kg' => $stokExisting->stock_kg - $jumlahStockKg,
+            'stock_rib' => $stokExisting->stock_rib - $jumlahStockRib,
+            'updated_at' => now(),
+        ]);
+    }
+
+    private function updateOrInsertDestinationWarehouseStock($sku, $warehouseIdTo, $jumlahStockRoll, $jumlahStockKg, $jumlahStockRib, $tanggalDiterima)
+    {
+        $poId = DB::table('stocks')->where('sku', $sku)->value('po_id');
+
+        if (!$poId) {
+            throw new \Exception('po_id tidak ditemukan untuk sku yang diberikan');
+        }
+
+        $stokExistingTo = DB::table('stocks')
+            ->where('po_id', $poId)
+            ->where('sku', $sku)
+            ->where('warehouse_id', $warehouseIdTo)
+            ->first();
+
+        if ($stokExistingTo) {
+            DB::table('stocks')->where('id', $stokExistingTo->id)->update([
+                'stock_roll' => $stokExistingTo->stock_roll + $jumlahStockRoll,
+                'stock_kg' => $stokExistingTo->stock_kg + $jumlahStockKg,
+                'stock_rib' => $stokExistingTo->stock_rib + $jumlahStockRib,
+                'date_received' => $tanggalDiterima,
+                'updated_at' => now(),
+            ]);
+        } else {
+            DB::table('stocks')->insert([
+                'id' => Uuid::uuid4()->toString(),
+                'po_id' => $poId,
+                'warehouse_id' => $warehouseIdTo,
+                'sku' => $sku,
+                'stock_roll' => $jumlahStockRoll,
+                'stock_kg' => $jumlahStockKg,
+                'stock_rib' => $jumlahStockRib,
+                'date_received' => $tanggalDiterima,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
     }
 }

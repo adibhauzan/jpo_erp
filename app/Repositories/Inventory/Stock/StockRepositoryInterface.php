@@ -12,6 +12,12 @@ interface StockRepositoryInterface
 
     public function findAll();
 
+    public function getWarehouseIdsWithStock($sku);
 
+    public function getAllStocksIdAndSku();
+
+    public function getWarehouseByLoggedInUser();
+
+    public function transferStock($sku, $warehouseIdFrom, $warehouseIdTo, $jumlahStockRoll, $jumlahStockKg, $jumlahStockRib, $tanggalDiterima);
     // public function delete(string $poId);
 }

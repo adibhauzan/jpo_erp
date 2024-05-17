@@ -32,6 +32,7 @@ class StockController extends Controller
     {
         try {
             $stock = $this->stockRepository->findAll();
+
             return response()->json(['message' => 'Stock fetch successfully', 'data' => $stock], 200);
         } catch (\Throwable $e) {
             return response()->json(['message' => 'Failed fetch Stock', 'data' => $e->getMessage()], 500);
@@ -41,8 +42,8 @@ class StockController extends Controller
     public function show(string $stockId)
     {
         try {
-            $transferIn = $this->stockRepository->find($stockId);
-            return response()->json(['message' => 'Stock retrieved successfully', 'data' => $transferIn], 200);
+            $stock = $this->stockRepository->find($stockId);
+            return response()->json(['message' => 'Stock retrieved successfully', 'data' => $stock], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Failed to retrieve Stock. ' . $e->getMessage()], 422);
         }
@@ -134,6 +135,71 @@ class StockController extends Controller
             return response()->json(['data' => $purchaseOrder], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Failed to update the Stock. ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function showWarehouseBySku(Request $request, $sku)
+    {
+        try {
+            $stocks = $this->stockRepository->getWarehouseIdsWithStock($sku);
+            return response()->json(['message' => 'Stock retrieved successfully', 'data' => $stocks], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to retrieve Stock. ' . $e->getMessage()], 422);
+        }
+    }
+
+    public function getAllStocksIdAndSku(Request $request)
+    {
+        try {
+            $sku = $this->stockRepository->getAllStocksIdAndSku();
+            return response()->json(['message' => 'get all sku in stocks successfully', 'data' => $sku], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed get all sku in stocks.' . $e->getMessage()], 422);
+        }
+    }
+
+    public function getWarehousesByLoggedUser()
+    {
+        try {
+            $warehouses = $this->stockRepository->getWarehouseByLoggedInUser();
+            return response()->json($warehouses);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to retrieve warehouses.'], 500);
+        }
+    }
+
+    public function transfer(Request $request)
+    {
+        // Validasi input dari request
+        $validator = Validator::make($request->all(), [
+            'sku' => 'required|string',
+            'warehouse_id_from' => 'required|string|exists:warehouses,id',
+            'warehouse_id_to' => 'required|string|exists:warehouses,id',
+            'stock_roll' => 'required|numeric|min:0',
+            'stock_kg' => 'required|numeric|min:0',
+            'stock_rib' => 'required|numeric|min:0',
+            'date_received' => 'required|date',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        try {
+            // Panggil metode transferStock dari repository
+            $this->stockRepository->transferStock(
+                $request->input('sku'),
+                $request->input('warehouse_id_from'),
+                $request->input('warehouse_id_to'),
+                $request->input('stock_roll'),
+                $request->input('stock_kg'),
+                $request->input('stock_rib'),
+                $request->input('date_received')
+            );
+
+            return response()->json(['message' => 'Stock transferred successfully'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 }

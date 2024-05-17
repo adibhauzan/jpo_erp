@@ -36,8 +36,6 @@ class EloquentPurchaseOrderRepository implements PurchaseOrderRepositoryInterfac
         return true;
     }
 
-
-
     public function find(string $poId)
     {
         return PurchaseOrder::findOrFail($poId);
