@@ -114,8 +114,6 @@ class UserController extends Controller
         }
     }
 
-
-
     protected function validateUpdateRequest(Request $request, $currentRoles)
     {
         $validator = Validator::make(
@@ -146,7 +144,6 @@ class UserController extends Controller
 
         return $validator;
     }
-
 
     protected function validateSuperAdminRoles($validator, $roles, $store_id, $convection_id, $currentRoles)
     {
@@ -187,14 +184,6 @@ class UserController extends Controller
             }
         }
     }
-
-
-
-
-
-
-
-
 
     /**
      * @OA\Get(
@@ -402,9 +391,6 @@ class UserController extends Controller
             return response()->json(['error' => 'Gagal memulihkan pengguna: ' . $e->getMessage()], 500);
         }
     }
-
-
-
 
     /**
      * @OA\Delete(
