@@ -81,7 +81,7 @@ class EloquentStockRepository implements StockRepositoryInterface
 
     public function getAllStocksIdAndSku()
     {
-        return DB::select('SELECT id, sku, po_id FROM stocks');
+        return DB::select('SELECT DISTINCT sku FROM stocks');
     }
 
     public function getWarehouseByLoggedInUser()
