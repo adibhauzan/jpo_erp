@@ -21,6 +21,11 @@ class Stock extends Model
             $model->{$model->getKeyName()} = Uuid::uuid4()->toString();
         });
     }
+    protected $casts = [
+        'stock_roll' => 'float',
+        'stock_kg' => 'float',
+        'stock_rib' => 'float',
+    ];
 
     protected $fillable = [
         'id',
