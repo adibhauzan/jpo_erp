@@ -120,10 +120,10 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
                 Route::get('stocks', [StockController::class, 'index']);
                 Route::group(['prefix' => 'stock'], function () {
                     Route::get('warehouses-list ', [StockController::class, 'getWarehousesByLoggedUser']);
-                    Route::post('transfer', [StockController::class, 'transfer']);
-                    Route::post('u/{id}', [StockController::class, 'update']);
                     Route::get('skus', [StockController::class, 'getAllStocksIdAndSku']);
                     Route::get('{sku}/sku', [StockController::class, 'showWarehouseBySku']);
+                    Route::post('transfer', [StockController::class, 'transfer']);
+                    Route::post('u/{id}', [StockController::class, 'update']);
                 });
 
                 Route::group(['prefix' => 'transfer-in'], function () {
@@ -147,6 +147,10 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
             Route::get('sales-orders', [SalesOrderController::class, 'index']);
             Route::group(['prefix' => 'sales-order'], function () {
                 Route::post('/', [SalesOrderController::class, 'store']);
+                Route::group(['prefix' => 'stock'], function () {
+                    Route::get('skus', [StockController::class, 'getAllStocksIdAndSku']);
+                    Route::get('warehouses/{sku}/sku', [StockController::class, 'showWarehouseBySku']);
+                });
                 Route::get('all-sku', [SalesOrderController::class, 'findAllSku']);
                 Route::get('/{id}', [SalesOrderController::class, 'show']);
                 Route::get('/{sku}/sku', [SalesOrderController::class, 'getSku']);
