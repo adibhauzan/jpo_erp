@@ -11,24 +11,30 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\ValidationTokenUpdate;
 use Illuminate\Support\Facades\Validator;
 use App\Repositories\Token\TokenRepositoryInterface;
+use App\Repositories\Inventory\Stock\StockRepositoryInterface;
 use App\Repositories\SalesOrder\SalesOrderRepositoryInterface;
 
 class SalesOrderController extends Controller
 {
     private $salesOrderRepository;
+    private $stockRepository;
     private $tokenRepository;
 
-
     /**
-     * Create a new salesOrderController instance.
+     * Create a new SalesOrderController instance.
      *
      * @param SalesOrderRepositoryInterface $salesOrderRepository
+     * @param StockRepositoryInterface $stockRepository
      * @param TokenRepositoryInterface $tokenRepository
      * @return void
      */
-    public function __construct(SalesOrderRepositoryInterface $salesOrderRepository, TokenRepositoryInterface $tokenRepository)
-    {
+    public function __construct(
+        SalesOrderRepositoryInterface $salesOrderRepository,
+        StockRepositoryInterface $stockRepository,
+        TokenRepositoryInterface $tokenRepository
+    ) {
         $this->salesOrderRepository = $salesOrderRepository;
+        $this->stockRepository = $stockRepository;
         $this->tokenRepository = $tokenRepository;
     }
 
@@ -36,7 +42,7 @@ class SalesOrderController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'sku' => 'required|string|exists:purchase_orders,sku',
+                'sku' => 'required|string|exists:stocks,sku',
                 'contact_id' => 'required|string|exists:contacts,id',
                 'warehouse_id' => 'required|string|exists:warehouses,id',
                 'broker' => 'nullable|string|exists:contacts,id',
@@ -53,18 +59,13 @@ class SalesOrderController extends Controller
             }
 
             $currentDate = now();
-
             $year = $currentDate->format('Y');
             $month = $currentDate->format('m');
             $day = $currentDate->format('d');
-
-            // Mengambil jumlah total entri dari tabel PurchaseOrder
             $totalOrders = SalesOrder::count();
-
-            // Nomor urutan adalah jumlah total entri ditambah 1
             $sequence = $totalOrders + 1;
             $no_do = 'INV/OUT/' . $year . '/' . $month . '/' . $day . '/' . $sequence;
-            $no_so = 'SO' . str_pad($sequence, 5, '0', STR_PAD_LEFT); // Perbaikan 4: Nomor SO menggunakan timestamp
+            $no_so = 'SO' . str_pad($sequence, 5, '0', STR_PAD_LEFT);
 
             $data = [
                 'sku' => $request->input('sku'),
