@@ -2,61 +2,69 @@
 
 namespace App\Repositories\SalesOrder;
 
+use App\Models\Stock;
+use App\Models\Token;
 use Ramsey\Uuid\Uuid;
 use App\Models\Invoice;
 use App\Models\Commision;
 use App\Models\Warehouse;
 use App\Models\SalesOrder;
 use App\Models\PurchaseOrder;
-use App\Models\Token;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Repositories\Inventory\Stock\StockRepositoryInterface;
 use App\Repositories\SalesOrder\SalesOrderRepositoryInterface;
 
 class EloquentSalesOrderRepository implements SalesOrderRepositoryInterface
 {
+    protected $stockRepository;
+
+    public function __construct(StockRepositoryInterface $stockRepository)
+    {
+        $this->stockRepository = $stockRepository;
+    }
+
     public function create(array $data)
     {
-        // Mengambil data purchase order berdasarkan SKU
         $purchaseOrderData = PurchaseOrder::where('sku', $data['sku'])->first();
 
         // Jika tidak ada data purchase order, throw exception
         if (!$purchaseOrderData) {
             throw new \Exception("Data purchase order tidak ditemukan.");
         }
+        // Mendapatkan data stok berdasarkan SKU dan warehouse yang dipilih
+        $stockData = Stock::where('sku', $data['sku'])
+            ->where('warehouse_id', $data['warehouse_id'])
+            ->first();
 
+        if (!$stockData) {
+            throw new \Exception("Stok tidak ditemukan di warehouse yang dipilih.");
+        }
 
-        // Mengurangi stok purchase order berdasarkan SKU dalam satu transaksi
-        $salesOrder = DB::transaction(function () use ($purchaseOrderData, $data) {
+        // Validasi stok yang diminta tidak boleh lebih dari stok yang tersedia
+        if (
+            $data['stock_roll'] > $stockData->stock_roll ||
+            $data['stock_kg'] > $stockData->stock_kg ||
+            $data['stock_rib'] > $stockData->stock_rib
+        ) {
+            throw new \Exception("Stok yang diminta melebihi stok yang tersedia.");
+        }
 
-            // Validasi agar contact_id dan broker tidak sama
-            if ($data['contact_id'] == $data['broker']) { // Perbaikan 1: Menggunakan operator perbandingan
+        // Buat sales order dalam transaksi
+        $salesOrder = DB::transaction(function () use ($stockData, $data, $purchaseOrderData) {
+            // Validasi contact_id dan broker tidak boleh sama
+            if ($data['contact_id'] == $data['broker']) {
                 throw new \Exception("Contact dan broker tidak boleh sama.");
             }
 
+            // Kurangi stok yang ada
+            $stockData->stock_roll -= $data['stock_roll'];
+            $stockData->stock_kg -= $data['stock_kg'];
+            $stockData->stock_rib -= $data['stock_rib'];
+            $stockData->save();
 
-            if (
-                $data['stock_roll'] > $purchaseOrderData->stock_roll_rev &&
-                $data['stock_kg'] > $purchaseOrderData->stock_kg_rev &&
-                $data['stock_rib'] > $purchaseOrderData->stock_rib_rev
-            ) {
-                throw new \Exception("Stok yang diminta melebihi stok yang tersedia dalam purchase order.");
-            } else if ($data['stock_roll'] > $purchaseOrderData->stock_roll_rev) {
-                throw new \Exception("stok_roll yang diminta melebihi stok_roll yang tersedia dalam Stock.");
-            } else if ($data['stock_kg'] > $purchaseOrderData->stock_kg_rev) {
-                throw new \Exception("stok_kg yang diminta melebihi stok_kg yang tersedia dalam Stock.");
-            } else if ($data['stock_rib'] > $purchaseOrderData->stock_rib_rev) {
-                throw new \Exception("stock_rib yang diminta melebihi stock_rib yang tersedia dalam Stock.");
-            }
-            $purchaseOrderData->stock_roll_rev -= $data['stock_roll'];
-            $purchaseOrderData->stock_kg_rev -= $data['stock_kg'];
-            $purchaseOrderData->stock_rib_rev -= $data['stock_rib'];
-            $purchaseOrderData->save();
-
-
-            $isBroker = ($data['broker'] != null && $data['broker_fee'] != null) ? 1 : 0;
-            // Membuat sales order baru dengan menggunakan data yang diperoleh
+            // Buat sales order baru
             $salesOrder = SalesOrder::create([
                 'sku' => $data['sku'],
                 'no_so' => $data['no_so'],
@@ -80,16 +88,13 @@ class EloquentSalesOrderRepository implements SalesOrderRepositoryInterface
                 'warehouse_id' => $data['warehouse_id'],
             ]);
 
-            // Membuat invoice baru
+            // Buat invoice baru
             $uuid = Uuid::uuid4()->toString();
             $currentDate = now();
-
             $year = $currentDate->format('Y');
             $month = $currentDate->format('m');
             $day = $currentDate->format('d');
-
             $totalOrders = Invoice::count();
-
             $sequence = $totalOrders + 1;
             $no_invoice = 'INVOICE/' . $year . '/' . $month . '/' . $day . '/' . $sequence;
             $no_commision = 'COMMISIONS/' . $year . '/' . $month . '/' . $day . '/' . $sequence;
@@ -99,29 +104,28 @@ class EloquentSalesOrderRepository implements SalesOrderRepositoryInterface
                 'no_invoice' => $no_invoice,
                 'warehouse_id' => $salesOrder->warehouse_id,
                 'contact_id' => $salesOrder->contact_id,
-                'bank_id' => $salesOrder->bank_id,
                 'sku' => $salesOrder->sku,
                 'nama_barang' => $salesOrder->nama_barang,
+                'ketebalan' => $purchaseOrderData->ketebalan,
+                'setting' => $purchaseOrderData->setting,
+                'gramasi' => $purchaseOrderData->gramasi,
                 'sell_price' => $salesOrder->price,
-                'ketebalan' => $salesOrder->ketebalan,
-                'setting' => $salesOrder->setting,
-                'gramasi' => $salesOrder->gramasi,
                 'stock_roll' => $salesOrder->stock_roll,
                 'stock_kg' => $salesOrder->stock_kg,
                 'stock_rib' => $salesOrder->stock_rib,
                 'paid_price' => 0,
-                'is_broker' => $isBroker,
+                'is_broker' => $salesOrder->broker != null ? 1 : 0,
                 'broker' => $salesOrder->broker,
                 'broker_fee' => $salesOrder->broker_fee,
                 'paid_status' => 'unpaid',
                 'created_at' => $currentDate,
                 'updated_at' => $currentDate
             ];
-
             Invoice::create($invoiceData);
 
-            if ($isBroker) {
-                $commision = Commision::create([
+            // Buat komisi broker jika ada
+            if ($salesOrder->broker != null) {
+                Commision::create([
                     'no_commision' => $no_commision,
                     'ref_dokumen_id' => $invoiceData['no_invoice'],
                     'broker' => $data['broker'],
